@@ -1,0 +1,37 @@
+{
+  "notes": [
+    "InvoiceMe (MERN). See OPTIMIZATION_PLAN.md §6.1. There is no test suite: NODEAPI's test script is a stub (D8).",
+    "fast mirrors CI's quick steps: FRONTEND lint, NODEAPI syntax check, and CI's 'Load API app' step (app.js must load all routes, controllers and models without opening a DB connection).",
+    "full adds the FRONTEND build, matching CI's 'Frontend build' and 'API smoke test' jobs.",
+    "api-load is a named check a plan can use as an automated observable (F14).",
+    "The default branch is master, not main."
+  ],
+  "defaultBranch": "master",
+  "checks": {
+    "fast": [
+      { "run": ["npm", "run", "lint"], "cwd": "FRONTEND", "timeoutSec": 120 },
+      { "run": ["node", "--check", "server.js"], "cwd": "NODEAPI", "timeoutSec": 30 },
+      { "run": ["node", "-e", "require('./app'); if (require('mongoose').connection.readyState) { console.error('app.js opened a DB connection'); process.exit(1) } console.log('API app loaded OK')"], "cwd": "NODEAPI", "timeoutSec": 60 }
+    ],
+    "full": [
+      { "run": ["npm", "run", "lint"], "cwd": "FRONTEND", "timeoutSec": 120 },
+      { "run": ["node", "--check", "server.js"], "cwd": "NODEAPI", "timeoutSec": 30 },
+      { "run": ["node", "-e", "require('./app'); if (require('mongoose').connection.readyState) { console.error('app.js opened a DB connection'); process.exit(1) } console.log('API app loaded OK')"], "cwd": "NODEAPI", "timeoutSec": 60 },
+      { "run": ["npm", "run", "build"], "cwd": "FRONTEND", "timeoutSec": 300 }
+    ],
+    "api-load": [
+      { "run": ["node", "-e", "require('./app'); if (require('mongoose').connection.readyState) { console.error('app.js opened a DB connection'); process.exit(1) } console.log('API app loaded OK')"], "cwd": "NODEAPI", "timeoutSec": 60 }
+    ]
+  },
+  "requiredCiChecks": ["Frontend build (Node 22.x)", "Frontend build (Node 24.x)", "API smoke test (Node 22.x)", "API smoke test (Node 24.x)"],
+  "fileTools": {
+    "FRONTEND/src/**/*.{js,jsx}": { "lint": { "run": ["npx", "eslint", "--max-warnings", "0", "{file}"], "cwd": "FRONTEND", "timeoutSec": 60 } },
+    "NODEAPI/{app,server}.js": { "lint": { "run": ["node", "--check", "{file}"], "timeoutSec": 30 } },
+    "NODEAPI/{controllers,middlewares,models,routes,utils}/**/*.js": { "lint": { "run": ["node", "--check", "{file}"], "timeoutSec": 30 } }
+  },
+  "docs": ["Docs/**/*.md", "NODEAPI/API_DOCUMENTATION.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docmap": {
+    "NODEAPI/routes/**": ["NODEAPI/API_DOCUMENTATION.md"],
+    "NODEAPI/controllers/**": ["NODEAPI/API_DOCUMENTATION.md"]
+  }
+}

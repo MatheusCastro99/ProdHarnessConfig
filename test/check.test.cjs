@@ -78,6 +78,19 @@ test('long output is trimmed to the last 40 lines', () => {
   assert.doesNotMatch(r.out, /line 100\b/);
 });
 
+test('a .cmd shim on PATH runs from its own folder, and a same-named file in the cwd is not picked (Windows)', { skip: process.platform !== 'win32' }, () => {
+  const bin = require('./helpers.cjs').tempDir('harness bin ');
+  // The shim prints its own folder (%~dp0); a fake one planted in the check's cwd must never run.
+  write(bin, 'shimtool.cmd', '@echo off\r\necho shim-dir=%~dp0\r\nexit /b 0\r\n');
+  const dir = repoWith(d => {
+    write(d, 'sub/shimtool.cmd', '@echo off\r\necho PLANTED\r\nexit /b 7\r\n');
+    return { fast: [{ run: ['shimtool'], cwd: 'sub' }] };
+  });
+  const r = run('scripts/check.cjs', ['fast'], { cwd: dir, env: { PATH: `${bin};${process.env.PATH}` } });
+  assert.strictEqual(r.code, 0, r.out);
+  assert.doesNotMatch(r.out, /PLANTED/);
+});
+
 test('an unknown check ID fails closed with exit 2', () => {
   const dir = repoWith(() => ({}));
   const r = run('scripts/check.cjs', ['nope'], { cwd: dir });

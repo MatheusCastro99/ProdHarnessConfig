@@ -66,7 +66,7 @@ Targets: Standard median ≤ $7.49; every block ≤ 200k context; no more major 
 
 ## 1. Why this exists
 
-The study repo, [HarnessConfigAndWorkflow](https://github.com/MatheusCastro99/HarnessConfigAndWorkflow), ended its validation run (#28) with two major owner findings:
+The study repo, [HarnessEngineering101](https://github.com/MatheusCastro99/HarnessEngineering101) (named HarnessConfigAndWorkflow until its #32), ended its validation run (#28) with two major owner findings:
 
 - **O8:** the 12-stage workflow is good but clunky. It has 7 approval gates.
 - **O9:** token usage is too high. One session per issue is not sustainable.
@@ -816,7 +816,34 @@ Session transcripts contain personal data such as the email address, so run reco
 
 The 2026-10-22 changes come from the meta-review of four independent assessments ([research/03-assessment-review.md](research/03-assessment-review.md)). The findings applied without a new decision, because they add to or specify existing ones: F1, F3, F4, F5, F7–F14 and F16. They are referenced by F-number where they appear.
 
-## 10. Open questions
+## 10. Implementation status
+
+**As of 2026-10-22, built and tested in this repo. Not yet installed in any project.**
+
+| Built | Where | Tests |
+|---|---|---|
+| Shared library; S1 `stale-docs`, S2 `close`, S3 `handoff-check`, S5 `check` | `harness/.claude/lib/`, `harness/.claude/scripts/` | `npm test` |
+| Hooks H1–H5 | `harness/.claude/hooks/` | `npm test` |
+| `settings.json`, `CLAUDE.md` template, skills `scope` / `build` / `review` / `close`, agents `red-team` / `surveyor` | `harness/.claude/` | `test/config.test.cjs`: wiring, decisions, §5.2 budgets |
+| `harness.json` per project | `projects/BabyBuddyHelper/`, `projects/InvoiceMe/` | Their real `fast` and `full` checks pass through S5 on the owner's machine (2026-10-22) |
+
+**Where the build differs from the text above, and why:**
+
+- **Check commands are argv objects** (`{ "run": [...], "cwd": ... }`), not shell strings. They run without a shell on macOS and Linux.
+  - Windows can't run `.cmd` shims such as `npm` without one, so there each argument is quoted for `cmd`, and arguments it can't quote safely are refused.
+  - On Windows the program is resolved through `PATH` and `PATHEXT` to an absolute path. That fixes a shim bug: invoked by a quoted bare name, a shim's `%~dp0` points at the wrong folder. It also means a repo can't plant a same-named program in the check's folder.
+- **Scripts use `.cjs`,** so a repo whose `package.json` sets `"type": "module"` can't break them. InvoiceMe's `FRONTEND` does.
+- **D6 in practice:** synced plugins are switched off with `"<name>@synced": false`. `dataviz` is a claude.ai-synced *skill*, not a plugin; only user or local settings (`syncClaudeAiSkills`) can remove it, so the project file doesn't.
+- **H3 has no `if` filter.** Configured commands differ per project, so it inspects every Bash call and acts only on an exact match. A command with a configured `cwd` matches only when typed with its `cd`.
+- **The approved plan is posted to the issue by the `build` skill**, at the start of Block B, not at G1. Approval clears the context before Block A could post it.
+
+**Next:**
+
+1. Adopt the harness in each project. This means migrating the study-era harness each repo still carries (BabyBuddyHelper `docs/ai/`, InvoiceMe `Harness_Config/`, and their `.claude/` agents and skills) under D5.
+2. Fill in `CLAUDE.md`.
+3. Run V0 (§8.5).
+
+## 11. Open questions
 
 - How do subscription plan limits weigh cache reads? Observe with `/usage` attribution.
 - #16's onboarding run can't be priced: only its orchestration session is on record (2c185155, $14.00), not the run itself.

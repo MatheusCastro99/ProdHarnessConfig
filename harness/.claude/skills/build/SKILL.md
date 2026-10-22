@@ -1,0 +1,80 @@
+---
+name: build
+description: Block B of the harness workflow. Implements an approved plan sub-phase by sub-phase, then pushes a draft PR and writes the handoff. Use only when an approved plan in .claude/work/<issue>/plan.md says to invoke it.
+argument-hint: <issue-number>
+---
+
+# Build: Block B (autonomous)
+
+The plan in `.claude/work/<n>/plan.md` is your scope and your only inherited context. Find `<n>` from the arguments (`$ARGUMENTS`), from the session-state line, or from the single plan under `.claude/work/`. Read the plan in full before anything else.
+
+## Start
+
+1. If `.claude/work/<n>/BLOCKED` exists, stop and tell the owner. Don't work around it.
+2. **Post the approved plan to the issue**, once: `gh issue comment <n> --body-file .claude/work/<n>/plan.md`. Save the comment URL in `.claude/work/<n>/plan-comment.txt`. Skip this if that file exists.
+3. **Branch:** if you're on the default branch, update it and create `<type>/<n>-<short-name>` (`feat`, `fix`, `docs`, `chore`).
+
+## For each sub-phase, in order
+
+1. **Implement** what the plan says.
+   - Keep to its "Invariants to preserve".
+   - Don't re-explore its "Rejected approaches".
+   - The file-check hook lints each edit; fix what it reports.
+2. **Need to read code the plan didn't cover?** Brief the `surveyor` with one **Read** question, at most once per sub-phase, rather than reading broadly yourself.
+3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
+4. **Docs:**
+   - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
+   - Update each candidate doc that is now wrong, in this same commit.
+   - For a doc that is still accurate, add `ack: <doc> — <why>` to `.claude/work/<n>/stale-docs.md`.
+   - Also check the docs the plan listed: the script can't see drift that names no path.
+5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate blocks a commit while a flagged doc is neither updated nor acknowledged.
+
+The Stop gate won't let you stop while fast checks fail. After 3 failures it writes `BLOCKED`. Then:
+
+- write the handoff with `Status: BLOCKED` (below)
+- don't push and don't open a PR
+- stop
+
+## Stop and ask (Working Agreements rule 5)
+
+Anything the plan doesn't cover stops the work: a behaviour change, a new dependency, a scope change, or breaking a Small tier's criteria. Ask the owner and wait. A scope change goes into the issue before it goes into the code.
+
+## Exit (only without BLOCKED)
+
+1. Run `node .claude/scripts/check.cjs full`. Fix what fails.
+2. Push: `git push -u origin <branch>`. Open a **draft** PR: `gh pr create --draft --title "<summary> (#<n>)" --body "Closes #<n>. Plan: <plan comment URL>"`.
+3. **Bind the handoff to one commit:**
+   - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
+   - If a check fails, fix it, run `full` again, push, and wait again.
+   - When CI passes, record `gh pr view <pr> --json headRefOid`.
+4. **If PR monitoring (Auto-fix) is on for this session, turn it off now,** so nothing pushes after the handoff.
+5. **Standard tier:**
+   - Write `.claude/work/<n>/handoff.md` in exactly this shape. Every section is filled in or says "none":
+
+     ```markdown
+     # Handoff: #<n> → Review
+     Status: READY | BLOCKED
+     Plan: .claude/work/<n>/plan.md (issue comment: <url>) · Branch: <branch> · PR: <url> (draft)
+     PR head: <sha> · CI on that head: pass | fail | none
+     ## Commits
+     ## Checks
+     <check id> → pass/fail, with counts
+     Not verifiable here: <what no check covers> (or "none")
+     ## Deviations from the plan
+     ## Decisions made inside the plan's latitude
+     ## Docs
+     Updated: <files>. Script-flagged but left unchanged: <doc — why> (copy the acks)
+     ## Open questions for G2
+     ## Known gaps / risks
+     ```
+
+   - Validate it with `node .claude/scripts/handoff-check.cjs .claude/work/<n>/handoff.md --verify-head`, and fix it until it passes.
+   - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
+   - Tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`. Stop.
+6. **Small tier:** no handoff file. Continue in this session with the `review` skill.
+
+## Never
+
+- Never push to the default branch, force-push, or merge.
+- Never edit the hooks, the check scripts or `harness.json` to make a check pass.
+- Never push or open a PR while `BLOCKED` exists.

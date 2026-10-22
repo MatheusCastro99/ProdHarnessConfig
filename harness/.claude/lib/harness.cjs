@@ -61,8 +61,9 @@ function validateConfig(cfg) {
   return cfg;
 }
 
+// HARNESS_CONFIG points at a config outside the repo, so a project's checks can be tried before installing.
 function loadConfig(root) {
-  const file = path.join(root, '.claude', 'harness.json');
+  const file = process.env.HARNESS_CONFIG ? path.resolve(process.env.HARNESS_CONFIG) : path.join(root, '.claude', 'harness.json');
   let text;
   try { text = fs.readFileSync(file, 'utf8'); } catch { throw new HarnessError(`missing ${path.relative(root, file)}`); }
   let cfg;
@@ -90,6 +91,22 @@ function quoteForCmd(arg) {
   return `"${arg}"`;
 }
 
+// Resolves a bare program name through PATH and PATHEXT to an absolute path, as cmd would but without
+// searching the current folder first (a repo can't plant an npm.cmd), and so a .cmd shim sees its real
+// location: invoked by a quoted bare name, a shim's %~dp0 points at the current folder instead.
+function resolveWindowsProgram(name) {
+  if (/[\\/]/.test(name) || path.isAbsolute(name)) return name;
+  const exts = (process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean);
+  const hasExt = exts.some(e => name.toLowerCase().endsWith(e.toLowerCase()));
+  for (const dir of (process.env.PATH || process.env.Path || '').split(path.delimiter).filter(Boolean)) {
+    for (const ext of hasExt ? [''] : exts) {
+      const candidate = path.join(dir, name + ext);
+      try { if (fs.statSync(candidate).isFile()) return candidate; } catch { /* keep looking */ }
+    }
+  }
+  return name; // not found: let cmd report it
+}
+
 function killTree(child) {
   if (process.platform === 'win32') {
     try { execFileSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' }); } catch { /* already gone */ }
@@ -105,7 +122,7 @@ function runArgv(argv, { cwd, timeoutSec = 300 } = {}) {
     let child;
     try {
       child = process.platform === 'win32'
-        ? spawn(argv.map(quoteForCmd).join(' '), { cwd, shell: true, windowsHide: true })
+        ? spawn([resolveWindowsProgram(argv[0]), ...argv.slice(1)].map(quoteForCmd).join(' '), { cwd, shell: true, windowsHide: true })
         : spawn(argv[0], argv.slice(1), { cwd, detached: true });
     } catch (e) {
       return resolve({ code: 127, output: String(e.message || e), timedOut: false, ms: 0 });

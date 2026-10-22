@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "opusplan",
+  "effortLevel": "high",
+  "showClearContextOnPlanAccept": true,
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "enabledPlugins": {
+    "marketing@synced": false,
+    "figma@synced": false,
+    "design@synced": false,
+    "productivity@synced": false,
+    "pdf-viewer@synced": false
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node .claude/scripts/check.cjs *)",
+      "Bash(node .claude/scripts/stale-docs.cjs *)",
+      "Bash(node .claude/scripts/handoff-check.cjs *)",
+      "Bash(node .claude/scripts/close.cjs *)",
+      "Bash(git push origin *)",
+      "Bash(git push -u origin *)",
+      "Bash(gh pr create --draft *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue comment *)"
+    ],
+    "deny": [
+      "Bash(git push * main)",
+      "Bash(git push * master)",
+      "Bash(git push *:main)",
+      "Bash(git push *:master)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push --force-with-lease *)",
+      "Bash(gh pr merge *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/file-check.cjs"], "timeout": 90 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/check-gate.cjs"], "timeout": 420 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "if": "Bash(git commit *)", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/docs-gate.cjs"], "timeout": 30 },
+          { "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/quiet.cjs"], "timeout": 10 }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|clear",
+        "hooks": [
+          { "type": "command", "command": "node", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session-state.cjs"], "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
