@@ -371,7 +371,7 @@ Two cautions from the docs:
 ### 1. <name>
 - Files: …
 - Change: …
-- Check: <check-runner ID, or an automated observable; manual only with a reason>
+- Check: check <id> | <automated observable> | manual — <why it can't be automated>
 ## Rejected approaches
 - <considered in Block A, and why not>  (Block B must not re-explore these)
 ## Invariants to preserve
