@@ -60,6 +60,7 @@ The rules from OPTIMIZATION_PLAN.md §5.3, applied file by file:
 | `Docs/PRD.md`, `Project_Roadmap.md`, `README.md` links to `Harness_Config/` | Each link checked; links to retired files (`AI_CONTEXT.md`, `Development_Workflow.md`, `Working_Agreements.md`, `Current_Focus.md`) updated or removed | S1 flags them |
 | `.claude/agents/*`, `.claude/skills/*` | Historian retired; red-team replaced, with `skills: [guardrails-review]` added (A3); `guardrails-review` and `ux-design` kept and tracked (A1, A3, A4) | |
 | `.gitignore` lines 142–147 | `.claude/agents/`, `.claude/skills/`, `.claude/stale-docs.md`, `.claude/onboarding-follow-up.md` removed (A1, A5); `.claude/work/` added; `.claude/settings.local.json` kept | |
+| `.gitignore` line 17, `lib/` (a generic rule) | **Kept, plus `!.claude/lib/`.** Without it, the generic rule silently hides `.claude/lib/harness.cjs`, and a clone's hooks would call a library that was never committed. Found by the installer's dry run, 2026-10-22. | A1 |
 | `.claude/onboarding-follow-up.md` | Its 9 questions and 18 notes become **one GitHub issue with a checklist**, confirmed before posting, with security-sensitive items reported to the owner directly instead. Then the file is deleted (A5) | They are owner work, not session state |
 | `.claude/stale-docs.md` | **Deleted**; it is an empty template, replaced by `.claude/work/<n>/stale-docs.md` | |
 
@@ -75,7 +76,9 @@ The rules from OPTIMIZATION_PLAN.md §5.3, applied file by file:
 - **Per-project agent additions (A3).** `projects/<project>/install.json` lists the skills the red-team preloads, such as `{ "redTeamSkills": ["review-guardrails"] }`. The installer writes them into the installed `red-team.md` frontmatter, and the manifest records the result.
 - Tests in `test/install.test.cjs` cover the dry run, apply, an upgrade, a refused local edit, conflicts, and the red-team skills.
 
-**Harness changes needed first** (built and tested in this repo before either adoption PR):
+**Harness changes needed first** (built and tested in this repo before either adoption PR). **Done 2026-10-22:** `scripts/install.cjs` with `test/install.test.cjs`; `reviewOnReady` in the config, the `review` skill and BabyBuddyHelper's `harness.json`; `projects/*/install.json`.
+
+**Dry runs against both repos (2026-10-22), nothing written.** Each shows 17 files to add and **1 conflict**: today's `.claude/agents/red-team.md`, to be replaced with `--replace` in commit 1. The `.gitignore` findings match §2, plus InvoiceMe's `lib/` rule.
 
 1. **`install.cjs` and its tests**, as above.
 2. **A6, the ready-for-review reviewer.** An optional `harness.json` field `reviewOnReady` names a CI workflow that reviews when a PR is marked ready (BabyBuddyHelper: `claude-code-review.yml`). After `gh pr ready`, the `review` skill waits for that run and triages its comments:

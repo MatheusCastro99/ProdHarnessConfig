@@ -64,6 +64,12 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 4. **Reply to each review comment** with its fix or the reason it was declined, as the owner decided at G2.
 5. **Ready to merge.**
    - Mark the PR ready: `gh pr ready <pr>`.
+   - **If `.claude/harness.json` has `reviewOnReady`**, a CI reviewer runs now, after G2:
+     - Find its run: `gh run list --workflow <workflow> --branch <branch> -L 1`.
+     - Wait for it, up to `timeoutMin` (default 15): `gh run watch <id>`.
+     - Read the comments it left on the PR since the run started, and triage them as in step 3.
+     - A blocking or fix-worthy comment goes back to the owner as a short **G2 addendum**, and nothing is marked ready to merge until the owner decides. The rest are noted in the ready-to-merge note.
+     - If the run times out or fails, say so in the note. It isn't a required check.
    - Post the note: "ready to merge at `<sha>`. Reviewed SHA = PR head = the SHA CI passed on."
    - If the branch is behind the base, say so. Updating it creates a new head, which needs CI and a re-review again.
    - **The owner merges.** Then the owner runs `/close <n>`.

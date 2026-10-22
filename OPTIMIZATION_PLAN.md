@@ -826,6 +826,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 | Hooks H1–H5 | `harness/.claude/hooks/` | `npm test` |
 | `settings.json`, `CLAUDE.md` template, skills `scope` / `build` / `review` / `close`, agents `red-team` / `surveyor` | `harness/.claude/` | `test/config.test.cjs`: wiring, decisions, §5.2 budgets |
 | `harness.json` per project | `projects/BabyBuddyHelper/`, `projects/InvoiceMe/` | Their real `fast` and `full` checks pass through S5 on the owner's machine (2026-10-22) |
+| Installer, with per-project `install.json`; `reviewOnReady` (A6) | `scripts/install.cjs`, `projects/*/install.json` | `test/install.test.cjs`; dry runs against both repos ([ADOPTION_PLAN.md](ADOPTION_PLAN.md) §3) |
 
 **Where the build differs from the text above, and why:**
 

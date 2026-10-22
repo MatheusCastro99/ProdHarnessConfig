@@ -60,6 +60,17 @@ test('project harness.json files are valid and name their required CI checks', (
   }
 });
 
+test('reviewOnReady is validated (A6)', () => {
+  const base = { defaultBranch: 'main', checks: { fast: [], full: [] } };
+  assert.doesNotThrow(() => validateConfig({ ...base, reviewOnReady: { workflow: 'claude-code-review.yml', timeoutMin: 15 } }));
+  assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: '../evil.sh' } }), /reviewOnReady/);
+  assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: 'r.yml', timeoutMin: 0 } }), /timeoutMin/);
+  const bbh = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8'));
+  assert.strictEqual(bbh.reviewOnReady.workflow, 'claude-code-review.yml');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper', '.github', 'workflows', bbh.reviewOnReady.workflow)) ||
+    !fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper')), 'the workflow exists in the local clone, when there is one');
+});
+
 test('CLAUDE.md template is within the 3k-token budget (§5.2)', () => {
   const t = tokens(read('CLAUDE.md'));
   assert.ok(t <= 3000, `CLAUDE.md ≈ ${t} tokens`);

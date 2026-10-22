@@ -3,6 +3,7 @@
     "BabyBuddyHelper (.NET MAUI). See OPTIMIZATION_PLAN.md §6.1.",
     "fast: the xUnit project compiles Core/**/*.cs directly, so it needs no MAUI workload and runs in seconds.",
     "full: CI's test matrix (Debug and Release). The MAUI build is not run here: CI's build.yml runs it on every PR and it is a required check (D9).",
+    "reviewOnReady: claude-code-review.yml runs once, on ready_for_review (A6); the review skill waits for it and triages its comments.",
     "fileTools is empty on purpose: there is no per-file C# linter in the repo; the tests and CI's build catch compile errors.",
     "docmap is empty until concept links that no path reveals are known."
   ],
@@ -17,6 +18,7 @@
     ]
   },
   "requiredCiChecks": ["build", "test (Debug)", "test (Release)"],
+  "reviewOnReady": { "workflow": "claude-code-review.yml", "timeoutMin": 15 },
   "fileTools": {},
   "docs": ["docs/**/*.md", "Harness_Config/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
   "docmap": {}
