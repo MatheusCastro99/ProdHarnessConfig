@@ -60,7 +60,7 @@ Most of what remains is the ~80k global overhead that each block's session loads
 
 Targets: Standard median ≤ $7.49; every block ≤ 200k context; no more major red-team findings; red-team catches the seeded defects; zero bugs escaping to after merge. A 3-issue pilot is **preliminary evidence**, not proof.
 
-**Before implementation**, the owner sets up branch protection with required CI checks on each adopting repository (§6.3 checklist).
+**Before implementation**, the owner sets up branch protection with required CI checks on each adopting repository (§6.3 checklist). **Done 2026-10-22** for BabyBuddyHelper and InvoiceMe.
 
 ---
 
@@ -451,7 +451,7 @@ What the source projects actually run (their CI):
 
 | | Fast check (Stop gate) | Full check (before push) |
 |---|---|---|
-| **InvoiceMe** | `npm run lint` in `FRONTEND`; `node --check server.js` in `NODEAPI`. **No test suite exists**: the `NODEAPI` `test` script is a stub that exits 1. | the fast checks plus `npm run build` in `FRONTEND`, the same as CI |
+| **InvoiceMe** | `npm run lint` in `FRONTEND`; `node --check server.js` and the **app-load check** in `NODEAPI`. The app-load check is CI's "Load API app" step: it `require`s `app.js`, which composes routes, controllers, models and middleware, and fails if a DB connection opens. **No test suite exists**: the `NODEAPI` `test` script is a stub that exits 1. | the fast checks plus `npm run build` in `FRONTEND`, the same as CI's `Frontend build` and `API smoke test` jobs |
 | **BabyBuddyHelper** | `dotnet test --project test/BabyBuddyHelper.Tests/...` (net10.0, no MAUI workload) | the same tests. The MAUI build (`dotnet build BabyBuddyHelper.csproj -f net10.0-windows10.0.19041.0`) is **not run by the harness**. CI's `build.yml` runs it on every `pull_request`, and it is a **required status check** (D9 amended, F8). |
 
 Three things follow from this:
@@ -496,6 +496,24 @@ The [permissions docs](https://code.claude.com/docs/en/permissions) warn that Ba
    - [ ] Decide on bypass, and write it down. The owner is an admin, so "do not allow bypassing" must be set explicitly if admins should be held to it too.
 
    V0 proves each item: a failing required check blocks the merge, a missing one blocks the merge, and a force push is refused.
+
+   **Done 2026-10-22.** The owner created a ruleset `RequiredCIChecks` on both repositories. I read both back through the API, and they meet every checklist item:
+
+   | | BabyBuddyHelper | InvoiceMe |
+   |---|---|---|
+   | Target | `~DEFAULT_BRANCH` (`main`) | `~DEFAULT_BRANCH` (`master`) |
+   | Pull request required | yes, 0 approvals (the owner's G2 decision is the approval) | yes, 0 approvals |
+   | Required checks (copy into `requiredCiChecks`) | `build`, `test (Debug)`, `test (Release)` | `Frontend build (Node 22.x)`, `Frontend build (Node 24.x)`, `API smoke test (Node 22.x)`, `API smoke test (Node 24.x)` |
+   | Force push / deletion | blocked / blocked | blocked / blocked |
+   | Bypass actors | none, so admins are held too | none |
+   | Branch must be up to date with the base | yes (set 2026-10-22) | yes (set 2026-10-22) |
+
+   - Every required check name matches a GitHub Actions check run on the current default-branch head. A misspelled name would block every merge.
+   - CodeQL's `Analyze (…)` runs aren't required; that is fine.
+   - Targeting `~DEFAULT_BRANCH` covers InvoiceMe's `master` without a hard-coded name.
+   - `strict_required_status_checks_policy` is **on**: a PR must be up to date with the base before merging, so the CI result always includes the latest base. This complements F3's binding to the PR head.
+     - Updating the branch creates a new head. A head that moves after review makes the reviewed SHA stale, and F3 then requires CI and the narrow re-review on the new SHA.
+     - Updating the branch is an owner action at merge time; Block C doesn't do it.
 2. **The auto-mode classifier.** It already blocks force pushes and merging a PR that no human approved.
 3. **Rules in `.claude/settings.json`:**
    - `allow`: `Bash(git push origin *)`, `Bash(git push -u origin *)`, `Bash(gh pr create --draft *)`, `Bash(gh pr view *)`, `Bash(gh pr checks *)`, `Bash(gh issue comment *)`. The last is for the plan and handoff comments (amended D3).
@@ -802,7 +820,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 
 - How do subscription plan limits weigh cache reads? Observe with `/usage` attribution.
 - #16's onboarding run can't be priced: only its orchestration session is on record (2c185155, $14.00), not the run itself.
-- **Owner setup, outside the harness:** branch protection or a ruleset on the default branch of each adopting repository (§6.3, layer 1).
+- **Owner setup, outside the harness: done 2026-10-22** for BabyBuddyHelper and InvoiceMe (§6.3). The required check names wait to be copied into each repo's `harness.json` once it exists; V0 still has to prove the rules block a bad merge.
 - **Recorded, not scheduled:** a test suite for InvoiceMe (D8). Until it exists, Block B on InvoiceMe relies on lint, build and the plan's named checks.
 - **Check at implementation:** the default hook timeouts per event, and whether H3's `updatedInput` rewrite works with the `if` filter on Windows.
 - **Verify in V0 (§6.6):**
