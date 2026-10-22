@@ -839,7 +839,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 
 **Next:**
 
-1. Adopt the harness in each project. This means migrating the study-era harness each repo still carries (BabyBuddyHelper `docs/ai/`, InvoiceMe `Harness_Config/`, and their `.claude/` agents and skills) under D5.
+1. Adopt the harness in each project. This means migrating the study-era harness each repo still carries (BabyBuddyHelper `docs/ai/`, InvoiceMe `Harness_Config/`, and their `.claude/` agents and skills) under D5. **Planned in [ADOPTION_PLAN.md](ADOPTION_PLAN.md), with decisions A1–A7.**
 2. Fill in `CLAUDE.md`.
 3. Run V0 (§8.5).
 

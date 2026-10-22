@@ -18,6 +18,6 @@
   },
   "requiredCiChecks": ["build", "test (Debug)", "test (Release)"],
   "fileTools": {},
-  "docs": ["docs/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docs": ["docs/**/*.md", "Harness_Config/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
   "docmap": {}
 }
