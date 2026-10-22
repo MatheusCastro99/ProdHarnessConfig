@@ -166,7 +166,49 @@ function globToRegExp(glob) {
 const toPosix = p => p.split(path.sep).join('/');
 const matchesGlob = (file, glob) => globToRegExp(glob).test(toPosix(file));
 
+// --- work state ---------------------------------------------------------------------------
+
+// The issue being worked: the issue folder under .claude/work with the most recently changed plan.
+function activeIssue(root) {
+  const w = workDir(root);
+  if (!fs.existsSync(w)) return null;
+  let best = null;
+  for (const n of fs.readdirSync(w)) {
+    const plan = path.join(w, n, 'plan.md');
+    if (!/^\d+$/.test(n) || !fs.existsSync(plan)) continue;
+    const t = fs.statSync(plan).mtimeMs;
+    if (!best || t > best.t) best = { issue: n, t };
+  }
+  return best && best.issue;
+}
+
+// A hash of everything a check's result depends on (F12): the content of every tracked and untracked,
+// non-ignored file (staged or not, so deletions and renames count too), plus the check config and the
+// scripts that run it. Built in a throwaway index, so the real index is never touched.
+function fingerprint(root) {
+  const crypto = require('crypto');
+  const os = require('os');
+  const gitDir = execFileSync('git', ['rev-parse', '--absolute-git-dir'], { cwd: root, encoding: 'utf8' }).trim();
+  const tmpIndex = path.join(os.tmpdir(), `harness-index-${process.pid}-${Date.now()}`);
+  try {
+    if (fs.existsSync(path.join(gitDir, 'index'))) fs.copyFileSync(path.join(gitDir, 'index'), tmpIndex);
+    const env = { ...process.env, GIT_INDEX_FILE: tmpIndex };
+    // An exclude pathspec errors when it names an ignored directory, so add everything, then drop
+    // .claude/work from the throwaway index; this works whether or not the folder is gitignored.
+    execFileSync('git', ['add', '-A', '--', '.'], { cwd: root, env, stdio: 'ignore' });
+    execFileSync('git', ['rm', '-r', '-q', '--cached', '--ignore-unmatch', '--', '.claude/work'], { cwd: root, env, stdio: 'ignore' });
+    const tree = execFileSync('git', ['write-tree'], { cwd: root, env, encoding: 'utf8' }).trim();
+    const h = crypto.createHash('sha256').update(tree);
+    for (const f of ['.claude/harness.json', '.claude/lib/harness.cjs', '.claude/scripts/check.cjs', '.claude/hooks/check-gate.cjs']) {
+      try { h.update(f).update(fs.readFileSync(path.join(root, f))); } catch { h.update(`${f}:missing`); }
+    }
+    return h.digest('hex');
+  } finally {
+    try { fs.rmSync(tmpIndex, { force: true }); } catch { /* temp file */ }
+  }
+}
+
 module.exports = {
   HarnessError, tag, repoRoot, workDir, loadConfig, validateConfig, log,
-  runArgv, tail, readHookInput, globToRegExp, matchesGlob, toPosix,
+  runArgv, tail, readHookInput, globToRegExp, matchesGlob, toPosix, activeIssue, fingerprint,
 };

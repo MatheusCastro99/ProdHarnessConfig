@@ -469,15 +469,15 @@ Three things follow from this:
 | H1 | `PostToolUse` · `Edit\|Write` | `file-check` | Formats, then lints, the one edited file, using its `fileTools` entry. On lint errors, exits 2: the tool already ran, and the errors go back to Claude. | Silent, or ≤ 20 error lines |
 | H2 | `Stop` | `check-gate` | Skips if the fingerprint matches the last pass, stored in `.claude/work/.lastpass`; that makes it near-free in Blocks A and C and after a pass. Otherwise runs `checks.fast` through S5. On failure it returns `decision: "block"` with structured output: attempt n/3, the check ID, the exit code, the trimmed error. **After 3 consecutive failures it writes `BLOCKED`** (F5) and lets Claude stop. That limit is below Claude Code's own cap of 8, because each forced continuation is a full-context call. | Silent, or ≤ 40 lines |
 | H3 | `PreToolUse` · `Bash`, with an `if` filter on the configured test and build commands | `quiet` | **A fallback only (F7).** The skills run checks through S5. If Claude types a configured test command directly, H3 re-checks that the command exactly matches one in `harness.json` and only then rewrites it (`updatedInput`) through S5. Anything else passes through untouched. | Summary + failures |
-| H4 | `PreToolUse` · `Bash`, `if: Bash(git commit *)` | `stale-docs --staged --gate` | D2 enforcement. It re-checks that the command is a commit (F7). If the staged changes flag candidate docs that are neither staged nor acknowledged, the commit is denied, with the list as the reason (D10). | Silent, or the list |
+| H4 | `PreToolUse` · `Bash`, `if: Bash(git commit *)` | `docs-gate` (uses S1) | D2 enforcement. It re-checks that the command is a commit (F7). If the staged changes flag candidate docs that are neither staged nor acknowledged, the commit is denied, with the list as the reason (D10). | Silent, or the list |
 | H5 | `SessionStart` · `startup\|clear` | `session-state` | One line of state for fresh sessions and the clear-on-accept fallback (F4): "Plan for #N in progress → Block B", "Handoff for #N ready → run `/review`", or "#N is BLOCKED on <check> → owner decision". | ≤ 60 tokens |
 
 **The `.lastpass` fingerprint (F12).** It is a hash of:
 
-- the index (`git write-tree`), the tracked work-tree diff, and the untracked, non-ignored files with their contents
-- `harness.json`, and the versions of the hook and check scripts
+- the tree of the *whole working content*, built in a throwaway index: `git add -A`, minus `.claude/work`, then `git write-tree`. It covers tracked and untracked, non-ignored files, staged or not.
+- `harness.json`, and the hook and check scripts
 
-Any staged, unstaged, untracked, deleted or renamed change, or a change to the checks, invalidates the pass. Generated output that is gitignored doesn't count. If the fingerprint can't be computed, H2 runs the checks.
+Any content change invalidates the pass: an edit, a new file, a deletion, a rename, or a change to the checks. Staging or committing unchanged content doesn't, so checks aren't re-run for nothing. Generated output that is gitignored doesn't count. If the fingerprint can't be computed, H2 runs the checks.
 
 Not used, and why:
 
@@ -585,7 +585,7 @@ It prints a short report: PR state, PR head SHA, local SHA, and what it deleted 
   skills/{scope,build,review,close}/SKILL.md
   agents/red-team.md     model: opus, effort: high
   agents/surveyor.md     model: sonnet, effort: high, read-only tools
-  hooks/                 file-check, check-gate, quiet, session-state
+  hooks/                 file-check, check-gate, quiet, docs-gate, session-state
   scripts/               stale-docs, close, handoff-check, check
   work/                  gitignored; per-issue plan, handoff, stale-docs, BLOCKED; .lastpass; hooks.log (§8.3)
 ```
