@@ -23,7 +23,7 @@ function projects(extra = {}) {
 function target() {
   const dir = initRepo(tempDir('harness target '));
   write(dir, 'README.md', 'project\n');
-  write(dir, '.gitignore', '.claude/work/\n.claude/settings.local.json\n');
+  write(dir, '.gitignore', '.harness/work/\n.claude/settings.local.json\n');
   commitAll(dir, 'base');
   return dir;
 }
@@ -164,7 +164,7 @@ test('gitignore: reports rules that would hide the harness, and lines it needs',
   commitAll(dir, 'base');
   const r = install(dir);
   assert.match(r.out, /\.claude\/agents\/red-team\.md is ignored by "\.gitignore:1:\.claude\/agents"/);
-  assert.match(r.out, /gitignore: add "\.claude\/work\/"/);
+  assert.match(r.out, /gitignore: add "\.harness\/work\/"/);
   assert.match(r.out, /gitignore: add "\.claude\/settings\.local\.json"/);
 });
 

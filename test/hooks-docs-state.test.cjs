@@ -43,7 +43,7 @@ test('H4: the commit passes once the doc is acknowledged', () => {
   const dir = repo();
   write(dir, 'src/billing/Invoice.cs', 'v2');
   git(dir, 'add', '-A');
-  write(dir, '.claude/work/42/stale-docs.md', 'ack: Docs/Billing.md — only a private helper changed\n');
+  write(dir, '.harness/work/42/stale-docs.md', 'ack: Docs/Billing.md — only a private helper changed\n');
   assert.strictEqual(commit(dir, 'git commit -m x'), null);
 });
 
@@ -98,17 +98,17 @@ const session = (dir, source = 'startup') => {
 test('H5: reports a plan in progress, a ready handoff, and BLOCKED', () => {
   const dir = repo();
   assert.strictEqual(session(dir), '', 'no work: nothing printed');
-  write(dir, '.claude/work/42/plan.md', '# Plan');
+  write(dir, '.harness/work/42/plan.md', '# Plan');
   assert.match(session(dir), /Plan for #42 in progress/);
-  write(dir, '.claude/work/42/handoff.md', '# Handoff: #42\nStatus: READY\n');
+  write(dir, '.harness/work/42/handoff.md', '# Handoff: #42\nStatus: READY\n');
   assert.match(session(dir), /Handoff for #42 ready; the owner starts \/review/);
-  write(dir, '.claude/work/42/BLOCKED', 'check: fast\nexit: 1\n');
+  write(dir, '.harness/work/42/BLOCKED', 'check: fast\nexit: 1\n');
   assert.match(session(dir), /#42 is BLOCKED on fast → owner decision/);
 });
 
 test('H5: at startup it reports the plan and never tells the session to build; after /clear it hands on to Block B', () => {
   const dir = repo();
-  write(dir, '.claude/work/42/plan.md', '# Plan');
+  write(dir, '.harness/work/42/plan.md', '# Plan');
   const startup = session(dir, 'startup');
   assert.doesNotMatch(startup, /invoke/);
   assert.match(startup, /only when the owner asks/);

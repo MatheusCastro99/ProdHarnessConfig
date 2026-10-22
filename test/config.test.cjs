@@ -115,3 +115,15 @@ test('the handoff and plan templates in the skills pass handoff-check\'s own rul
     assert.ok(build.includes(`## ${s}`), `handoff template has ## ${s}`);
   assert.ok(typeof checkPlan === 'function');
 });
+
+test('working state lives in .harness/work/, outside .claude/ (V0, F-V0-1)', () => {
+  // Claude Code treats every file under .claude/ as sensitive: writes there are refused headless and prompt the
+  // owner each time in the app, even with an allow rule. The plan, acks and handoff are written there all the time.
+  const { workDir } = require(path.join(HARNESS, 'lib', 'harness.cjs'));
+  const root = path.resolve('repo');
+  assert.strictEqual(path.relative(root, workDir(root)), path.join('.harness', 'work'));
+  for (const skill of ['scope', 'build', 'review', 'close']) {
+    const text = fs.readFileSync(path.join(HARNESS, 'skills', skill, 'SKILL.md'), 'utf8');
+    assert.doesNotMatch(text, /\.claude\/work/, `${skill} still points at .claude/work`);
+  }
+});

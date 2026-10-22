@@ -64,7 +64,7 @@ function checkHandoff(root, cfg, text, { verifyHead }) {
   // F5: a BLOCKED handoff, or a BLOCKED marker on disk, is never reviewed.
   if (status === 'BLOCKED') throw new Refuse('Status is BLOCKED; the owner decides how to proceed (§4, Block B)');
   if (issue && fs.existsSync(path.join(workDir(root), issue, 'BLOCKED')))
-    throw new Refuse(`.claude/work/${issue}/BLOCKED exists; a READY handoff can't be reviewed while a check is failing`);
+    throw new Refuse(`.harness/work/${issue}/BLOCKED exists; a READY handoff can't be reviewed while a check is failing`);
 
   if (!pr) problems.push('missing "PR:"');
   if (!head) problems.push('missing "PR head: <sha>"');

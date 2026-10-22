@@ -43,7 +43,7 @@ function harnessRepo(config, branch = 'main') {
   const dir = initRepo(tempDir(), branch);
   fs.cpSync(HARNESS, path.join(dir, '.claude'), { recursive: true });
   write(dir, '.claude/harness.json', JSON.stringify(config, null, 2));
-  write(dir, '.gitignore', '.claude/work/\n');
+  write(dir, '.gitignore', '.harness/work/\n');
   return dir;
 }
 

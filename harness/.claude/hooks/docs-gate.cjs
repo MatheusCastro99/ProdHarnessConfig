@@ -80,7 +80,7 @@ function main() {
     deny(tag('docs-gate', `this commit may leave ${docs.length} doc(s) stale:\n` +
       open.map(o => `- ${o.doc} ← ${o.file} (${o.rule})`).join('\n') +
       '\nUpdate each doc and add it to this commit, or, if it is still accurate, add a line to ' +
-      '.claude/work/<issue>/stale-docs.md:  ack: <doc> — <why it is still accurate>'));
+      '.harness/work/<issue>/stale-docs.md:  ack: <doc> — <why it is still accurate>'));
   } catch (e) {
     if (root) log(root, { tool: 'docs-gate', result: 'error', message: e.message });
     deny(tag('docs-gate', `couldn't check docs, so the commit is denied: ${e instanceof HarnessError ? e.message : e.message || e}`));

@@ -21,7 +21,7 @@ const handoff = (over = {}) => {
   };
   return `# Handoff: #42 → Review
 Status: ${f.status}
-Plan: .claude/work/42/plan.md (issue comment: https://github.com/o/r/issues/42#c1) · Branch: feat/42-thing · PR: https://github.com/o/r/pull/7 (draft)
+Plan: .harness/work/42/plan.md (issue comment: https://github.com/o/r/issues/42#c1) · Branch: feat/42-thing · PR: https://github.com/o/r/pull/7 (draft)
 PR head: ${f.head} · CI on that head: ${f.ci}
 ## Commits
 ${HEAD.slice(0, 7)} feat: thing (#42)
@@ -103,7 +103,7 @@ test('Status: BLOCKED is refused (F5)', () => {
 });
 
 test('a BLOCKED marker on disk refuses even a READY handoff (F5)', () => {
-  const r = check(handoff(), [], {}, d => write(d, '.claude/work/42/BLOCKED', 'check fast failed 3 times'));
+  const r = check(handoff(), [], {}, d => write(d, '.harness/work/42/BLOCKED', 'check fast failed 3 times'));
   assert.strictEqual(r.code, 3);
   assert.match(r.out, /BLOCKED exists/);
 });

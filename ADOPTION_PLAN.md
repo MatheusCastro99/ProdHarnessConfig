@@ -44,7 +44,7 @@ The rules from OPTIMIZATION_PLAN.md §5.3, applied file by file:
 | `.claude/skills/review-guardrails` (project regression traps) | **Kept, tracked**, preloaded by the red-team (A3) | Project knowledge the new red-team has no other source for |
 | `.claude/skills/ux-design` | **Kept, tracked** (A4) | |
 | `.claude/skills/product-owner` | **Retired** (A4) | Each kept skill adds a description to every session |
-| `.gitignore` lines 367–368 (`.claude/agents`, `.claude/skills`) | **Removed**, so the harness is tracked (A1); `.claude/work/` and `.claude/settings.local.json` added | |
+| `.gitignore` lines 367–368 (`.claude/agents`, `.claude/skills`) | **Removed**, so the harness is tracked (A1); `.harness/work/` and `.claude/settings.local.json` added | |
 | `claude-code-review.yml` | **Triggers changed to `ready_for_review` only** (A6). Block C waits for it after marking the PR ready and triages its comments (§3) | |
 
 ### InvoiceMe
@@ -59,10 +59,10 @@ The rules from OPTIMIZATION_PLAN.md §5.3, applied file by file:
 | `Harness_Config/Context/UI_Guidelines.md` (2k) | Kept where it is, plus **`.claude/rules/ui.md`** (`paths: FRONTEND/src/**`) holding its essentials, with a pointer to the doc | §5.3 |
 | `Docs/PRD.md`, `Project_Roadmap.md`, `README.md` links to `Harness_Config/` | Each link checked; links to retired files (`AI_CONTEXT.md`, `Development_Workflow.md`, `Working_Agreements.md`, `Current_Focus.md`) updated or removed | S1 flags them |
 | `.claude/agents/*`, `.claude/skills/*` | Historian retired; red-team replaced, with `skills: [guardrails-review]` added (A3); `guardrails-review` and `ux-design` kept and tracked (A1, A3, A4) | |
-| `.gitignore` lines 142–147 | `.claude/agents/`, `.claude/skills/`, `.claude/stale-docs.md`, `.claude/onboarding-follow-up.md` removed (A1, A5); `.claude/work/` added; `.claude/settings.local.json` kept | |
+| `.gitignore` lines 142–147 | `.claude/agents/`, `.claude/skills/`, `.claude/stale-docs.md`, `.claude/onboarding-follow-up.md` removed (A1, A5); `.harness/work/` added; `.claude/settings.local.json` kept | |
 | `.gitignore` line 17, `lib/` (a generic rule) | **Kept, plus `!.claude/lib/`.** Without it, the generic rule silently hides `.claude/lib/harness.cjs`, and a clone's hooks would call a library that was never committed. Found by the installer's dry run, 2026-10-22. | A1 |
 | `.claude/onboarding-follow-up.md` | Its 9 questions and 18 notes become **one GitHub issue with a checklist**, confirmed before posting, with security-sensitive items reported to the owner directly instead. Then the file is deleted (A5) | They are owner work, not session state |
-| `.claude/stale-docs.md` | **Deleted**; it is an empty template, replaced by `.claude/work/<n>/stale-docs.md` | |
+| `.claude/stale-docs.md` | **Deleted**; it is an empty template, replaced by `.harness/work/<n>/stale-docs.md` | |
 
 ## 3. How it gets installed
 
@@ -72,7 +72,7 @@ The rules from OPTIMIZATION_PLAN.md §5.3, applied file by file:
 - **Never writes `CLAUDE.md` or `.claude/rules/`.** Those are authored per project, in the migration commit.
 - **Writes `.claude/harness-manifest.json`** with this repo's commit and a hash of every file it installed. A later install (an upgrade) can then tell an untouched harness file from one edited locally, and refuses to overwrite a local edit without `--force`.
 - **Lists conflicts before writing anything:** files that exist and weren't installed by the harness, such as today's `red-team.md`. They are replaced only when named with `--replace`.
-- **Checks `.gitignore`** for the harness's needs and prints the lines to add: `.claude/work/` and `.claude/settings.local.json`, plus, under A1, the lines to remove. It doesn't edit `.gitignore` itself.
+- **Checks `.gitignore`** for the harness's needs and prints the lines to add: `.harness/work/` and `.claude/settings.local.json`, plus, under A1, the lines to remove. It doesn't edit `.gitignore` itself.
 - **Per-project agent additions (A3).** `projects/<project>/install.json` lists the skills the red-team preloads, such as `{ "redTeamSkills": ["review-guardrails"] }`. The installer writes them into the installed `red-team.md` frontmatter, and the manifest records the result.
 - Tests in `test/install.test.cjs` cover the dry run, apply, an upgrade, a refused local edit, conflicts, and the red-team skills.
 

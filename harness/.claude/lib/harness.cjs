@@ -20,7 +20,8 @@ function repoRoot(cwd = process.cwd()) {
   }
 }
 
-const workDir = root => path.join(root, '.claude', 'work');
+// Outside .claude/: Claude Code treats files there as sensitive and refuses or prompts for every write (V0, F-V0-1).
+const workDir = root => path.join(root, '.harness', 'work');
 
 // --- harness.json ---------------------------------------------------------------
 
@@ -192,7 +193,7 @@ const matchesGlob = (file, glob) => globToRegExp(glob).test(toPosix(file));
 
 // --- work state ---------------------------------------------------------------------------
 
-// The issue being worked: the issue folder under .claude/work with the most recently changed plan.
+// The issue being worked: the issue folder under .harness/work with the most recently changed plan.
 function activeIssue(root) {
   const w = workDir(root);
   if (!fs.existsSync(w)) return null;
@@ -218,9 +219,9 @@ function fingerprint(root) {
     if (fs.existsSync(path.join(gitDir, 'index'))) fs.copyFileSync(path.join(gitDir, 'index'), tmpIndex);
     const env = { ...process.env, GIT_INDEX_FILE: tmpIndex };
     // An exclude pathspec errors when it names an ignored directory, so add everything, then drop
-    // .claude/work from the throwaway index; this works whether or not the folder is gitignored.
+    // .harness/work from the throwaway index; this works whether or not the folder is gitignored.
     execFileSync('git', ['add', '-A', '--', '.'], { cwd: root, env, stdio: 'ignore' });
-    execFileSync('git', ['rm', '-r', '-q', '--cached', '--ignore-unmatch', '--', '.claude/work'], { cwd: root, env, stdio: 'ignore' });
+    execFileSync('git', ['rm', '-r', '-q', '--cached', '--ignore-unmatch', '--', '.harness/work'], { cwd: root, env, stdio: 'ignore' });
     const tree = execFileSync('git', ['write-tree'], { cwd: root, env, encoding: 'utf8' }).trim();
     const h = crypto.createHash('sha256').update(tree);
     for (const f of ['.claude/harness.json', '.claude/lib/harness.cjs', '.claude/scripts/check.cjs', '.claude/hooks/check-gate.cjs']) {

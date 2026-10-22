@@ -160,7 +160,7 @@ Note on P5: gates mostly cost the owner's time (O8), not tokens. Each owner turn
 
     The plan follows the §5.4 template and passes S3 before it is shown.
 - **G1:** the owner approves the plan once, with edits if needed (`Ctrl+G` opens it in an editor).
-  - **The approved plan is posted to the issue as one comment (amended D3).** The comment also carries the scope decisions, so it is the durable copy. The file in `.claude/work/<issue>/plan.md` is the working copy.
+  - **The approved plan is posted to the issue as one comment (amended D3).** The comment also carries the scope decisions, so it is the durable copy. The file in `.harness/work/<issue>/plan.md` is the working copy.
   - Posting is pre-authorized like D1 (§6.3). On a public repository, nothing security-sensitive goes into a comment (Working Agreements rule 6).
 - **Exit:** approve with **clear context** (`showClearContextOnPlanAccept`). Block B starts from the plan alone (P3).
   - **This is unverified on the owner's surface (F4).** A bug once made the option not clear anything (anthropics/claude-code#48951, now closed), and the desktop docs don't document the option. V0 tests it.
@@ -180,7 +180,7 @@ Note on P5: gates mostly cost the owner's time (O8), not tokens. Each owner turn
 - **Enforcement (P4):** the **H2 Stop gate** runs `checks.fast` and blocks stopping while they fail.
   - Its output is structured: attempt n/3, the failing check, the error.
   - After 3 consecutive failures it writes **`BLOCKED`** (F5) and lets Claude stop. Claude Code's own cap of 8 forced continuations is never reached.
-- **BLOCKED (F5):** `.claude/work/<issue>/BLOCKED` holds the failing check ID, its exit code and the trimmed output.
+- **BLOCKED (F5):** `.harness/work/<issue>/BLOCKED` holds the failing check ID, its exit code and the trimmed output.
   - While it exists, Block B neither pushes nor opens a PR. It writes a handoff with `Status: BLOCKED`, and S3 refuses to start a review from it.
   - The owner chooses one of three ways out:
     - amend the plan (back to G1)
@@ -342,7 +342,7 @@ These are targets to validate in §8, not measurements.
 | Independent review | agent `red-team`, with `model` set explicitly | When spawned |
 | Code survey and checks | agent `surveyor` on Sonnet; built-in Explore also runs on Sonnet (D14) | When spawned |
 | Architecture, Data Flow, UI Guidelines, the ADR log | Project docs, read on demand by the Block A survey | Only when needed |
-| Current state of the work | Working copies in `.claude/work/<issue>/{plan,handoff,stale-docs}.md` and `BLOCKED` (gitignored, so on this machine only; deleted by `/close`). **Durable copies of the plan and the handoff are posted as issue comments** (amended D3). | When a block starts |
+| Current state of the work | Working copies in `.harness/work/<issue>/{plan,handoff,stale-docs}.md` and `BLOCKED` (gitignored, so on this machine only; deleted by `/close`). **Durable copies of the plan and the handoff are posted as issue comments** (amended D3). | When a block starts |
 
 How the study's pages map:
 
@@ -387,7 +387,7 @@ The two sections after the sub-phases (F10) carry what the clear-on-accept disca
 ```markdown
 # Handoff: #<issue> → Review
 Status: READY | BLOCKED
-Plan: .claude/work/<issue>/plan.md (issue comment: <url>) · Branch: <branch> · PR: <url> (draft)
+Plan: .harness/work/<issue>/plan.md (issue comment: <url>) · Branch: <branch> · PR: <url> (draft)
 PR head: <sha> · CI on that head: pass | fail | none
 ## Commits
 <sha> <message>  (one line per sub-phase)
@@ -467,14 +467,14 @@ Three things follow from this:
 | ID | Event · matcher | Script | What it does | Output |
 |---|---|---|---|---|
 | H1 | `PostToolUse` · `Edit\|Write` | `file-check` | Formats, then lints, the one edited file, using its `fileTools` entry. On lint errors, exits 2: the tool already ran, and the errors go back to Claude. | Silent, or ≤ 20 error lines |
-| H2 | `Stop` | `check-gate` | Skips if the fingerprint matches the last pass, stored in `.claude/work/.lastpass`; that makes it near-free in Blocks A and C and after a pass. Otherwise runs `checks.fast` through S5. On failure it returns `decision: "block"` with structured output: attempt n/3, the check ID, the exit code, the trimmed error. **After 3 consecutive failures it writes `BLOCKED`** (F5) and lets Claude stop. That limit is below Claude Code's own cap of 8, because each forced continuation is a full-context call. | Silent, or ≤ 40 lines |
+| H2 | `Stop` | `check-gate` | Skips if the fingerprint matches the last pass, stored in `.harness/work/.lastpass`; that makes it near-free in Blocks A and C and after a pass. Otherwise runs `checks.fast` through S5. On failure it returns `decision: "block"` with structured output: attempt n/3, the check ID, the exit code, the trimmed error. **After 3 consecutive failures it writes `BLOCKED`** (F5) and lets Claude stop. That limit is below Claude Code's own cap of 8, because each forced continuation is a full-context call. | Silent, or ≤ 40 lines |
 | H3 | `PreToolUse` · `Bash`, with an `if` filter on the configured test and build commands | `quiet` | **A fallback only (F7).** The skills run checks through S5. If Claude types a configured test command directly, H3 re-checks that the command exactly matches one in `harness.json` and only then rewrites it (`updatedInput`) through S5. Anything else passes through untouched. | Summary + failures |
 | H4 | `PreToolUse` · `Bash`, `if: Bash(git commit *)` | `docs-gate` (uses S1) | D2 enforcement. It re-checks that the command is a commit (F7). If the changes the commit will include flag candidate docs that are neither staged nor acknowledged, the commit is denied, with the list as the reason (D10). Those changes are the staged ones, plus what `-a` or an earlier `git add` in the same command stages, since the hook runs before the whole command. | Silent, or the list |
 | H5 | `SessionStart` · `startup\|clear` | `session-state` | One line of state for fresh sessions and the clear-on-accept fallback (F4). At `startup` it only reports: "Plan for #N in progress; Block B runs only when the owner asks", "Handoff for #N ready; the owner starts `/review`", or "#N is BLOCKED on <check> → owner decision". After `/clear` (the fallback) a plan reads "Plan for #N accepted → Block B: invoke the build skill". | ≤ 60 tokens |
 
 **The `.lastpass` fingerprint (F12).** It is a hash of:
 
-- the tree of the *whole working content*, built in a throwaway index: `git add -A`, minus `.claude/work`, then `git write-tree`. It covers tracked and untracked, non-ignored files, staged or not.
+- the tree of the *whole working content*, built in a throwaway index: `git add -A`, minus `.harness/work`, then `git write-tree`. It covers tracked and untracked, non-ignored files, staged or not.
 - `harness.json`, and the hook and check scripts
 
 Any content change invalidates the pass: an edit, a new file, a deletion, a rename, or a change to the checks. Staging or committing unchanged content doesn't, so checks aren't re-run for nothing. Generated output that is gitignored doesn't count. If the fingerprint can't be computed, H2 runs the checks.
@@ -534,7 +534,7 @@ The [permissions docs](https://code.claude.com/docs/en/permissions) warn that Ba
   3. The doc's text contains the file's basename, unless it is on a stoplist of generic names (`index.js`, `package.json`, `README.md`, and similar).
   4. The doc's text contains the file's directory path.
 - **Deleted or renamed files** are flagged first, because they leave dangling references.
-- **Output:** `doc ← file (rule)`. With `--record`, it appends to `.claude/work/<issue>/stale-docs.md`.
+- **Output:** `doc ← file (rule)`. With `--record`, it appends to `.harness/work/<issue>/stale-docs.md`.
 - **Acknowledging a flag:** a line `ack: <doc> — <why unchanged>` in that file clears it for H4. Acks are copied into the handoff ("Script-flagged but left unchanged").
 - **Limit:** drift that never names a path is invisible to the script.
   - `docmap` covers known concept links.
@@ -553,7 +553,7 @@ The [permissions docs](https://code.claude.com/docs/en/permissions) warn that Ba
 3. `git switch <default>`, then `git pull --ff-only`.
 4. `git branch -d <branch>`. A squash or rebase merge makes `-d` refuse, because the commits differ. Only then, and only because step 2 proved the local tip *is* the merged PR's head, does it fall back to `-D`. The report says so.
 5. `git fetch --prune`.
-6. Deletes `.claude/work/<issue>/`. The issue comments remain as the record (amended D3).
+6. Deletes `.harness/work/<issue>/`. The issue comments remain as the record (amended D3).
 7. Lists the memory files that mention `#<issue>`, for the skill's model half to condense.
 
 It prints a short report: PR state, PR head SHA, local SHA, and what it deleted or kept. It changes nothing outside the repository except those memory files. V0 tests it on a normal merge, a squash merge, a rebase merge, and a merged PR with an extra local commit, which must abort.
@@ -725,7 +725,7 @@ If the pilot shows the overhead is what's left, the next lever is D6. Priced per
 | Context before the first prompt; starting context per block; peak context per block | `/context` at session start; the first and largest call in each session |
 | Calls per block; owner turns; active minutes | `sessions-survey.js` |
 | **Owner time at G1 and G2**: from the report to the owner's reply | session timestamps (F9) |
-| H2 forced continuations; H2 cap hits and `BLOCKED` states; H4 denials; acks; S5 runs | hook logs (each hook and S5 append one line to `.claude/work/hooks.log`) |
+| H2 forced continuations; H2 cap hits and `BLOCKED` states; H4 denials; acks; S5 runs | hook logs (each hook and S5 append one line to `.harness/work/hooks.log`) |
 | Handoff and plan check failures; head-moved refusals; thin-handoff summaries requested | S3 output; the `review` skill |
 | Red-team findings by severity and blocking flag; G2 decisions (fix or decline); fix loops | the G2 report |
 | **Follow-up issues created at G2; plan deviations** (from the handoff); **reopened issues** | the G2 report; the handoff; GitHub (F9) |
@@ -797,7 +797,7 @@ Session transcripts contain personal data such as the email address, so run reco
 |---|---|---|
 | D1 | **Push and draft PR pre-authorized.** Allowed: `git push` to non-default branches and `gh pr create --draft`. Denied: push to the default branch (`main` or `master`, §6.3), force push, and merge. G2 reviews the PR. | Decided 2026-10-21 |
 | D2 | **Docs updated inline in Block B.** A script maps changed paths to the docs that reference them. Doc updates go in the same sub-phase commit as the code. The red-team checks docs against code. No historian subagent. | Decided 2026-10-21 |
-| D3 | **Gates are session boundaries.** A→B: approve the plan with clear context, so the plan is the handoff; the `/clear` fallback applies if the option fails (§4). B→C: Block B writes a handoff file, and Block C starts in a fresh session. Chosen over `/compact` because the file can be read and edited, gives triage a stated record of intent, and is cleaned up by `/close`. Estimated saving over keeping one session: ~$1–5 per issue (not yet measured). Risk: a thin handoff, addressed by a fixed template (§5) and the thin-handoff path in Block C. **Amended 2026-10-22 (F6):** the original said the file "survives across days and machines". The working file in gitignored `.claude/work/` survives on one machine only, so **the approved plan and the handoff are also posted to the issue as comments**, which makes them durable anywhere. Posting is pre-authorized (`gh issue comment`). Security-sensitive items stay local and are marked "withheld". | Decided 2026-10-21; amended 2026-10-22 |
+| D3 | **Gates are session boundaries.** A→B: approve the plan with clear context, so the plan is the handoff; the `/clear` fallback applies if the option fails (§4). B→C: Block B writes a handoff file, and Block C starts in a fresh session. Chosen over `/compact` because the file can be read and edited, gives triage a stated record of intent, and is cleaned up by `/close`. Estimated saving over keeping one session: ~$1–5 per issue (not yet measured). Risk: a thin handoff, addressed by a fixed template (§5) and the thin-handoff path in Block C. **Amended 2026-10-22 (F6):** the original said the file "survives across days and machines". The working file in gitignored `.harness/work/` survives on one machine only, so **the approved plan and the handoff are also posted to the issue as comments**, which makes them durable anywhere. Posting is pre-authorized (`gh issue comment`). Security-sensitive items stay local and are marked "withheld". | Decided 2026-10-21; amended 2026-10-22 |
 | D4 | **`/close` skill, no gate.** The owner invokes it after merging. A script deletes the issue's own scratch files and prunes the branch. Memory edits are made and listed in the report, with no pre-approval. | Decided 2026-10-21 |
 | D5 | **Drop the AI_CONTEXT.md index; docs read on demand.** CLAUDE.md keeps a short "where things are" path list. Architecture, Data Flow, UI and the ADRs are read by the Block A survey only when relevant. Area conventions become `paths:` rules. | Decided 2026-10-21 |
 | D6 | **Only unrelated plugins off.** In project settings, `enabledPlugins` is false for marketing, figma, design, productivity, dataviz and pdf-viewer (~4–5k). The Artifact tool and the claude.ai connectors stay on, so their ~18k is accepted. Skill descriptions are not capped. **Reconfirmed 2026-10-22, with a corrected figure:** turning both off would save ≈ $0.70 per issue (Artifact ≈ $0.45, connectors ≈ $0.25), not "~$1". The decision is re-opened only by the §8.5 triggers, using measured numbers. | Decided 2026-10-21; reconfirmed 2026-10-22 |
@@ -835,6 +835,8 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
   - On Windows the program is resolved through `PATH` and `PATHEXT` to an absolute path. That fixes a shim bug: invoked by a quoted bare name, a shim's `%~dp0` points at the wrong folder. It also means a repo can't plant a same-named program in the check's folder.
 - **Scripts use `.cjs`,** so a repo whose `package.json` sets `"type": "module"` can't break them. InvoiceMe's `FRONTEND` does.
 - **D6 in practice:** synced plugins are switched off with `"<name>@synced": false`. `dataviz` is a claude.ai-synced *skill*, not a plugin; only user or local settings (`syncClaudeAiSkills`) can remove it, so the project file doesn't.
+- **Working state moved to `.harness/work/` (V0, F-V0-1, 2026-10-22).** Claude Code treats every file under `.claude/` as sensitive: the Write tool and shell redirects into `.claude/work/` were refused in a headless Block B and would prompt the owner on every write in the app, and an allow rule (`Write(.claude/work/**)`) doesn't override it. `.harness/work/` (gitignored) takes writes normally.
+- **Clear-on-accept is not offered by the desktop app (V0 item 2, F4, 2026-10-22).** `showClearContextOnPlanAccept` showed no option at plan accept, so the `/clear` fallback is the normal Standard path: approve, `/clear`, "continue #<n>". The `scope` skill says so.
 - **H4 and H5 after BabyBuddyHelper's hook test (2026-10-22).** A real session showed `git add -A && git commit` passing H4 with nothing checked, since nothing was staged yet when the hook ran; H4 now counts what an earlier `git add` stages. The same test showed H5's "invoke the build skill" starting Block B in a session opened for something else; at `startup` H5 now reports only.
 - **H3 has no `if` filter.** Configured commands differ per project, so it inspects every Bash call and acts only on an exact match. A command with a configured `cwd` matches only when typed with its `cd`.
 - **The approved plan is posted to the issue by the `build` skill**, at the start of Block B, not at G1. Approval clears the context before Block A could post it.

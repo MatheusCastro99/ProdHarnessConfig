@@ -11,8 +11,8 @@ Issue: `$ARGUMENTS`. On Standard, this session should run on Opus (`claude --mod
 ## 1. Check the input (refuse on failure)
 
 - **Standard:**
-  - Read `.claude/work/<n>/handoff.md`. On another machine, read the handoff comment on the issue instead, and save it to that path.
-  - Run `node .claude/scripts/handoff-check.cjs .claude/work/<n>/handoff.md --verify-head`.
+  - Read `.harness/work/<n>/handoff.md`. On another machine, read the handoff comment on the issue instead, and save it to that path.
+  - Run `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`.
   - Exit 1 (invalid), 3 (BLOCKED, or the PR head moved) or 2 (error): stop and report why. Don't review a moving target.
 - **Small:** confirm that the PR head equals the commit you pushed and that CI passed on it. Use `gh pr view <pr> --json headRefOid` and `gh pr checks <pr>`.
 

@@ -20,15 +20,15 @@ function stateLines(root, source) {
     const handoff = path.join(d, 'handoff.md');
     if (fs.existsSync(blocked)) {
       const check = (fs.readFileSync(blocked, 'utf8').match(/^check:\s*(\S+)/m) || [])[1] || 'a check';
-      lines.push(`#${n} is BLOCKED on ${check} → owner decision (see .claude/work/${n}/BLOCKED); don't push or hand off`);
+      lines.push(`#${n} is BLOCKED on ${check} → owner decision (see .harness/work/${n}/BLOCKED); don't push or hand off`);
     } else if (fs.existsSync(handoff)) {
       lines.push(/^Status:\s*BLOCKED/m.test(fs.readFileSync(handoff, 'utf8'))
         ? `Handoff for #${n} is BLOCKED → owner decision`
         : `Handoff for #${n} ready; the owner starts /review in a fresh Opus session`);
     } else if (fs.existsSync(path.join(d, 'plan.md'))) {
       lines.push(source === 'clear'
-        ? `Plan for #${n} accepted → Block B: invoke the build skill with .claude/work/${n}/plan.md`
-        : `Plan for #${n} in progress (.claude/work/${n}/plan.md); Block B runs only when the owner asks, so don't start it`);
+        ? `Plan for #${n} accepted → Block B: invoke the build skill with .harness/work/${n}/plan.md`
+        : `Plan for #${n} in progress (.harness/work/${n}/plan.md); Block B runs only when the owner asks, so don't start it`);
     }
   }
   return lines.slice(0, 3);

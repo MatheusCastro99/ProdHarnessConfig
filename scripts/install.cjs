@@ -22,7 +22,7 @@ const INSTALLED_DIRS = ['lib', 'hooks', 'scripts', 'agents', 'skills'];
 const INSTALLED_FILES = ['settings.json'];
 const MANIFEST = '.claude/harness-manifest.json';
 // Paths the harness itself needs ignored, and paths it needs tracked (A1).
-const MUST_IGNORE = ['.claude/work/', '.claude/settings.local.json'];
+const MUST_IGNORE = ['.harness/work/', '.claude/settings.local.json'];
 
 class Blocked extends Error {}
 class Usage extends Error {}

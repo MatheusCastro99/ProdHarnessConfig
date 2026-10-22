@@ -24,7 +24,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - On Small, you may instead read the few files yourself.
    - Don't read code broadly in this session. Every file you read stays in context until the clear.
 4. **Settle open decisions.** For each decision the issue leaves open, give 2–3 options, mark one recommended, and give its trade-offs and why it fits this project. Ask them together, before writing the final plan. The owner decides.
-5. **Write the plan** to `.claude/work/<n>/plan.md`, in exactly this shape:
+5. **Write the plan** to `.harness/work/<n>/plan.md`, in exactly this shape:
 
    ```markdown
    # Plan: #<n> <title>   ·   Tier: Standard | Small
@@ -48,11 +48,10 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - `check <id>` must name a check in `.claude/harness.json`.
    - Prefer an automated check. A manual one needs its reason.
    - **"Rejected approaches" and "Invariants to preserve" carry what the clear will discard.** Write down anything Block B must know from your reasoning here.
-6. **Validate:** `node .claude/scripts/handoff-check.cjs .claude/work/<n>/plan.md --plan`. Fix every problem it lists, then run it again until it passes.
+6. **Validate:** `node .claude/scripts/handoff-check.cjs .harness/work/<n>/plan.md --plan`. Fix every problem it lists, then run it again until it passes.
 7. **Present the plan for approval (G1)** with the plan's full text. The owner may edit it.
-   - **Standard:** the owner approves with **"clear context"**. The build skill posts the plan to the issue and starts from it.
+   - **Standard:** the owner approves, runs `/clear`, and sends "continue #<n>". The session-state hook points the cleared session at the plan, and the build skill posts it to the issue and starts from it. (The desktop app offered no "clear context" option at plan accept in V0, 2026-10-22; where it is offered, approving with it does the same.)
    - **Small:** the owner approves *without* clearing; the same session builds.
-   - **If the clear-context option is missing or doesn't clear** (§6.6): the owner approves, runs `/clear`, and sends "continue #<n>". The session-state hook points the new session at the plan.
 
 ## Never
 

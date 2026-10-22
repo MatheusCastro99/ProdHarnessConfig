@@ -31,7 +31,7 @@ Every issue goes through the harness skills, in order. Each block ends where its
   4. the owner merges, then `/close <n>`
 - **Small:** `/scope <n> small` — the same gates, in one session.
 
-Working state lives in `.claude/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.claude/work/<n>/BLOCKED` exists, stop and tell the owner.
+Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.harness/work/<n>/BLOCKED` exists, stop and tell the owner.
 
 ## Working agreements
 

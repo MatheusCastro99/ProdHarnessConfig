@@ -109,6 +109,6 @@ test('an invalid harness.json fails closed with exit 2', () => {
 test('each run is logged with its exit code', () => {
   const dir = repoWith(d => ({ fast: [{ run: nodeScript(d, 'ok2', '') }] }));
   run('scripts/check.cjs', ['fast'], { cwd: dir });
-  const lines = fs.readFileSync(path.join(dir, '.claude/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
+  const lines = fs.readFileSync(path.join(dir, '.harness/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
   assert.deepStrictEqual(lines.map(l => [l.tool, l.id, l.code]), [['check', 'fast', 0]]);
 });

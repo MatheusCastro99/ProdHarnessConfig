@@ -18,7 +18,7 @@ function repo() {
   write(dir, '.claude/harness.json', JSON.stringify({ defaultBranch: 'main', checks: { fast: [{ run: [process.execPath, script] }], full: [] } }));
   write(dir, 'src/a.txt', 'v1');
   commitAll(dir, 'base');
-  write(dir, '.claude/work/42/plan.md', '# Plan: #42 · Tier: Standard\n');
+  write(dir, '.harness/work/42/plan.md', '# Plan: #42 · Tier: Standard\n');
   const runs = () => (fs.existsSync(counter) ? fs.readFileSync(counter, 'utf8').length : 0);
   return { dir, runs };
 }
@@ -30,7 +30,7 @@ const stop = dir => {
 
 test('no active plan: the gate does nothing', () => {
   const { dir, runs } = repo();
-  fs.rmSync(path.join(dir, '.claude/work/42'), { recursive: true });
+  fs.rmSync(path.join(dir, '.harness/work/42'), { recursive: true });
   write(dir, 'FAIL', '');
   const r = stop(dir);
   assert.strictEqual(r.code, 0);
@@ -42,7 +42,7 @@ test('a pass is silent and recorded; an unchanged tree skips the checks', () => 
   const { dir, runs } = repo();
   assert.strictEqual(stop(dir).stdout, '');
   assert.strictEqual(runs(), 1);
-  assert.ok(fs.existsSync(path.join(dir, '.claude/work/.lastpass')));
+  assert.ok(fs.existsSync(path.join(dir, '.harness/work/.lastpass')));
   stop(dir);
   assert.strictEqual(runs(), 1, 'second stop on the same content runs nothing');
 });
@@ -80,10 +80,10 @@ for (const [name, change] of [
   });
 }
 
-test('changes under .claude/work don\'t count', () => {
+test('changes under .harness/work don\'t count', () => {
   const { dir, runs } = repo();
   stop(dir);
-  write(dir, '.claude/work/42/handoff.md', 'x');
+  write(dir, '.harness/work/42/handoff.md', 'x');
   stop(dir);
   assert.strictEqual(runs(), 1);
 });
@@ -109,7 +109,7 @@ test('three consecutive failures write BLOCKED and let Claude stop; it stays qui
   const third = stop(dir);
   assert.strictEqual(third.json.decision, undefined);
   assert.match(third.json.systemMessage, /#42 is BLOCKED/);
-  const blocked = fs.readFileSync(path.join(dir, '.claude/work/42/BLOCKED'), 'utf8');
+  const blocked = fs.readFileSync(path.join(dir, '.harness/work/42/BLOCKED'), 'utf8');
   assert.match(blocked, /exit: 1/);
   assert.match(blocked, /expected 1, got 2/);
   const before = runs();
@@ -121,10 +121,10 @@ test('a later pass removes BLOCKED', () => {
   const { dir } = repo();
   write(dir, 'FAIL', '');
   for (const v of ['1', '2', '3']) { write(dir, 'src/a.txt', v); stop(dir); }
-  assert.ok(fs.existsSync(path.join(dir, '.claude/work/42/BLOCKED')));
+  assert.ok(fs.existsSync(path.join(dir, '.harness/work/42/BLOCKED')));
   fs.rmSync(path.join(dir, 'FAIL'));
   assert.strictEqual(stop(dir).stdout, '');
-  assert.ok(!fs.existsSync(path.join(dir, '.claude/work/42/BLOCKED')));
+  assert.ok(!fs.existsSync(path.join(dir, '.harness/work/42/BLOCKED')));
 });
 
 test('malformed hook input doesn\'t stop the gate from working', () => {

@@ -2,7 +2,7 @@
 'use strict';
 // H2: the Stop gate (OPTIMIZATION_PLAN.md §6.2, P4, F5).
 // While an issue is active, Claude can't stop with failing fast checks. After 3 consecutive failures it
-// writes .claude/work/<issue>/BLOCKED and lets Claude stop, so the owner decides (never a silent handoff).
+// writes .harness/work/<issue>/BLOCKED and lets Claude stop, so the owner decides (never a silent handoff).
 
 const fs = require('fs');
 const path = require('path');
@@ -53,7 +53,7 @@ async function main() {
     log(root, { tool: 'check-gate', issue, result: 'blocked', code: result.code, failures });
     emit({ systemMessage: tag('check-gate', `#${issue} is BLOCKED: fast checks failed ${failures} times in a row. ` +
       `Don't push or hand off. The owner decides: amend the plan, resume in a fresh Opus session, or stop. ` +
-      `Details: .claude/work/${issue}/BLOCKED`) });
+      `Details: .harness/work/${issue}/BLOCKED`) });
     return;
   }
 

@@ -22,8 +22,8 @@ function setup() {
   write(dir, 'app.txt', 'v2\n');
   const head = commitAll(dir, 'feature');
   git(dir, 'push', '-q', '-u', 'origin', 'feat/42-thing');
-  write(dir, '.claude/work/42/plan.md', '# Plan: #42\n');
-  write(dir, '.claude/work/42/handoff.md', '# Handoff: #42\nBranch: feat/42-thing\n');
+  write(dir, '.harness/work/42/plan.md', '# Plan: #42\n');
+  write(dir, '.harness/work/42/handoff.md', '# Handoff: #42\nBranch: feat/42-thing\n');
   return { dir, originDir, head };
 }
 
@@ -58,7 +58,7 @@ for (const how of ['merge', 'squash', 'rebase']) {
     const r = run('scripts/close.cjs', ['42'], { cwd: dir, env: fakeGh(dir, { number: 7, state: 'MERGED', mergedAt: 'x', headRefOid: head }) });
     assert.strictEqual(r.code, 0, r.out);
     assert.ok(!branchExists(dir, 'feat/42-thing'));
-    assert.ok(!fs.existsSync(path.join(dir, '.claude/work/42')));
+    assert.ok(!fs.existsSync(path.join(dir, '.harness/work/42')));
     assert.strictEqual(git(dir, 'branch', '--show-current'), 'main');
     assert.strictEqual(fs.readFileSync(path.join(dir, 'app.txt'), 'utf8').trim(), 'v2');
     const report = JSON.parse(r.stdout.slice(r.stdout.indexOf('{')));
@@ -76,7 +76,7 @@ test('a local commit added after the PR\'s head aborts and keeps the branch', ()
   assert.match(r.out, /ABORTED/);
   assert.ok(r.out.includes(extra) && r.out.includes(head), 'reports both SHAs');
   assert.ok(branchExists(dir, 'feat/42-thing'));
-  assert.ok(fs.existsSync(path.join(dir, '.claude/work/42/handoff.md')));
+  assert.ok(fs.existsSync(path.join(dir, '.harness/work/42/handoff.md')));
 });
 
 for (const [name, dirty] of [
@@ -91,7 +91,7 @@ for (const [name, dirty] of [
     const r = run('scripts/close.cjs', ['42'], { cwd: dir, env: fakeGh(dir, { number: 7, state: 'MERGED', mergedAt: 'x', headRefOid: head }) });
     assert.strictEqual(r.code, 3, r.out);
     assert.ok(branchExists(dir, 'feat/42-thing'));
-    assert.ok(fs.existsSync(path.join(dir, '.claude/work/42')));
+    assert.ok(fs.existsSync(path.join(dir, '.harness/work/42')));
   });
 }
 

@@ -88,7 +88,7 @@ test('--record appends candidates to the issue\'s stale-docs file once', () => {
   git(dir, 'add', '-A');
   run('scripts/stale-docs.cjs', ['--staged', '--record', '42'], { cwd: dir });
   run('scripts/stale-docs.cjs', ['--staged', '--record', '42'], { cwd: dir });
-  const text = fs.readFileSync(path.join(dir, '.claude/work/42/stale-docs.md'), 'utf8');
+  const text = fs.readFileSync(path.join(dir, '.harness/work/42/stale-docs.md'), 'utf8');
   assert.strictEqual(text.match(/Docs\/API\.md ←/g).length, 1);
   assert.match(text, /ack: <doc>/);
 });
@@ -96,7 +96,7 @@ test('--record appends candidates to the issue\'s stale-docs file once', () => {
 test('ackedDocs reads "ack:" lines from the issue files', () => {
   const { ackedDocs } = require('../harness/.claude/scripts/stale-docs.cjs');
   const dir = repo();
-  write(dir, '.claude/work/42/stale-docs.md', 'ack: Docs/API.md — only a variable was renamed\nack: `README.md` - unrelated\n');
+  write(dir, '.harness/work/42/stale-docs.md', 'ack: Docs/API.md — only a variable was renamed\nack: `README.md` - unrelated\n');
   const acks = ackedDocs(dir);
   assert.strictEqual(acks.get('Docs/API.md'), 'only a variable was renamed');
   assert.ok(acks.has('README.md'));
