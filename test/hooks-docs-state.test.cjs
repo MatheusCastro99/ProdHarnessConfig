@@ -55,6 +55,27 @@ test('H4: `commit -a` also counts unstaged tracked changes', () => {
   assert.strictEqual(commit(dir, 'git -C . commit --all -m x').permissionDecision, 'deny');
 });
 
+test('H4: a `git add` earlier in the same command counts, though it hasn\'t run when the hook does', () => {
+  const dir = repo();
+  write(dir, 'src/billing/Invoice.cs', 'v2');
+  for (const c of ['git add -A && git commit -m x', 'git add . && git commit -m x', 'git add src && git commit -m x',
+    'git add src/billing/Invoice.cs; git commit -m x', 'git add "src/billing/Invoice.cs" && git commit -m x', 'git stage -u && git commit -m x'])
+    assert.strictEqual(commit(dir, c).permissionDecision, 'deny', c);
+});
+
+test('H4: a preceding `git add` counts new files, and only the paths it names', () => {
+  const dir = repo();
+  write(dir, 'src/billing/Tax.cs', 'new');
+  write(dir, 'Docs/Billing.md', 'Invoices are built in src/billing/Invoice.cs; tax in src/billing/Tax.cs.\n');
+  commitAll(dir, 'mention Tax.cs');
+  git(dir, 'rm', '-q', '--cached', 'src/billing/Tax.cs');
+  git(dir, 'commit', '-qm', 'untrack Tax.cs');
+  assert.strictEqual(commit(dir, 'git add -A && git commit -m x').permissionDecision, 'deny', 'an untracked file is staged by add -A');
+  assert.strictEqual(commit(dir, 'git commit -am x'), null, '-a stages tracked files only');
+  assert.strictEqual(commit(dir, 'git add Docs && git commit -m x'), null, 'add <path> stages only that path');
+  assert.strictEqual(commit(dir, 'git commit -m x && git add -A'), null, 'an add after the commit is not part of it');
+});
+
 test('H4: commands that aren\'t commits pass untouched, even if the `if` filter let them through', () => {
   const dir = repo();
   write(dir, 'src/billing/Invoice.cs', 'v2');
@@ -69,8 +90,8 @@ test('H4: malformed input denies the commit rather than guess', () => {
   assert.strictEqual(JSON.parse(r.stdout).hookSpecificOutput.permissionDecision, 'deny');
 });
 
-const session = dir => {
-  const r = run('hooks/session-state.cjs', [], { cwd: dir, input: JSON.stringify({ hook_event_name: 'SessionStart', source: 'clear' }) });
+const session = (dir, source = 'startup') => {
+  const r = run('hooks/session-state.cjs', [], { cwd: dir, input: JSON.stringify({ hook_event_name: 'SessionStart', source }) });
   return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput.additionalContext : '';
 };
 
@@ -78,9 +99,20 @@ test('H5: reports a plan in progress, a ready handoff, and BLOCKED', () => {
   const dir = repo();
   assert.strictEqual(session(dir), '', 'no work: nothing printed');
   write(dir, '.claude/work/42/plan.md', '# Plan');
-  assert.match(session(dir), /Plan for #42 in progress → Block B/);
+  assert.match(session(dir), /Plan for #42 in progress/);
   write(dir, '.claude/work/42/handoff.md', '# Handoff: #42\nStatus: READY\n');
-  assert.match(session(dir), /Handoff for #42 ready → run \/review/);
+  assert.match(session(dir), /Handoff for #42 ready; the owner starts \/review/);
   write(dir, '.claude/work/42/BLOCKED', 'check: fast\nexit: 1\n');
   assert.match(session(dir), /#42 is BLOCKED on fast → owner decision/);
+});
+
+test('H5: at startup it reports the plan and never tells the session to build; after /clear it hands on to Block B', () => {
+  const dir = repo();
+  write(dir, '.claude/work/42/plan.md', '# Plan');
+  const startup = session(dir, 'startup');
+  assert.doesNotMatch(startup, /invoke/);
+  assert.match(startup, /only when the owner asks/);
+  assert.match(session(dir, 'clear'), /Plan for #42 accepted → Block B: invoke the build skill/);
+  const r = run('hooks/session-state.cjs', [], { cwd: dir, input: '' });
+  assert.doesNotMatch(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /invoke/, 'no input counts as startup');
 });

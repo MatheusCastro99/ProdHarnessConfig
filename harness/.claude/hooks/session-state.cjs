@@ -3,12 +3,14 @@
 // H5: SessionStart on startup|clear (OPTIMIZATION_PLAN.md §6.2, D3, F4).
 // One line of state per active issue, so a fresh session (or the /clear fallback after plan accept)
 // knows where the work stands. Prints nothing when no issue is active.
+// It reports and never instructs, except after /clear: that is the plan-accept fallback (F4), where the
+// next step is Block B. A session started for anything else must not start building on its own.
 
 const fs = require('fs');
 const path = require('path');
 const { repoRoot, workDir } = require('../lib/harness.cjs');
 
-function stateLines(root) {
+function stateLines(root, source) {
   const w = workDir(root);
   if (!fs.existsSync(w)) return [];
   const lines = [];
@@ -22,17 +24,20 @@ function stateLines(root) {
     } else if (fs.existsSync(handoff)) {
       lines.push(/^Status:\s*BLOCKED/m.test(fs.readFileSync(handoff, 'utf8'))
         ? `Handoff for #${n} is BLOCKED → owner decision`
-        : `Handoff for #${n} ready → run /review`);
+        : `Handoff for #${n} ready; the owner starts /review in a fresh Opus session`);
     } else if (fs.existsSync(path.join(d, 'plan.md'))) {
-      lines.push(`Plan for #${n} in progress → Block B: invoke the build skill with .claude/work/${n}/plan.md`);
+      lines.push(source === 'clear'
+        ? `Plan for #${n} accepted → Block B: invoke the build skill with .claude/work/${n}/plan.md`
+        : `Plan for #${n} in progress (.claude/work/${n}/plan.md); Block B runs only when the owner asks, so don't start it`);
     }
   }
   return lines.slice(0, 3);
 }
 
 try {
-  try { fs.readFileSync(0, 'utf8'); } catch { /* input not needed */ }
-  const lines = stateLines(repoRoot());
+  let source;
+  try { source = JSON.parse(fs.readFileSync(0, 'utf8')).source; } catch { /* no input: treat as startup */ }
+  const lines = stateLines(repoRoot(), source);
   if (lines.length) process.stdout.write(JSON.stringify({
     hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: `[harness session-state] ${lines.join(' · ')}` },
   }));
