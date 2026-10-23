@@ -2,6 +2,7 @@
 name: build
 description: Block B of the harness workflow. Implements an approved plan sub-phase by sub-phase, then pushes a draft PR and writes the handoff. Use only when an approved plan in .harness/work/<issue>/plan.md says to invoke it.
 argument-hint: <issue-number>
+model: sonnet
 ---
 
 # Build: Block B (autonomous)

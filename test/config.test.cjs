@@ -127,3 +127,10 @@ test('working state lives in .harness/work/, outside .claude/ (V0, F-V0-1)', () 
     assert.doesNotMatch(text, /\.claude\/work/, `${skill} still points at .claude/work`);
   }
 });
+
+test('the build skill pins Sonnet, so D12 holds whatever model the session runs (V1, #96)', () => {
+  // The desktop app's session model overrides settings.json's `model: opusplan`; a skill's `model:` applies for the
+  // rest of the turn it's invoked in, and Block B runs as one turn after "continue #<n>".
+  assert.strictEqual(frontmatter(read('skills/build/SKILL.md')).model, 'sonnet');
+  for (const s of ['scope', 'review', 'close']) assert.strictEqual(frontmatter(read(`skills/${s}/SKILL.md`)).model, undefined, `${s} uses the session's model`);
+});
