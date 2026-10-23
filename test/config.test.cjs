@@ -145,3 +145,12 @@ test('Block B runs forked on the Sonnet builder, gated on SubagentStop (D12, res
   assert.match(body, /foreground/);
   assert.match(body, /QUESTION: <the question>/);
 });
+
+test('Auto-fix is off from the handoff to the merge, though the fork has no PR tools (research/06, check 8)', () => {
+  // In #135 Auto-fix was switched on during Block B and stayed on until Block C, because the fork has no app tools.
+  assert.ok(read('skills/build/SKILL.md').includes('MAIN SESSION: turn off Auto-fix for <PR url> if it is on.'));
+  const review = read('skills/review/SKILL.md');
+  const step1 = review.slice(review.indexOf('## 1.'), review.indexOf('## 2.'));
+  const first = step1.split(/\r?\n/).find(l => l.startsWith('- '));
+  assert.ok(first.includes('Auto-fix) is on for the PR, turn it off'), 'it comes first in step 1');
+});

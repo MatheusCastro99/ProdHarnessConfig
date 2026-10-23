@@ -26,7 +26,7 @@ Every issue goes through the harness skills, in order. Each block ends where its
 
 - **Standard:**
   1. `/scope <n>` — plan mode, one plan, gate G1
-  2. `build` — autonomous; draft PR and handoff
+  2. `build` — autonomous, forked on a Sonnet `builder`; draft PR and handoff
   3. a fresh Opus session: `/review <n>` — red-team, gate G2
   4. the owner merges, then `/close <n>`
 - **Small:** `/scope <n> small` — the same gates, in one session.

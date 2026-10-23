@@ -10,6 +10,7 @@ Issue: `$ARGUMENTS`. On Standard, this session should run on Opus (`claude --mod
 
 ## 1. Check the input (refuse on failure)
 
+- **First, if PR monitoring (Auto-fix) is on for the PR, turn it off,** before anything else. A push after the handoff would move the head this review checks.
 - **Standard:**
   - Read `.harness/work/<n>/handoff.md`. On another machine, read the handoff comment on the issue instead, and save it to that path.
   - Run `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`.

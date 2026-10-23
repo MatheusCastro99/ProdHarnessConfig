@@ -1,6 +1,6 @@
 # Forked Block B on Sonnet: check plan
 
-Status: **planned, nothing changed.** Written 2026-10-23, owner's option B after V1's #96 and #97 (D12): a skill's `model:` doesn't switch the main session (probed in CC 2.1.304, default and auto mode), but a skill with `context: fork` runs as a subagent on its own model (probed: the forked agent ran on Sonnet while the main session stayed on Opus).
+Status: **adopted 2026-10-23** (ProdHarnessConfig `feat/forked-build`; all checks passed, check 8 after its fix). Written 2026-10-23, owner's option B after V1's #96 and #97 (D12): a skill's `model:` doesn't switch the main session (probed in CC 2.1.304, default and auto mode), but a skill with `context: fork` runs as a subagent on its own model (probed: the forked agent ran on Sonnet while the main session stayed on Opus).
 
 ## What a fork changes
 
@@ -68,3 +68,21 @@ Six fixture repos (A–F), each with the harness from 860a327 plus the candidate
 **What changes in the design:** H2 registers on `SubagentStop` in `settings.json` (not frontmatter); the finish guard is added; the skill gets the foreground rule.
 
 **Still open: checks 7, 8 and 10**, which need GitHub and the desktop app.
+
+## Results: checks 7, 8 and 10 (2026-10-23, BabyBuddyHelper #135, in the desktop app)
+
+A throwaway issue (#135) with a one-sub-phase plan (one test), on a local branch with the candidate from 56455f6 installed. The owner opened a desktop-app session (auto mode, Opus) and sent "continue #135"; Block C ran after `/clear` in the same session. PR #136 was closed unmerged, and #135, its branch and its work folder were deleted.
+
+| # | Result |
+|---|---|
+| 10 | **Pass.** In the app, the main session stayed on Opus (13 calls) and the `builder` fork ran on Sonnet (23 calls). The fork pushed and opened the draft PR in one command; nothing was refused. The red-team still ran on Opus in Block C. |
+| 7 | **Pass.** The fork applied the plan (9648d47), passed `check full`, pushed, opened draft PR #136, waited for CI (8/8 on the head), wrote the handoff, validated it with `--verify-head`, and posted it to #135 (the plan was posted first). The main session relayed the result. `/review` then found the handoff valid and the head unchanged. |
+| 8 | **Partial.** Nothing was pushed after the handoff: the PR head stayed 9648d47 through the review and the close. But Auto-fix was switched on for PR #136 during Block B, and it stayed on until Block C turned it off. The fork can't reach the app's `ccd_pr` tools, and the main session noticed but left it on. |
+
+**Cost:** Block B $0.67 (the Sonnet fork $0.30); the main session's context stayed at 75k → 82k. Block C $1.35. Compare #97's Block B: $8.04 at 74k → 278k in the main session.
+
+**Fix for check 8 (proposed):**
+- The fork ends its reply with a line for the main session when PR monitoring is on: `MAIN SESSION: turn off Auto-fix for <PR url>`.
+- The `review` skill starts by turning Auto-fix off if it's on, so Block C never inherits it.
+
+**`/close` on a throwaway:** it refused, correctly, because PR #136 was closed unmerged (exit 3, nothing deleted). Throwaway checks are cleaned up by hand.

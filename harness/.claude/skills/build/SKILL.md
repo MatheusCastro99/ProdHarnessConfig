@@ -58,7 +58,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
    - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
    - If a check fails, fix it, run `full` again, push, and wait again.
    - When CI passes, record `gh pr view <pr> --json headRefOid`.
-4. **If PR monitoring (Auto-fix) is on for this session, turn it off now,** so nothing pushes after the handoff. If you can't reach that tool, say so in your reply; the main session turns it off.
+4. **PR monitoring (Auto-fix) stays off from the handoff until the merge,** so nothing pushes after the handoff. You can't reach the app's PR tools from the fork, so end your reply with this line, which the main session acts on: `MAIN SESSION: turn off Auto-fix for <PR url> if it is on.`
 5. **Standard tier:**
    - Write `.harness/work/<n>/handoff.md` in exactly this shape. Every section is filled in or says "none":
 
