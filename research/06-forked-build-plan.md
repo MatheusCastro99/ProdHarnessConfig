@@ -48,3 +48,23 @@ Expected cost: about $3–5 of headless runs, plus one short app session.
 ## Then
 
 If every check passes: the harness change (the agent, the skill, H2's registration, the resume text) with tests in ProdHarnessConfig, a BabyBuddyHelper PR, and the next issue's Block B is the first real forked run. If check 3 or 6 fails, option A (`/model sonnet`) stays the fallback.
+
+## Results: checks 1–6 and 9 (2026-10-23, local fixtures)
+
+Six fixture repos (A–F), each with the harness from 860a327 plus the candidate: a `builder` agent (`model: sonnet`, `effort: high`); `build` with `context: fork`, `agent: builder`, `background: false` and the question/resume paragraph; H2 on `SubagentStop`. Headless main sessions on Opus invoked `build`. Fixtures A–C used a check command that Node 26 doesn't run (`node --test test/`); D–F use `node --test`.
+
+| # | Result |
+|---|---|
+| 1 | **Pass.** Every fork ran on Sonnet 5.5 (A 102 calls, F 84, …) while the main session stayed on Opus. Effort isn't visible in the transcripts. |
+| 2 | **Pass.** H1 reported `src/broken.js` (A, D, F). H4 denied a commit inside the fork, which then updated the doc (C, F). H3 rerouted a bare `node --test` through the runner (F). H3 misses a command the fork prefixes with `cd "<repo>" &&`, which it sometimes does (A, C); H3 is a fallback, and the skill runs checks through the runner. |
+| 3 | **Pass with `settings.json`: `SubagentStop`, `matcher: "builder"`.** Inside the fork: attempt 1/3, 2/3, then `BLOCKED` and a BLOCKED handoff (A, E). Silent for the surveyor. **Fail in the agent's frontmatter** (B): no gate messages inside the fork; B's blocks came from the main session's own Stop hook after the fork returned. The main session's Stop gate also runs after a fork returns, so a failing tree is gated twice. |
+| 4 | **Pass.** The fork started the surveyor (depth 2) and invoked a skill (A, F). |
+| 5 | **Deny rules hold** (a push to `main` refused, in a main session and in F's fork). **Allow rules didn't apply in these never-trusted fixture folders,** even in a main session, so the runs passed the same rules on the command line. The fork's `cd … &&` prefix also turns a command into a compound one, which needs approval for each part. Both go to check 10. |
+| 6 | **Pass.** C's fork returned `QUESTION:` with three options and left sub-phase 2 untouched. Invoked again with the answer, it kept sub-phase 1, built sub-phase 2, and its handoff passed. |
+| 9 | **Fail, then pass with two additions.** D's fork backgrounded a 5-minute check and ended its turn, which returned it to the main session unfinished; H2 let it through, since the fast checks passed. With a **finish guard** (a second `SubagentStop` hook: the fork may return only with a handoff, `BLOCKED`, or a `QUESTION:` line; 3 blocks, then it lets go with a visible message) and a **foreground rule** in the skill, F ran 23 minutes, 4 slow checks, and finished with a valid handoff. The guard's block, give-up and question paths were also run directly. |
+
+**Context:** the forks peaked at 44–80k, against 278k and 303k for Block B in the main session (#97, #96). The main session stays near its starting size.
+
+**What changes in the design:** H2 registers on `SubagentStop` in `settings.json` (not frontmatter); the finish guard is added; the skill gets the foreground rule.
+
+**Still open: checks 7, 8 and 10**, which need GitHub and the desktop app.

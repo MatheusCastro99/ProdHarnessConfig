@@ -2,12 +2,22 @@
 name: build
 description: Block B of the harness workflow. Implements an approved plan sub-phase by sub-phase, then pushes a draft PR and writes the handoff. Use only when an approved plan in .harness/work/<issue>/plan.md says to invoke it.
 argument-hint: <issue-number>
-model: sonnet
+context: fork
+agent: builder
+background: false
 ---
 
 # Build: Block B (autonomous)
 
 The plan in `.harness/work/<n>/plan.md` is your scope and your only inherited context. Find `<n>` from the arguments (`$ARGUMENTS`), from the session-state line, or from the single plan under `.harness/work/`. Read the plan in full before anything else.
+
+## You run as a forked subagent
+
+The `builder` agent runs this skill on Sonnet (D12), apart from the main session, which only relays your reply.
+
+- **Run every command in the foreground and wait for it.** Don't background a command or end your turn while one runs: ending your turn returns you to the main session. A finish guard sends you back unless there's a handoff, `BLOCKED`, or a `QUESTION:` line.
+- **You can't ask the owner.** If rule 4 below stops you, commit nothing past the gap and end your reply with one line: `QUESTION: <the question>`. The main session relays it.
+- **Resuming:** started again with an answer after the issue number in the arguments, treat each sub-phase already committed (one `(#<n>)` commit each, in plan order) as done and continue with the next.
 
 ## Start
 
@@ -48,7 +58,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
    - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
    - If a check fails, fix it, run `full` again, push, and wait again.
    - When CI passes, record `gh pr view <pr> --json headRefOid`.
-4. **If PR monitoring (Auto-fix) is on for this session, turn it off now,** so nothing pushes after the handoff.
+4. **If PR monitoring (Auto-fix) is on for this session, turn it off now,** so nothing pushes after the handoff. If you can't reach that tool, say so in your reply; the main session turns it off.
 5. **Standard tier:**
    - Write `.harness/work/<n>/handoff.md` in exactly this shape. Every section is filled in or says "none":
 

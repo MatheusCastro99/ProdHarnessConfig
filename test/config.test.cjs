@@ -128,9 +128,20 @@ test('working state lives in .harness/work/, outside .claude/ (V0, F-V0-1)', () 
   }
 });
 
-test('the build skill pins Sonnet, so D12 holds whatever model the session runs (V1, #96)', () => {
-  // The desktop app's session model overrides settings.json's `model: opusplan`; a skill's `model:` applies for the
-  // rest of the turn it's invoked in, and Block B runs as one turn after "continue #<n>".
-  assert.strictEqual(frontmatter(read('skills/build/SKILL.md')).model, 'sonnet');
-  for (const s of ['scope', 'review', 'close']) assert.strictEqual(frontmatter(read(`skills/${s}/SKILL.md`)).model, undefined, `${s} uses the session's model`);
+test('Block B runs forked on the Sonnet builder, gated on SubagentStop (D12, research/06)', () => {
+  // A skill's `model:` doesn't switch the main session (V1, #97); a forked skill runs on its agent's model.
+  const fm = frontmatter(read('skills/build/SKILL.md'));
+  assert.deepStrictEqual([fm.context, fm.agent, fm.background, fm.model], ['fork', 'builder', 'false', undefined]);
+  for (const s of ['scope', 'review', 'close']) assert.strictEqual(frontmatter(read(`skills/${s}/SKILL.md`)).context, undefined, `${s} runs in the session`);
+  const builder = frontmatter(read('agents/builder.md'));
+  assert.deepStrictEqual([builder.name, builder.model, builder.effort], ['builder', 'sonnet', 'high']);
+  assert.strictEqual(builder.disallowedTools, undefined, 'the builder edits files');
+  // H2 must run on SubagentStop, matched to the builder: a frontmatter Stop hook didn't fire in the fork (check 3).
+  const sub = JSON.parse(read('settings.json')).hooks.SubagentStop;
+  assert.strictEqual(sub.length, 1);
+  assert.strictEqual(sub[0].matcher, 'builder');
+  assert.deepStrictEqual(sub[0].hooks.map(h => h.args[0].split('/').pop()), ['check-gate.cjs', 'finish-guard.cjs']);
+  const body = read('skills/build/SKILL.md');
+  assert.match(body, /foreground/);
+  assert.match(body, /QUESTION: <the question>/);
 });
