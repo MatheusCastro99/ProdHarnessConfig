@@ -33,7 +33,7 @@
     "NODEAPI/{app,server}.js": { "lint": { "run": ["node", "--check", "{file}"], "timeoutSec": 30 } },
     "NODEAPI/{controllers,middlewares,models,routes,utils}/**/*.js": { "lint": { "run": ["node", "--check", "{file}"], "timeoutSec": 30 } }
   },
-  "docs": ["Docs/**/*.md", "Harness_Config/**/*.md", "NODEAPI/API_DOCUMENTATION.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docs": ["Docs/**/*.md", "Harness_Config/**/*.md", "NODEAPI/API_DOCUMENTATION.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md", ".claude/skills/{guardrails-review,ux-design}/SKILL.md"],
   "docmap": {
     "NODEAPI/routes/**": ["NODEAPI/API_DOCUMENTATION.md"],
     "NODEAPI/controllers/**": ["NODEAPI/API_DOCUMENTATION.md"]

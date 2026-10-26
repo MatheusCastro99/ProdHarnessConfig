@@ -38,6 +38,7 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
    - Update each candidate doc that is now wrong, in this same commit.
    - For a doc that is still accurate, add `ack: <doc> — <why>` to `.harness/work/<n>/stale-docs.md`.
    - Also check the docs the plan listed: the script can't see drift that names no path.
+   - Update a doc line the change makes untrue even when the plan limits the files: the plan's file list scopes the code, not the docs it falsifies. List the line under the handoff's Docs.
 5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate blocks a commit while a flagged doc is neither updated nor acknowledged.
 
 The Stop gate won't let you stop while fast checks fail. After 3 failures it writes `BLOCKED`. Then:

@@ -158,13 +158,44 @@ test('Auto-fix is off from the handoff to the merge, though the fork has no PR t
   assert.ok(workflow.includes('`MAIN SESSION:` line, do what it says'), 'the main session is told to act on the line');
 });
 
-test('each project\'s installed harness.json matches its source here, when the clone is local (research/08)', () => {
+test('a local edit to a project\'s installed harness.json is ported back here, when the clone is local (research/08)', () => {
   // A plan may change a project's checks (#72 added api-test). The change must come back here, or the next install
-  // refuses the local edit, and the source silently describes checks the project no longer has.
+  // refuses the local edit, and the source silently describes checks the project no longer has. A file still as the
+  // last install wrote it is fine even when the source has moved on: that is an install not yet run, not drift.
+  const lfHash = f => require('crypto').createHash('sha256').update(fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
   for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
-    const installed = path.join(__dirname, '..', '..', p, '.claude', 'harness.json');
+    const claude = path.join(__dirname, '..', '..', p, '.claude');
+    const installed = path.join(claude, 'harness.json');
     if (!fs.existsSync(installed)) continue;
+    const manifest = JSON.parse(fs.readFileSync(path.join(claude, 'harness-manifest.json'), 'utf8'));
+    if (lfHash(installed) === manifest.files['.claude/harness.json']) continue;
     const source = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8'));
     assert.deepStrictEqual(JSON.parse(fs.readFileSync(installed, 'utf8')), source, `${p}: port .claude/harness.json back to projects/${p}/`);
   }
+});
+
+test('each project\'s own skills are docs, so the docs gate flags them (D21a, research/08)', () => {
+  // In #72 guardrails-review was given a line that went stale in #73, and the docs gate couldn't see it.
+  const { matchesGlob } = require('../harness/.claude/lib/harness.cjs');
+  const harnessSkills = fs.readdirSync(path.join(HARNESS, 'skills'));
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
+    const dir = path.join(__dirname, '..', 'projects', p);
+    const cfg = JSON.parse(fs.readFileSync(path.join(dir, 'harness.json'), 'utf8'));
+    const install = fs.existsSync(path.join(dir, 'install.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'install.json'), 'utf8')) : {};
+    const skills = new Set(install.redTeamSkills || []);
+    const local = path.join(__dirname, '..', '..', p, '.claude', 'skills');
+    if (fs.existsSync(local)) for (const s of fs.readdirSync(local)) if (!harnessSkills.includes(s)) skills.add(s);
+    assert.ok(skills.size > 0, `${p} has project skills`);
+    for (const s of skills)
+      assert.ok(cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: .claude/skills/${s}/SKILL.md is in docs`);
+    for (const s of harnessSkills)
+      assert.ok(!cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: the harness's own ${s} skill stays out of docs`);
+  }
+});
+
+test('the build updates the docs a change makes untrue, even when the plan narrows the files (D21b)', () => {
+  // #73's plan allowed only NODEAPI/tests/, so a stale skill line was deferred and needed a second PR (#127).
+  const docs = read('skills/build/SKILL.md').split('4. **Docs:**')[1].split('5. **Commit**')[0];
+  assert.ok(docs.includes('even when the plan limits the files'), 'the docs step overrides a narrowed file list');
+  assert.ok(docs.includes('Docs'), 'the change is listed in the handoff');
 });

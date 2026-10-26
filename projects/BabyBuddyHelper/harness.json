@@ -20,6 +20,6 @@
   "requiredCiChecks": ["build", "test (Debug)", "test (Release)"],
   "reviewOnReady": { "workflow": "claude-code-review.yml", "timeoutMin": 15 },
   "fileTools": {},
-  "docs": ["docs/**/*.md", "Harness_Config/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docs": ["docs/**/*.md", "Harness_Config/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md", ".claude/skills/{review-guardrails,ux-design}/SKILL.md"],
   "docmap": {}
 }
