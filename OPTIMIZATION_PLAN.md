@@ -1,6 +1,6 @@
 # Production Harness: Optimization Plan
 
-Status: **all decisions made (D1–D18); not yet validated.** Use this as the guidance and reference when ProdHarnessConfig is implemented. The §8 pilot turns its estimates into measurements.
+Status: **all decisions made (D1–D21); validated for continued use (D19, 2026-10-26).** Implemented in ProdHarnessConfig and installed in BabyBuddyHelper and InvoiceMe. The pilot's measurements are in §8.2 and §8.6.
 Owner: Matheus Castro. Written 2026-10-21. **Revised 2026-10-22** from a meta-review of four independent assessments ([research/03](research/03-assessment-review.md)): P0 safety fixes, hardening, and decisions D3, D6, D8, D9 and D18.
 
 Every recommendation here rests on one of four things: measured data from past session records (the study repo and BabyBuddyHelper), Anthropic's documentation (linked), an established engineering standard, or an owner decision (logged in §9). Estimates are labelled as estimates.
@@ -41,13 +41,13 @@ A **Small** tier (D18) runs one-sub-phase issues in a single session with the sa
 - **CLAUDE.md is kept to ≤ 3k tokens.** Workflow detail lives in four skills; area conventions live in rules that load only for matching paths. No "read every doc first" rule.
 - **Subagents default to Sonnet**; the red-team is pinned to Opus. Effort is high everywhere.
 
-**Expected result (estimate):**
+**Result (measured in the pilot, §8.2 and §8.6):**
 
-- **Standard:** about **$7.2–7.7 per issue**, around the 25% cut-off of $7.49.
-- **Small:** about **$2.2–2.5** for a tiny issue.
-- **Owner turns:** ≤ 6, instead of 6–32.
+- **Standard:** **$5.16 and $4.80** on the two issues with Block B forked on Sonnet, against an estimate of $7.2–7.7 and a target of $7.49. The two earlier issues built on Opus and cost $20.86 and $14.20. D19 confirms the target on the next 3 Standard issues.
+- **Small:** not measured yet; estimated at **$2.2–2.5** for a tiny issue.
+- **Owner turns:** about 7 per Standard issue on the desktop app (D20), instead of 6–32.
 
-Most of what remains is the ~80k global overhead that each block's session loads, and usually writes to the cache again (§8.2). D6 keeps that overhead on purpose. Turning off the Artifact tool and the connectors would save ≈ $0.70 per issue, and is the first lever if the pilot misses its cost target.
+Most of what remains is the global overhead each session loads (§8.2). D6 keeps that overhead on purpose. Turning off the Artifact tool and the connectors would save ≈ $0.70 per issue, and is the first lever if D19's check misses.
 
 **Validation (§8).**
 
@@ -253,7 +253,7 @@ A tiny issue under the Standard tier comes to an estimated ≈ $3.1–3.3. The b
 | Independent review | Opus red-team | **Opus red-team, kept** (P5) |
 | Hooks, BLOCKED, SHA binding, docs gate | All | All |
 | Plan posted to the issue | Yes | Yes. The G2 report doubles as the handoff record. |
-| Estimated cost | ≈ $7.2–7.7 for a typical issue | ≈ **$2.2–2.5** for a tiny issue: one start write (≈ $0.66), the switch to Sonnet rewriting a small context (≈ $0.40), red-team (≈ $0.5), about 30 calls at ~100k (≈ $0.4) and output (≈ $0.3) |
+| Cost | **Measured $4.80–5.16** (§8.2; estimated $7.2–7.7) | ≈ **$2.2–2.5** for a tiny issue: one start write (≈ $0.66), the switch to Sonnet rewriting a small context (≈ $0.40), red-team (≈ $0.5), about 30 calls at ~100k (≈ $0.4) and output (≈ $0.3) |
 
 - **Upgrading mid-way:** if a Small issue breaks its criteria, Block B stops and asks (Working Agreements rule 5). The owner can upgrade it to Standard; the work so far becomes sub-phase 1 of a new plan.
 - **No tier drops the review.** One assessment proposed a tier that skips Block C; it is not adopted, because the independent review is a guarantee P5 keeps.
@@ -693,29 +693,28 @@ Detail: [research/02-baseline.md](research/02-baseline.md). Every issue session 
 
 Every one of them starts at 68–83k, grows to 144–409k, and never shrinks.
 
-### 8.2 Expected cost under this plan (estimate, to be tested)
+### 8.2 Cost under this plan: measured (D19)
 
-Assumed per issue, from the baseline's call counts:
+**Measured** on the two issues that ran the configuration the pilot ended with: InvoiceMe #72 and #73, Standard, with Block B forked on a Sonnet `builder` ([research/08](research/08-pilot-v3.md)). **Estimated** is the pre-pilot figure from the baseline's call counts, kept for comparison. List price, production spend only.
 
-| Block | Model | Calls | Context | Cost |
-|---|---|---|---|---|
-| A | Opus | 20 | 80k → 120k | ≈ $1.8, plus surveyor ≈ $0.2 |
-| B | Sonnet | 70 | 88k → 200k | ≈ $2.5 |
-| C | Opus | 25 | 87k → 130k | ≈ $1.9, plus red-team ≈ $0.5–1.0 |
-| D | | | | ≈ $0.3 |
+| Block | Model | Calls (main + subagent) | Context: first → peak | Measured: #72 · #73 | Estimated |
+|---|---|---|---|---|---|
+| A | Opus, plus the surveyor on Sonnet | 16 + 5 · 18 + 11 | 76k → 114k · 123k | **$1.36 · $1.61** (surveyor $0.16 · $0.29) | ≈ $2.0 (incl. surveyor ≈ $0.2) |
+| B | Opus main session + the Sonnet `builder` fork | 12 + 52 · 11 + 23 | main 73k → 89k · 87k; fork 57k → 126k · 109k | **$1.61 · $1.25** (main $0.56 · $0.52; fork $1.05 · $0.73) | ≈ $2.5 (70 calls, 88k → 200k) |
+| C | Opus, plus the Opus red-team | 20 + 23 · 17 + 14 | 75k → 114k · 109k | **$2.00 · $1.59** (red-team $0.93 · $0.71) | ≈ $2.4–2.9 (incl. red-team ≈ $0.5–1.0) |
+| D | the review session, after `/close` | 5 · 10 | | **$0.20 · $0.36** (#73's includes opening the deferred-fix PR, #127) | ≈ $0.3 |
+| **Total** | | | | **$5.16 · $4.80** | ≈ $7.2–7.7 |
 
-**Total ≈ $7.2–7.7, about 25% below the $10 median.** The 25% cut-off itself is **$7.49** ($9.99 × 0.75). The estimate straddles it, so it says a reduction is plausible, not that the target follows (F13).
+**About 50% below the $9.99 baseline median**, against the estimated 25%. The two issues are a small sample from one repo, so D19 confirms the $7.49 target on the next 3 Standard issues. For contrast, the two pilot issues that built on Opus, before the fork, cost $20.86 and $14.20, with Block B at $9.38 and $8.04 ([research/05](research/05-pilot-v1.md)).
 
-For a tiny issue on the Small tier (D18), the estimate is ≈ $2.2–2.5, against $3.08 and $3.82 for the baseline's two small issues (§4, Tiers).
+**Where the estimate was off:**
+- **Block B came in at about half.** The fork starts at 57k, not 88k: it carries the skill and CLAUDE.md, and none of Block A's history. It took 23–52 calls instead of 70, and peaked at 109–126k instead of 200k. The main session around the fork, which the estimate didn't have, costs $0.52–0.56: a third or more of Block B (ProdHarnessConfig#1).
+- **Session starts were cheaper than a full cache write.** The first calls of A, B and C cost $0.18–0.28 each, against ≈ $0.66 assumed. They read 44–52k of the shared system-and-tools prefix from cache, because all three blocks ran on Opus within the hour. A long gap between blocks would lose that.
+- **Block C was close to the estimate.** The red-team cost $0.71–0.93 in one or two runs.
 
-Most of the remaining cost is the ~80k global overhead. It is re-read on every call, and in each block it is usually written to the cache again at the 1h rate:
+**Small tier (D18): not measured.** No pilot issue fit it. The estimate stands, ≈ $2.2–2.5 for a tiny issue against $3.08 and $3.82 for the baseline's small issues (§4, Tiers), until the first Small issue is priced.
 
-- Block B switches to Sonnet, and each model has its own cache.
-- Block C's Opus session usually starts more than an hour after Block A's last call.
-
-The exception: a session on the same model within the TTL reads the shared system-and-tools prefix from cache. #28's first call read 56k that an earlier session had cached.
-
-If the pilot shows the overhead is what's left, the next lever is D6. Priced per block, turning off the Artifact tool saves **≈ $0.45 per issue**, and the connectors **≈ $0.25** more: **≈ $0.70 together**, about 9% of the estimate. That corrects an earlier "roughly $1" ([research/03](research/03-assessment-review.md), E3).
+Most of what remains is the global overhead each session loads. The next lever, if D19's check misses, is D6. Priced per block, turning off the Artifact tool saves **≈ $0.45 per issue**, and the connectors **≈ $0.25** more: **≈ $0.70 together**, about 14% of the measured cost. That corrects an earlier "roughly $1" ([research/03](research/03-assessment-review.md), E3).
 
 ### 8.3 Metrics recorded per issue
 
@@ -877,7 +876,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 **Next:**
 
 1. D21's fixes, with tests, and a reinstall PR in each repo.
-2. Replace §8.2's estimates with the measured numbers.
+2. ~~Replace §8.2's estimates with the measured numbers.~~ Done 2026-10-26.
 3. The open items: escape tracking to 2026-11-23, the first Small-tier issue, and the cost check on the next 3 Standard issues (D19).
 4. Discussion issues: ProdHarnessConfig #1 (each agent's cost against its benefit; research/08 has data on the fork's wrapper) and #2 (third-party skills).
 
