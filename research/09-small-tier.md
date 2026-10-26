@@ -1,6 +1,6 @@
-# Small tier (D18): first run
+# Small tier (D18): first runs
 
-Status: **#134 done (2026-10-26).** BabyBuddyHelper #134 was the first issue on the Small tier, run after the pilot ([§8.6](../OPTIMIZATION_PLAN.md)) on the harness from ProdHarnessConfig `6be4510`. Costs come from `research/scripts/cost.js` on the session transcript at list price; the transcript stays out of git.
+Status: **#134 and #68 done (2026-10-26).** #68 was the first Small issue after D22, and the first epic close with a knowledge audit. BabyBuddyHelper #134 was the first issue on the Small tier, run after the pilot ([§8.6](../OPTIMIZATION_PLAN.md)) on the harness from ProdHarnessConfig `6be4510`. Costs come from `research/scripts/cost.js` on the session transcript at list price; the transcript stays out of git.
 
 ## #134 Cub: handle a Claude refusal with a fitting line (Small), PR #140
 
@@ -42,3 +42,49 @@ One desktop-app session (31a0c1c2), 26 minutes:
 3. **The Small floor is about $2.** Two lines of docs cost $2.23. The fixed parts were most of it: plan mode to G1 ($0.97), the fork's start and checks ($0.55), the main session around it ($0.24) and `/close` ($0.30). D18's estimate held, but a Small issue with real code would cost more. One issue doesn't price that.
 
 **Fix, adopted as D22 (2026-10-26)** for findings 1 and 2. On the Small tier, the fork ends the way Standard does: it writes and validates the handoff, then returns with "MAIN SESSION: run the `review` skill for #<n> (Small)". The main session already acts on that line (CLAUDE.md) and runs on Opus, so it does the review and the G2 triage in the same session, as D18 describes. It also handles Auto-fix and `reviewOnReady`. This means D18's "no handoff file" goes, and the review skill's Small branch uses the handoff's SHA like Standard. The cost should be a few Opus calls at the main session's ≈ 120k, ≈ $0.2–0.3.
+
+## #68 [Epic] Phase 0: Automated API tests, close-out (Small), PR #130
+
+InvoiceMe's Phase 0 epic, run on the Small tier after its three sub-issues (#71, #72, #73) closed. At G1 the owner decided the close-out:
+- ADR-010 ("Every API endpoint has tests") moves to **Accepted, current**, with a new Reason.
+- `CLAUDE.md` and `guardrails-review` stop calling it pending.
+
+That was one sub-phase of docs: 3 files. After `/close 68`, the owner asked for the **epic knowledge audit** in the same session. It is `close`'s `epic` step, here asked for by hand. The audit's results went to #120 as a comment. One desktop-app session (89f086d9), 22 minutes, on the harness from `c405254` (D22).
+
+| Part | Model | Calls | Context: first → peak | Cost |
+|---|---|---|---|---|
+| Plan mode to G1 accept | Opus 5.5 | 16 | 77k → 102k | $0.94 |
+| Build: the main session around the fork | Opus 5.5 | 2 | 105k | $0.08 |
+| Build: the forked `builder` | Sonnet 5.5 | 11 | peak 73k | $0.30 |
+| Review to the G2 report: main session (D22) | Opus 5.5 | 11 | 107k → | $0.45 |
+| Review: red-team | Opus 5.5 | 8 | peak 32k | $0.29 |
+| G2 fix round: one fix, a narrow re-review (3 red-team calls, $0.10), mark ready | Opus 5.5 | 13 + 3 | → 128k | $0.58 |
+| `/close` | Opus 5.5 | 6 | 129k → 134k | $0.27 |
+| **The issue** | | 70 | | **$2.91** |
+| Epic knowledge audit: main session, plus the comment on #120 | Opus 5.5 | 9 | 134k → 144k | $0.44 |
+| Epic knowledge audit: red-team | Opus 5.5 | 16 | peak 56k | $0.60 |
+| **Session total** | | 95 | | **$3.96** |
+
+**Against the targets** (the issue alone; the audit is the epic's cost, not the Small tier's):
+- **Cost:** **$2.91** below the baseline's small issues ($3.08), met by a small margin. It includes a fix round that #134 didn't need ($0.58). Without the fix round it would be about $2.33, close to #134's $2.23.
+- **Peak context ≤ 200k:** 134k for the issue, and 144k with the audit. Met.
+- **≤ 85k before the first prompt:** 77k, met.
+- **Owner turns:** 5 for the issue, met against Small's ≤ 6. They were `/scope #68 Small`, the G1 answers, the G1 accept, the G2 reply and `/close`, plus the merge. The audit added 2: the request and the decision to send its findings to #120. `/close 68 epic` would have started it with the close, which saves one.
+- **Quality:** red-team APPROVE, with 2 points:
+  - one below its reporting threshold, declined at G2
+  - one stale `CLAUDE.md` line, fixed and narrowly re-reviewed with no findings
+- **Audit:** Phase 0's main claims match the code. It found 3 stale doc lines plus 4 older items, all added to #120, with no fix now.
+
+**Hooks and checks:**
+- **Checks:** `fast` 12 runs, `full` 5, `api-test` 4, `api-load` 1, all passing.
+- **Docs gate:** 2 allows.
+- **Stop gate:** 2 passes.
+- **Finish guard:** **1 `done`, no block.**
+- **Handoff check:** the plan was invalid once and fixed within 5 s; the handoff was valid twice, on `--verify-head` at review.
+- **`close`:** done.
+
+### D22 in a real run: verified
+
+- **No finish-guard block:** the Small fork wrote, validated and posted its handoff, and returned (finding 1 fixed).
+- **G2 on Opus in the main session:** the fork's reply carried both `MAIN SESSION:` lines. The main session turned Auto-fix off (the app had just switched it on), then ran `review` itself. The red-team ran at spawn depth 1, briefed by the main session, not nested under the builder. The G2 report and the fix round were written on Opus (finding 2 fixed). InvoiceMe has no `reviewOnReady`, so that part wasn't exercised.
+- **Cost of the move:** the main-session review up to the G2 report cost $0.45. That's above D22's estimate of $0.2–0.3: 11 Opus calls at about 110k context.

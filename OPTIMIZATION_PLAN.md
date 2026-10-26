@@ -44,7 +44,7 @@ A **Small** tier (D18) runs one-sub-phase issues in a single session with the sa
 **Result (measured in the pilot, §8.2 and §8.6):**
 
 - **Standard:** **$5.16 and $4.80** on the two issues with Block B forked on Sonnet, against an estimate of $7.2–7.7 and a target of $7.49. The two earlier issues built on Opus and cost $20.86 and $14.20. D19 confirms the target on the next 3 Standard issues.
-- **Small:** **$2.23** on its first issue, a 2-line docs change, against an estimate of $2.2–2.5.
+- **Small:** **$2.23 and $2.91** on its first two issues (docs only; the second had a G2 fix round), against an estimate of $2.2–2.5 and the baseline's $3.08.
 - **Owner turns:** about 7 per Standard issue on the desktop app (D20), instead of 6–32.
 
 Most of what remains is the global overhead each session loads (§8.2). D6 keeps that overhead on purpose. Turning off the Artifact tool and the connectors would save ≈ $0.70 per issue, and is the first lever if D19's check misses.
@@ -712,7 +712,7 @@ Every one of them starts at 68–83k, grows to 144–409k, and never shrinks.
 - **Session starts were cheaper than a full cache write.** The first calls of A, B and C cost $0.18–0.28 each, against ≈ $0.66 assumed. They read 44–52k of the shared system-and-tools prefix from cache, because all three blocks ran on Opus within the hour. A long gap between blocks would lose that.
 - **Block C was close to the estimate.** The red-team cost $0.71–0.93 in one or two runs.
 
-**Small tier (D18): $2.23 on its first issue,** BabyBuddyHelper #134, a 2-line docs change ([research/09](research/09-small-tier.md)). That's inside the ≈ $2.2–2.5 estimate, and below $3.08 and $3.82 for the baseline's small issues (§4, Tiers). Most of it is the fixed floor: plan mode to G1 $0.97, the fork $0.55, the main session around it $0.24, the red-team $0.17 and `/close` $0.30. A Small issue with real code isn't priced yet.
+**Small tier (D18): $2.23 on its first issue,** BabyBuddyHelper #134, a 2-line docs change ([research/09](research/09-small-tier.md)). That's inside the ≈ $2.2–2.5 estimate, and below $3.08 and $3.82 for the baseline's small issues (§4, Tiers). Most of it is the fixed floor: plan mode to G1 $0.97, the fork $0.55, the main session around it $0.24, the red-team $0.17 and `/close` $0.30. **The second, InvoiceMe #68 (an epic's close-out in 3 doc files), cost $2.91** under D22, including a G2 fix round ($0.58). Its review in the main session cost $0.45 up to the G2 report, above D22's ≈ $0.2–0.3. The epic knowledge audit that followed cost $1.04 more, booked to the epic. A Small issue with real code isn't priced yet.
 
 Most of what remains is the global overhead each session loads. The next lever, if D19's check misses, is D6. Priced per block, turning off the Artifact tool saves **≈ $0.45 per issue**, and the connectors **≈ $0.25** more: **≈ $0.70 together**, about 14% of the measured cost. That corrects an earlier "roughly $1" ([research/03](research/03-assessment-review.md), E3).
 
@@ -877,7 +877,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 
 1. D21's fixes, with tests, and a reinstall PR in each repo.
 2. ~~Replace §8.2's estimates with the measured numbers.~~ Done 2026-10-26.
-3. The open items: escape tracking to 2026-11-23, and the cost check on the next 3 Standard issues (D19). The first Small-tier issue ran 2026-10-26 (#134, [research/09](research/09-small-tier.md)). Its findings on the finish guard and on where the Small G2 runs are fixed by D22.
+3. The open items: escape tracking to 2026-11-23, and the cost check on the next 3 Standard issues (D19). The first Small-tier issue ran 2026-10-26 (#134, [research/09](research/09-small-tier.md)). Its findings on the finish guard and on where the Small G2 runs are fixed by D22, verified on InvoiceMe #68.
 4. Discussion issues: ProdHarnessConfig #1 (each agent's cost against its benefit; research/08 has data on the fork's wrapper) and #2 (third-party skills).
 
 ## 11. Open questions
