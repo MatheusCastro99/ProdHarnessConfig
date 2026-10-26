@@ -1,6 +1,6 @@
 # V3 pilot: InvoiceMe
 
-Status: **#72 done (2026-10-26).** These are [OPTIMIZATION_PLAN.md](../OPTIMIZATION_PLAN.md) §8.3 metrics, per issue. The first issue to run on InvoiceMe after its adoption (#114, V0 in [07](07-v0-invoiceme.md)), and the first real run of the forked Block B ([06](06-forked-build-plan.md)). Costs come from `research/scripts/cost.js` on the session transcripts at list price; the transcripts stay out of git.
+Status: **done: #72 and #73 (2026-10-26).** This completes the pilot (V1–V3); the summary is at the end. These are [OPTIMIZATION_PLAN.md](../OPTIMIZATION_PLAN.md) §8.3 metrics, per issue. The first issue to run on InvoiceMe after its adoption (#114, V0 in [07](07-v0-invoiceme.md)), and the first real run of the forked Block B ([06](06-forked-build-plan.md)). Costs come from `research/scripts/cost.js` on the session transcripts at list price; the transcripts stay out of git.
 
 ## #72 Jest + Supertest harness with in-memory MongoDB (Standard), PR #123
 
@@ -53,3 +53,51 @@ The owner's manual check was optional. #72 is also the issue that **ends** D8's 
 3. **The forked build paid off.** The builder started at 57k: the system prompt, CLAUDE.md, the skill, and no Block A history. It peaked at 126k, and Block B's two parts together cost $1.61. The main session's wrapper cost $0.56 of that, mostly its 73k start and reading the plan. That's the context rebuild ProdHarnessConfig#1 asks about: about a third of Block B.
 4. **Security handling worked in a real run (amended D3).** The builder found a dependency advisory that was already on `master`. It kept the advisory out of the issue comment and the PR, put it only in the local handoff, and Block C raised it with the owner directly.
 5. **G1 batched its questions.** Block A asked all four G1 decisions in one prompt, so the owner answered them in one turn. That accounts for most of the drop from #97's ≈ 9 owner turns.
+
+## #73 Characterization tests for all API endpoints (Standard), PR #126
+
+Part of epic #68, after #72. HTTP-level tests for every route, with the known bugs from #69 and #70 pinned as `test.failing` asserting the correct answer. Four sub-phases (service and CORS, customers, invoices, tax), tests only. Three desktop-app transcripts.
+
+| Block | Transcript | Model | Calls (main) | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 2b004eff | Opus 5.5 | 18, plus 11 surveyor (Sonnet, peak 49k) | 76k → 123k | 16 min (12 of them waiting on the owner's G1 answers) | $1.61 |
+| B `build`: the main session | df4483d9 | Opus 5.5 | 11 | 73k → 87k | 7 min | $0.52 |
+| B `build`: the forked builder | df4483d9/subagents | **Sonnet 5.5** | 23 | 57k → 109k | 6 min | $0.73 |
+| C `/review` + `/close` | 90bc0736 | Opus 5.5 | 27, plus 14 red-team (Opus, 15k → 61k) | 75k → 109k | 10 min | $1.94 |
+| **Total** | | | | | ≈ 35 min | **$4.80** |
+
+**Against §8.4:** cost **$4.80**, met. Peak context met in every block (123k, 87k / 109k, 109k). Before the first prompt: 76k, 73k, 75k, met. Owner turns ≈ 7, missed by one: `/scope`, the G1 answers (3 decisions in one prompt), the G1 accept, `/clear` + "continue #73", `/clear` + `/review`, one G2 reply, `/close`, plus two merges (#126 and #127). Quality: red-team **APPROVE**, 0 blocking. 2 non-blocking findings: one deferred to `/close`, one declined with a note on #70. No fix round, so no re-review.
+
+**The build:** 83 tests (67 passing, 16 `test.failing`). Each `test.failing` was run once without its marker, and failed on its own assertion. `npm test -- --randomize` passed on 3 seeds, and only `NODEAPI/tests/` changed. The G1 scope decisions were posted to #73, #69 and #70 before any code.
+
+**Hooks and checks:**
+- **Stop gate:** 2 passes, no `BLOCKED`.
+- **Finish guard:** 1 `done`.
+- **Docs gate:** 5 allows, 0 denials. Tests only, so F-IM-1 didn't come up.
+- **Handoff check:** the handoff was valid 3 of 3 times. **The plan was invalid 5 times in a row**, about 45 s of trimming at the 12,000-character cap, before it passed at 11,973.
+- **Checks:** `fast` 9 runs, `full` 5, `api-test` 4.
+
+**Findings**
+
+6. **The MAIN SESSION fix works (check 8, now fully verified).** Right after the fork returned, Block B's main session read the line, found Auto-fix had been switched on during the build, and turned it off before replying. Block C found it already off. This was the fix from InvoiceMe #125 (ProdHarnessConfig f0dcd5d).
+7. **A plan's narrow scope pushed a doc fix into a second PR.** In #72, `guardrails-review/SKILL.md` was given a line that named its own future: "Endpoint tests come with #73". #73's plan allowed changes only in `NODEAPI/tests/`, so at G2 the red-team's finding on that line was deferred to `/close`, and it became PR #127. That's one more PR, one more merge for the owner, and it left the checkout on #127's branch with Auto-fix on, because `/close` was already past. The docs gate couldn't help: project skills (`.claude/skills/**`) aren't in `harness.json`'s `docs`. Two cheap fixes:
+   - a plan that narrows the files may still edit lines its change makes untrue (CLAUDE.md rule: "Docs that a change makes untrue are updated in the same commit")
+   - add the project's own skills to `docs`
+8. **The plan size cap is binding.** A detailed four-sub-phase plan hit the 12k cap. Five trims cost under a minute, but a bigger issue would have to cut content. Watch it; raise the cap only if a plan loses something it needed.
+9. **The builder is fast on a well-specified plan:** 23 calls in 6 minutes for 83 tests, and $0.73. Block B's main-session wrapper cost $0.52, more than two thirds of the fork's cost. That's data for ProdHarnessConfig#1.
+
+## Pilot summary (V1–V3)
+
+| Issue | Repo | Tier | Block B | Cost | Peak context (worst block) | Owner turns | Red-team |
+|---|---|---|---|---|---|---|---|
+| #96 | BabyBuddyHelper | Standard | Opus (D12 not applied) | $20.86 | 303k | ≈ 10 | 2 findings, fixed; 4 re-reviews |
+| #97 | BabyBuddyHelper | Standard | Opus (D12 not applied) | $14.20 | 278k | ≈ 9 | 1 blocking (from the plan's wording), fixed |
+| #72 | InvoiceMe | Standard | **forked Sonnet** | $5.16 | 126k | ≈ 8 | 0 blocking; 3 doc fixes, 1 re-review |
+| #73 | InvoiceMe | Standard | **forked Sonnet** | $4.80 | 123k | ≈ 7 | APPROVE, 0 blocking |
+
+- **Cost:** the median over the four is **$9.68**, so missed against ≤ $7.49. Under the configuration the pilot ended with (forked Sonnet Block B), both issues came in under target: $5.16 and $4.80. The BabyBuddyHelper issues were also larger. This compares across repos and issue sizes, so it is not a controlled result. The D16 replay is the controlled one: Sonnet's build at about 45% of Opus's cost.
+- **Peak context ≤ 200k:** missed only by the two Opus builds, and met in every block since the fork.
+- **≤ 85k before the first prompt:** met in every session (73k–80k).
+- **Owner turns ≤ 6:** **missed by all four**, though falling (10 → 7). The floor under this workflow is about 7: `/scope`, the G1 answers, the G1 accept, `/clear` + "continue", `/clear` + `/review`, G2, `/close`. The two `/clear` steps exist only because the desktop app has no clear-on-accept (F4). Either the target moves to 7 for the desktop surface, or the G1 answers and the accept become one turn.
+- **Quality:** no escapes yet; tracking runs 4 weeks from each merge (to 2026-11-19 for #96, 2026-11-20 for #97, and 2026-11-23 for #72 and #73). Red-team majors per issue: 0–1, all fixed at G2.
+- **Not run in the pilot:** the Small tier (D18). No pilot issue fit it, so it moves to the first suitable issue.
