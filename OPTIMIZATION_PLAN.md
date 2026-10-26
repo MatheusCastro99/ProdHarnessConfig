@@ -1,6 +1,6 @@
 # Production Harness: Optimization Plan
 
-Status: **all decisions made (D1–D21); validated for continued use (D19, 2026-10-26).** Implemented in ProdHarnessConfig and installed in BabyBuddyHelper and InvoiceMe. The pilot's measurements are in §8.2 and §8.6.
+Status: **all decisions made (D1–D22); validated for continued use (D19, 2026-10-26).** Implemented in ProdHarnessConfig and installed in BabyBuddyHelper and InvoiceMe. The pilot's measurements are in §8.2 and §8.6.
 Owner: Matheus Castro. Written 2026-10-21. **Revised 2026-10-22** from a meta-review of four independent assessments ([research/03](research/03-assessment-review.md)): P0 safety fixes, hardening, and decisions D3, D6, D8, D9 and D18.
 
 Every recommendation here rests on one of four things: measured data from past session records (the study repo and BabyBuddyHelper), Anthropic's documentation (linked), an established engineering standard, or an owner decision (logged in §9). Estimates are labelled as estimates.
@@ -44,7 +44,7 @@ A **Small** tier (D18) runs one-sub-phase issues in a single session with the sa
 **Result (measured in the pilot, §8.2 and §8.6):**
 
 - **Standard:** **$5.16 and $4.80** on the two issues with Block B forked on Sonnet, against an estimate of $7.2–7.7 and a target of $7.49. The two earlier issues built on Opus and cost $20.86 and $14.20. D19 confirms the target on the next 3 Standard issues.
-- **Small:** not measured yet; estimated at **$2.2–2.5** for a tiny issue.
+- **Small:** **$2.23** on its first issue, a 2-line docs change, against an estimate of $2.2–2.5.
 - **Owner turns:** about 7 per Standard issue on the desktop app (D20), instead of 6–32.
 
 Most of what remains is the global overhead each session loads (§8.2). D6 keeps that overhead on purpose. Turning off the Artifact tool and the connectors would save ≈ $0.70 per issue, and is the first lever if D19's check misses.
@@ -247,12 +247,12 @@ A tiny issue under the Standard tier comes to an estimated ≈ $3.1–3.3. The b
 | | **Standard** (default) | **Small** |
 |---|---|---|
 | When | Anything not Small | **One sub-phase**; no schema, data-migration, auth, security or dependency change; no change to a public interface. The owner names the tier at `/scope`. |
-| Sessions | A → (clear) → B → fresh C | **One session**: plan mode → G1 → build → red-team → G2. No clear, no handoff file. |
+| Sessions | A → (clear) → B → fresh C | **One session**: plan mode → G1 → forked build (handoff) → review on Opus in the same session → G2. No clear (D22). |
 | Survey | `surveyor` subagent | Optional; Block A may read the few files itself |
 | Gates | G1, G2 | **G1, G2** (the same two) |
 | Independent review | Opus red-team | **Opus red-team, kept** (P5) |
 | Hooks, BLOCKED, SHA binding, docs gate | All | All |
-| Plan posted to the issue | Yes | Yes. The G2 report doubles as the handoff record. |
+| Plan and handoff posted to the issue | Yes | Yes (D22) |
 | Cost | **Measured $4.80–5.16** (§8.2; estimated $7.2–7.7) | ≈ **$2.2–2.5** for a tiny issue: one start write (≈ $0.66), the switch to Sonnet rewriting a small context (≈ $0.40), red-team (≈ $0.5), about 30 calls at ~100k (≈ $0.4) and output (≈ $0.3) |
 
 - **Upgrading mid-way:** if a Small issue breaks its criteria, Block B stops and asks (Working Agreements rule 5). The owner can upgrade it to Standard; the work so far becomes sub-phase 1 of a new plan.
@@ -712,7 +712,7 @@ Every one of them starts at 68–83k, grows to 144–409k, and never shrinks.
 - **Session starts were cheaper than a full cache write.** The first calls of A, B and C cost $0.18–0.28 each, against ≈ $0.66 assumed. They read 44–52k of the shared system-and-tools prefix from cache, because all three blocks ran on Opus within the hour. A long gap between blocks would lose that.
 - **Block C was close to the estimate.** The red-team cost $0.71–0.93 in one or two runs.
 
-**Small tier (D18): not measured.** No pilot issue fit it. The estimate stands, ≈ $2.2–2.5 for a tiny issue against $3.08 and $3.82 for the baseline's small issues (§4, Tiers), until the first Small issue is priced.
+**Small tier (D18): $2.23 on its first issue,** BabyBuddyHelper #134, a 2-line docs change ([research/09](research/09-small-tier.md)). That's inside the ≈ $2.2–2.5 estimate, and below $3.08 and $3.82 for the baseline's small issues (§4, Tiers). Most of it is the fixed floor: plan mode to G1 $0.97, the fork $0.55, the main session around it $0.24, the red-team $0.17 and `/close` $0.30. A Small issue with real code isn't priced yet.
 
 Most of what remains is the global overhead each session loads. The next lever, if D19's check misses, is D6. Priced per block, turning off the Artifact tool saves **≈ $0.45 per issue**, and the connectors **≈ $0.25** more: **≈ $0.70 together**, about 14% of the measured cost. That corrects an earlier "roughly $1" ([research/03](research/03-assessment-review.md), E3).
 
@@ -836,11 +836,11 @@ Four Standard issues: BabyBuddyHelper #96 and #97, InvoiceMe #72 and #73. Record
 | D15 | **Pilot: 3 issues in BabyBuddyHelper, then 1–2 in InvoiceMe.** Start where tests exist and the baseline was measured. InvoiceMe follows as V3, to validate D8. **Amended 2026-10-22:** the BabyBuddyHelper runs are #96 and #97, the last two issues of epic #92, so 2 instead of 3. | Decided 2026-10-21; amended 2026-10-22 |
 | D16 | **Compare the Block B models by replaying B on the same plan.** For one pilot issue, after G1, Block B runs twice from the same approved plan in two worktrees: once on Sonnet, once on Opus. Only one branch continues to Block C. Extra cost: one Block B, about $2.5–5. **The replay issue is #97** (2026-10-22). | Decided 2026-10-21; issue chosen 2026-10-22 |
 | D17 | **The §8.4 targets stand as proposed.** | Decided 2026-10-21 |
-| D18 | **Two tiers: Standard and Small (F2).** Small (one sub-phase; no schema, migration, auth, security, dependency or public-interface change) runs as one session: plan mode → G1 → build → Opus red-team → G2. No clear and no handoff file; the same two gates; the same hooks and checks. The owner names the tier at `/scope` and can upgrade a Small issue mid-way. No tier skips the independent review. Estimated ≈ $2.2–2.5 for a tiny issue, against a Standard floor of ≈ $2.4 before any work (§4, Tiers). | Decided 2026-10-22 |
-
+| D18 | **Two tiers: Standard and Small (F2).** Small (one sub-phase; no schema, migration, auth, security, dependency or public-interface change) runs as one session: plan mode → G1 → build → Opus red-team → G2. No clear; the same two gates; the same hooks and checks. The owner names the tier at `/scope` and can upgrade a Small issue mid-way. No tier skips the independent review. Estimated ≈ $2.2–2.5 for a tiny issue, against a Standard floor of ≈ $2.4 before any work (§4, Tiers). **Amended 2026-10-26 (D22):** Small writes a handoff too, and its review runs in the main session. | Decided 2026-10-22; amended 2026-10-26 |
 | D19 | **Validated for continued use, with D20 and D21** (§8.6). The configuration the pilot ended with met every target on both its issues except owner turns (D20). The cost median missed only on the two issues that ran Block B on Opus, before the fork fixed D12. The measured numbers replace §8.2's estimates. **Confirm the cost target on the next 3 Standard issues:** if their median goes over $7.49, §8.5's "cost target missed" row applies (D6, then `medium` effort for B). Escape tracking and the first Small-tier issue (D18) carry on as open items. *Alternatives: extend the pilot by 2 Standard issues before deciding; or declare it validated as is.* | Decided 2026-10-26 |
 | D20 | **Owner turns: ≤ 7 per Standard issue on the desktop app**, counted as in §8.6; ≤ 6 again if the app adds clear-on-accept (F4). The Small tier keeps ≤ 6. A turn spent on anything else (a question mid-build, a second G2 round) counts. *Alternative: keep ≤ 6 and merge the G1 answers into the accept: `/scope` would put open decisions in the plan as options with a default, so one accept or one reply settles them. That costs a weaker G1 when the defaults are wrong.* | Decided 2026-10-26 |
 | D21 | **Two fixes from #73 (research/08, finding 7):** (a) each project's own skills go in its `harness.json` `docs` (InvoiceMe `guardrails-review` and `ux-design`; BabyBuddyHelper `review-guardrails` and `ux-design`), so the docs gate flags them, with a test that every `redTeamSkills` entry is a listed doc. (b) The `build` skill: a doc line the change makes untrue is updated in the same commit **even when the plan narrows the files**, and it's listed under the handoff's Docs. The plan's file list scopes code, not the docs a change falsifies. Then a reinstall PR in each repo. The plan size cap (12k) stays and is watched. | Decided 2026-10-26 |
+| D22 | **The Small tier hands off like Standard, and its G2 runs on Opus in the main session** (research/09, #134). On Small, the forked build writes, validates and posts the handoff, then ends its reply with "MAIN SESSION: run the review skill for #<n> now (Small tier, this session)". The main session acts on it (CLAUDE.md), so the review, the red-team brief and the G2 triage run on Opus, the same session that ran plan mode. That session also turns Auto-fix off and handles `reviewOnReady`. No fork runs `review`, and the review binds to the handoff's SHA on both tiers. This removes #134's two faults: the finish guard blocking a Small fork that had no handoff, and a G2 triaged by the Sonnet builder. Estimated cost: ≈ $0.2–0.3 more per Small issue. | Decided 2026-10-26 |
 
 The 2026-10-22 changes come from the meta-review of four independent assessments ([research/03-assessment-review.md](research/03-assessment-review.md)). The findings applied without a new decision, because they add to or specify existing ones: F1, F3, F4, F5, F7–F14 and F16. They are referenced by F-number where they appear.
 
@@ -877,7 +877,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 
 1. D21's fixes, with tests, and a reinstall PR in each repo.
 2. ~~Replace §8.2's estimates with the measured numbers.~~ Done 2026-10-26.
-3. The open items: escape tracking to 2026-11-23, the first Small-tier issue, and the cost check on the next 3 Standard issues (D19).
+3. The open items: escape tracking to 2026-11-23, and the cost check on the next 3 Standard issues (D19). The first Small-tier issue ran 2026-10-26 (#134, [research/09](research/09-small-tier.md)). Its findings on the finish guard and on where the Small G2 runs are fixed by D22.
 4. Discussion issues: ProdHarnessConfig #1 (each agent's cost against its benefit; research/08 has data on the fork's wrapper) and #2 (third-party skills).
 
 ## 11. Open questions
