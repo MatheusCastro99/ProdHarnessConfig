@@ -33,6 +33,8 @@ Every issue goes through the harness skills, in order. Each block ends where its
 
 Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.harness/work/<n>/BLOCKED` exists, stop and tell the owner.
 
+When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's tools.
+
 ## Working agreements
 
 1. The owner makes every project decision: scope, architecture, product, priorities, wording. Recommend; never assume or decide.

@@ -1,9 +1,9 @@
 {
   "notes": [
-    "InvoiceMe (MERN). See OPTIMIZATION_PLAN.md §6.1. There is no test suite: NODEAPI's test script is a stub (D8).",
+    "InvoiceMe (MERN). See OPTIMIZATION_PLAN.md §6.1. NODEAPI has a Jest + Supertest suite on an in-memory MongoDB (`npm test`, check api-test).",
     "fast mirrors CI's quick steps: FRONTEND lint, NODEAPI syntax check, and CI's 'Load API app' step (app.js must load all routes, controllers and models without opening a DB connection).",
-    "full adds the FRONTEND build, matching CI's 'Frontend build' and 'API smoke test' jobs.",
-    "api-load is a named check a plan can use as an automated observable (F14).",
+    "full adds the FRONTEND build, and the NODEAPI tests, matching CI's 'Frontend build' and 'API smoke test' jobs.",
+    "api-load and api-test are named checks a plan can use as automated observables (F14).",
     "The default branch is master, not main."
   ],
   "defaultBranch": "master",
@@ -17,7 +17,11 @@
       { "run": ["npm", "run", "lint"], "cwd": "FRONTEND", "timeoutSec": 120 },
       { "run": ["node", "--check", "server.js"], "cwd": "NODEAPI", "timeoutSec": 30 },
       { "run": ["node", "-e", "require('./app'); if (require('mongoose').connection.readyState) { console.error('app.js opened a DB connection'); process.exit(1) } console.log('API app loaded OK')"], "cwd": "NODEAPI", "timeoutSec": 60 },
-      { "run": ["npm", "run", "build"], "cwd": "FRONTEND", "timeoutSec": 300 }
+      { "run": ["npm", "run", "build"], "cwd": "FRONTEND", "timeoutSec": 300 },
+      { "run": ["npm", "test"], "cwd": "NODEAPI", "timeoutSec": 300 }
+    ],
+    "api-test": [
+      { "run": ["npm", "test"], "cwd": "NODEAPI", "timeoutSec": 300 }
     ],
     "api-load": [
       { "run": ["node", "-e", "require('./app'); if (require('mongoose').connection.readyState) { console.error('app.js opened a DB connection'); process.exit(1) } console.log('API app loaded OK')"], "cwd": "NODEAPI", "timeoutSec": 60 }

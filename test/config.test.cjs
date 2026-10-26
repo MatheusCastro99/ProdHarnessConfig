@@ -153,4 +153,18 @@ test('Auto-fix is off from the handoff to the merge, though the fork has no PR t
   const step1 = review.slice(review.indexOf('## 1.'), review.indexOf('## 2.'));
   const first = step1.split(/\r?\n/).find(l => l.startsWith('- '));
   assert.ok(first.includes('Auto-fix) is on for the PR, turn it off'), 'it comes first in step 1');
+  // Only the fork reads the build skill; in #72 the main session got the line and left Auto-fix on (research/08).
+  const workflow = read('CLAUDE.md').split('## Workflow')[1].split('\n## ')[0];
+  assert.ok(workflow.includes('`MAIN SESSION:` line, do what it says'), 'the main session is told to act on the line');
+});
+
+test('each project\'s installed harness.json matches its source here, when the clone is local (research/08)', () => {
+  // A plan may change a project's checks (#72 added api-test). The change must come back here, or the next install
+  // refuses the local edit, and the source silently describes checks the project no longer has.
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
+    const installed = path.join(__dirname, '..', '..', p, '.claude', 'harness.json');
+    if (!fs.existsSync(installed)) continue;
+    const source = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8'));
+    assert.deepStrictEqual(JSON.parse(fs.readFileSync(installed, 'utf8')), source, `${p}: port .claude/harness.json back to projects/${p}/`);
+  }
 });
