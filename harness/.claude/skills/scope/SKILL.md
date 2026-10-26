@@ -51,7 +51,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 6. **Validate:** `node .claude/scripts/handoff-check.cjs .harness/work/<n>/plan.md --plan`. Fix every problem it lists, then run it again until it passes.
 7. **Present the plan for approval (G1)** with the plan's full text. The owner may edit it.
    - **Standard:** the owner approves, runs `/clear`, and sends "continue #<n>". The session-state hook points the cleared session at the plan, and the build skill posts it to the issue and starts from it. (The desktop app offered no "clear context" option at plan accept in V0, 2026-10-22; where it is offered, approving with it does the same.)
-   - **Small:** the owner approves *without* clearing; the same session builds.
+   - **Small:** the owner approves *without* clearing. This session starts the forked build, then runs `review` when the build's reply says so (D22).
 
 ## Never
 

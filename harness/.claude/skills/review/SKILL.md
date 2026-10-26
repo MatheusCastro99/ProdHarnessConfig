@@ -1,21 +1,20 @@
 ---
 name: review
-description: Block C of the harness workflow. Reviews a finished change at its handed-off commit with the red-team, triages findings and comments, and brings one report to the owner (gate G2). Invoke as /review <issue> in a fresh Opus session; on the Small tier the build skill continues into it.
+description: Block C of the harness workflow. Reviews a finished change at its handed-off commit with the red-team, triages findings and comments, and brings one report to the owner (gate G2). Invoke as /review <issue> in a fresh Opus session; on the Small tier the main session runs it when the forked build returns.
 argument-hint: <issue-number>
 ---
 
 # Review: Block C (gate G2)
 
-Issue: `$ARGUMENTS`. On Standard, this session should run on Opus (`claude --model opus`).
+Issue: `$ARGUMENTS`. This session runs on Opus: on Standard a fresh one (`claude --model opus`); on Small the main session that ran plan mode, never the forked build (D22).
 
 ## 1. Check the input (refuse on failure)
 
 - **First, if PR monitoring (Auto-fix) is on for the PR, turn it off,** before anything else. A push after the handoff would move the head this review checks.
-- **Standard:**
+- **Both tiers:**
   - Read `.harness/work/<n>/handoff.md`. On another machine, read the handoff comment on the issue instead, and save it to that path.
   - Run `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`.
   - Exit 1 (invalid), 3 (BLOCKED, or the PR head moved) or 2 (error): stop and report why. Don't review a moving target.
-- **Small:** confirm that the PR head equals the commit you pushed and that CI passed on it. Use `gh pr view <pr> --json headRefOid` and `gh pr checks <pr>`.
 
 If the handoff passes but is too thin to triage against, brief the `surveyor` with one **Change summary** of the PR's commits. Note in the G2 report that you did.
 

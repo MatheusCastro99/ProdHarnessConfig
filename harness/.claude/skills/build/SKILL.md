@@ -60,7 +60,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
    - If a check fails, fix it, run `full` again, push, and wait again.
    - When CI passes, record `gh pr view <pr> --json headRefOid`.
 4. **PR monitoring (Auto-fix) stays off from the handoff until the merge,** so nothing pushes after the handoff. You can't reach the app's PR tools from the fork, so end your reply with this line, which the main session acts on: `MAIN SESSION: turn off Auto-fix for <PR url> if it is on.`
-5. **Standard tier:**
+5. **Handoff, on both tiers:**
    - Write `.harness/work/<n>/handoff.md` in exactly this shape. Every section is filled in or says "none":
 
      ```markdown
@@ -82,8 +82,9 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 
    - Validate it with `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`, and fix it until it passes.
    - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
-   - Tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`. Stop.
-6. **Small tier:** no handoff file. Continue in this session with the `review` skill.
+6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22).
+   - **Standard:** tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`.
+   - **Small:** end your reply with `MAIN SESSION: run the review skill for #<n> now (Small tier, this session).`
 
 ## Never
 

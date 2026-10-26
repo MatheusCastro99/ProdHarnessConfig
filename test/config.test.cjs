@@ -193,6 +193,24 @@ test('each project\'s own skills are docs, so the docs gate flags them (D21a, re
   }
 });
 
+test('on the Small tier the fork writes a handoff and the main session runs review on Opus (D22, research/09)', () => {
+  // #134: Small said "no handoff file", so the finish guard blocked the fork; and "continue in this session with
+  // review" ran G2 inside the Sonnet fork. Both tiers now hand off, and only the main session runs review.
+  const build = read('skills/build/SKILL.md');
+  const exit = build.slice(build.indexOf('5. **Handoff'), build.indexOf('## Never'));
+  assert.ok(exit.startsWith('5. **Handoff, on both tiers:**'), 'the handoff step is not Standard-only');
+  assert.doesNotMatch(build, /no handoff file/i);
+  assert.ok(exit.includes("Don't run `review` yourself"));
+  assert.ok(exit.includes('MAIN SESSION: run the review skill for #<n> now (Small tier, this session).'));
+  const review = read('skills/review/SKILL.md');
+  const step1 = review.slice(review.indexOf('## 1.'), review.indexOf('## 2.'));
+  assert.ok(step1.includes('**Both tiers:**') && step1.includes('--verify-head'), 'Small binds the review to the handoff SHA too');
+  assert.doesNotMatch(step1, /\*\*Small:\*\*/);
+  assert.match(frontmatter(review).description, /main session runs it when the forked build returns/);
+  // The finish guard needs no Small exception: a handoff now exists on both tiers.
+  assert.doesNotMatch(fs.readFileSync(path.join(HARNESS, 'hooks', 'finish-guard.cjs'), 'utf8'), /small/i);
+});
+
 test('the build updates the docs a change makes untrue, even when the plan narrows the files (D21b)', () => {
   // #73's plan allowed only NODEAPI/tests/, so a stale skill line was deferred and needed a second PR (#127).
   const docs = read('skills/build/SKILL.md').split('4. **Docs:**')[1].split('5. **Commit**')[0];
