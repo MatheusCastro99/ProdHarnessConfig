@@ -792,6 +792,30 @@ Session transcripts contain personal data such as the email address, so run reco
 
 **Done:** the targets hold across the pilot. Then this plan's status moves to **"validated for continued use"** (see the note under §8.4), and the measured numbers replace the estimates in §8.2.
 
+### 8.6 Pilot result (V1–V3, 2026-10-26)
+
+Four Standard issues: BabyBuddyHelper #96 and #97, InvoiceMe #72 and #73. Records: [research/05](research/05-pilot-v1.md), [research/08](research/08-pilot-v3.md). V0 passed in both repos ([04](research/04-v0-babybuddyhelper.md), [07](research/07-v0-invoiceme.md)).
+
+| Target (§8.4) | Result | |
+|---|---|---|
+| Standard median ≤ $7.49 | **$9.68** over the four ($20.86, $14.20, $5.16, $4.80) | **Missed.** The two misses ran Block B on Opus, because D12 never applied in the desktop app (§10). Both issues under the final configuration, a forked Sonnet `builder`, came in under target. The comparison spans repos and issue sizes. The controlled evidence is D16's replay, where Sonnet's build cost about 45% of Opus's |
+| Peak context ≤ 200k per block | 303k and 278k (the Opus builds), then 126k and 123k | **Met** since the fork |
+| ≤ 85k before the first prompt | 73k–80k in every session | **Met** |
+| Owner turns ≤ 6 | ≈ 10, 9, 8, 7 | **Missed in all four**, falling |
+| Quality | Red-team majors 0–1 per issue, all fixed at G2; seeded defects 4 of 4 (V0); escapes: none so far | **Met so far.** Escape tracking runs to 2026-11-19, 11-20 and 11-23 |
+| Small tier (D18) | not run: no pilot issue fit it | **Open** |
+
+**Why owner turns stop at about 7:** `/scope`, the G1 answers, the G1 accept, `/clear` + "continue #n", `/clear` + `/review`, the G2 reply, then `/close`, plus the merge. Two of those exist only because the desktop app has no clear-on-accept (F4), and §8.4's ≤ 6 assumed it did.
+
+**What the pilot changed, and when:**
+- **D12 is delivered by a forked build, not `opusplan`** (§10, research/06).
+- **`/clear` + "continue" is the Standard path** (F4).
+- **Working state lives in `.harness/work/`** (F-V0-1).
+- **The main session acts on the fork's `MAIN SESSION:` line** (research/08, findings 1 and 6).
+- **A project's `harness.json` changes come back here,** with a drift test (research/08, finding 2).
+
+**Decided:** D19 (the verdict), D20 (the owner-turn target), D21 (the #73 fixes), in §9.
+
 ## 9. Decisions log
 
 | ID | Decision | Status |
@@ -815,11 +839,15 @@ Session transcripts contain personal data such as the email address, so run reco
 | D17 | **The §8.4 targets stand as proposed.** | Decided 2026-10-21 |
 | D18 | **Two tiers: Standard and Small (F2).** Small (one sub-phase; no schema, migration, auth, security, dependency or public-interface change) runs as one session: plan mode → G1 → build → Opus red-team → G2. No clear and no handoff file; the same two gates; the same hooks and checks. The owner names the tier at `/scope` and can upgrade a Small issue mid-way. No tier skips the independent review. Estimated ≈ $2.2–2.5 for a tiny issue, against a Standard floor of ≈ $2.4 before any work (§4, Tiers). | Decided 2026-10-22 |
 
+| D19 | **Validated for continued use, with D20 and D21** (§8.6). The configuration the pilot ended with met every target on both its issues except owner turns (D20). The cost median missed only on the two issues that ran Block B on Opus, before the fork fixed D12. The measured numbers replace §8.2's estimates. **Confirm the cost target on the next 3 Standard issues:** if their median goes over $7.49, §8.5's "cost target missed" row applies (D6, then `medium` effort for B). Escape tracking and the first Small-tier issue (D18) carry on as open items. *Alternatives: extend the pilot by 2 Standard issues before deciding; or declare it validated as is.* | Decided 2026-10-26 |
+| D20 | **Owner turns: ≤ 7 per Standard issue on the desktop app**, counted as in §8.6; ≤ 6 again if the app adds clear-on-accept (F4). The Small tier keeps ≤ 6. A turn spent on anything else (a question mid-build, a second G2 round) counts. *Alternative: keep ≤ 6 and merge the G1 answers into the accept: `/scope` would put open decisions in the plan as options with a default, so one accept or one reply settles them. That costs a weaker G1 when the defaults are wrong.* | Decided 2026-10-26 |
+| D21 | **Two fixes from #73 (research/08, finding 7):** (a) each project's own skills go in its `harness.json` `docs` (InvoiceMe `guardrails-review` and `ux-design`; BabyBuddyHelper `review-guardrails` and `ux-design`), so the docs gate flags them, with a test that every `redTeamSkills` entry is a listed doc. (b) The `build` skill: a doc line the change makes untrue is updated in the same commit **even when the plan narrows the files**, and it's listed under the handoff's Docs. The plan's file list scopes code, not the docs a change falsifies. Then a reinstall PR in each repo. The plan size cap (12k) stays and is watched. | Decided 2026-10-26 |
+
 The 2026-10-22 changes come from the meta-review of four independent assessments ([research/03-assessment-review.md](research/03-assessment-review.md)). The findings applied without a new decision, because they add to or specify existing ones: F1, F3, F4, F5, F7–F14 and F16. They are referenced by F-number where they appear.
 
 ## 10. Implementation status
 
-**As of 2026-10-22, built and tested in this repo. Not yet installed in any project.**
+**As of 2026-10-26: installed in BabyBuddyHelper (#121, #137, #138) and InvoiceMe (#114, #125), with V0 and the pilot (V1–V3) done (§8.6).** First built and tested here on 2026-10-22.
 
 | Built | Where | Tests |
 |---|---|---|
@@ -844,11 +872,14 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 - **H3 has no `if` filter.** Configured commands differ per project, so it inspects every Bash call and acts only on an exact match. A command with a configured `cwd` matches only when typed with its `cd`.
 - **The approved plan is posted to the issue by the `build` skill**, at the start of Block B, not at G1. Approval clears the context before Block A could post it.
 
+**Done:** adoption in both projects ([ADOPTION_PLAN.md](ADOPTION_PLAN.md), A1–A7), `CLAUDE.md` filled in for each, V0 (§8.5) and the pilot (§8.6).
+
 **Next:**
 
-1. Adopt the harness in each project. This means migrating the study-era harness each repo still carries (BabyBuddyHelper `docs/ai/`, InvoiceMe `Harness_Config/`, and their `.claude/` agents and skills) under D5. **Planned in [ADOPTION_PLAN.md](ADOPTION_PLAN.md), with decisions A1–A7.**
-2. Fill in `CLAUDE.md`.
-3. Run V0 (§8.5).
+1. D21's fixes, with tests, and a reinstall PR in each repo.
+2. Replace §8.2's estimates with the measured numbers.
+3. The open items: escape tracking to 2026-11-23, the first Small-tier issue, and the cost check on the next 3 Standard issues (D19).
+4. Discussion issues: ProdHarnessConfig #1 (each agent's cost against its benefit; research/08 has data on the fork's wrapper) and #2 (third-party skills).
 
 ## 11. Open questions
 
