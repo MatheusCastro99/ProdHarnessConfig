@@ -104,7 +104,7 @@ test('agents pin their models and can\'t edit files (D13, D14, §7.2)', () => {
 test('the handoff and plan templates in the skills pass handoff-check\'s own rules', () => {
   const { checkPlan } = require('../harness/.claude/scripts/handoff-check.cjs');
   const scope = read('skills/scope/SKILL.md');
-  const planTemplate = scope.match(/```markdown\n([\s\S]*?)```/)[1];
+  const planTemplate = scope.match(/```markdown\r?\n([\s\S]*?)```/)[1]; // a Windows checkout with autocrlf has CRLF
   // Every section the checker requires appears in the template the skill teaches.
   for (const s of ['Scope (decided at G1)', 'Facts checked / corrected', 'Acceptance criteria', 'Sub-phases',
     'Rejected approaches', 'Invariants to preserve', 'Docs likely to go stale', 'Out of scope'])
