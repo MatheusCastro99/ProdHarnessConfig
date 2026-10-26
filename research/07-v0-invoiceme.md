@@ -1,6 +1,6 @@
 # V0: InvoiceMe setup check
 
-Status: **done (2026-10-26).** Every item that was run passes. Item 8 was skipped by the owner, and item 6 moves to V3. InvoiceMe's adoption is #114, merged as PR #121 (`cec9769`). Installed from ProdHarnessConfig `aa1474f`, CC 2.1.304 headless.
+Status: **done (2026-10-26).** Every item that was run passes. Item 8 was skipped by the owner, and item 6 passed in V3 (#72). InvoiceMe's adoption is #114, merged as PR #121 (`cec9769`). Installed from ProdHarnessConfig `aa1474f`, CC 2.1.304 headless.
 
 BabyBuddyHelper's V0 ([04](04-v0-babybuddyhelper.md)) already proved the harness-generic items: `close` on squash and rebase merges and its abort cases, SHA binding, S5's edge cases and the fingerprint, malformed input in every hook, red-team recall on seeded defects, and the issue comments. The forked build and H6 were proven in [06](06-forked-build-plan.md). This V0 covers what differs in InvoiceMe: its checks (no tests, D8), the per-file tools (H1, which BabyBuddyHelper couldn't run), npm and npx through Windows' cmd shims, `FRONTEND/` as a check's cwd, its docmap, and the ruleset on `master`.
 
@@ -22,7 +22,7 @@ BabyBuddyHelper's V0 ([04](04-v0-babybuddyhelper.md)) already proved the harness
 | 3 | H2 with an active issue: block twice, `BLOCKED` on the third failure, silent while nothing changes, pass and unblock after the fix | Local, direct hook runs on a fake #999 | **Pass**: attempts 1/3 and 2/3 blocked with the lint output; the third wrote `BLOCKED` and the systemMessage; the fourth was silent; after the fix, `pass`, `unblocked` |
 | 4 | H4 with InvoiceMe's docmap: a staged `NODEAPI/routes/` change denies the commit and names `API_DOCUMENTATION.md`; an ack clears that one | Local, direct hook runs | **Pass**, see finding F-IM-1. The ack cleared `API_DOCUMENTATION.md`; the other 3 stayed flagged. Malformed input: denied, tagged |
 | 5 | H5 at `startup` with a plan in progress | Local | **Pass**: "Plan for #999 in progress …; Block B runs only when the owner asks" |
-| 6 | `close` on a normal merge into `master` | Local | **Not run**: #114's local branch was deleted by hand (`git branch -d`) right after the merge, before this V0 started. It moves to V3's first `/close` |
+| 6 | `close` on a normal merge into `master` | Local | **Pass, in V3:** #114's local branch had been deleted by hand, so this moved to V3. `/close 72` on PR #123, a merge commit: tip equal to the PR head, fast-forwarded `master`, deleted the branch with `-d`, pruned ([08](08-pilot-v3.md)) |
 | 7 | Branch protection on `master`: a failing required check blocks the merge | GitHub + owner | **Pass** (owner): throwaway PR #122 added an unused variable to `pdfStyle.jsx`. `Frontend build (Node 22.x)` failed, fail-fast cancelled 24.x, the API smoke tests and CodeQL passed, and GitHub refused the merge (`BLOCKED`). Closed unmerged, branch deleted |
 | 8 | A push to `master` and a force push are refused | Owner | **Skipped** (owner, 2026-10-26). The harness's deny rules for `master` are covered by ProdHarnessConfig's config test, and item 7 shows the ruleset is active on `master` |
 
