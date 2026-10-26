@@ -1,6 +1,6 @@
 # Small tier (D18): first runs
 
-Status: **#134 and #68 done (2026-10-26).** #68 was the first Small issue after D22, and the first epic close with a knowledge audit. BabyBuddyHelper #134 was the first issue on the Small tier, run after the pilot ([§8.6](../OPTIMIZATION_PLAN.md)) on the harness from ProdHarnessConfig `6be4510`. Costs come from `research/scripts/cost.js` on the session transcript at list price; the transcript stays out of git.
+Status: **#134, #68 and #120 done (2026-10-26).** #68 was the first Small issue after D22, and the first epic close with a knowledge audit. BabyBuddyHelper #134 was the first issue on the Small tier, run after the pilot ([§8.6](../OPTIMIZATION_PLAN.md)) on the harness from ProdHarnessConfig `6be4510`. Costs come from `research/scripts/cost.js` on the session transcript at list price; the transcript stays out of git.
 
 ## #134 Cub: handle a Claude refusal with a fitting line (Small), PR #140
 
@@ -88,3 +88,47 @@ That was one sub-phase of docs: 3 files. After `/close 68`, the owner asked for 
 - **No finish-guard block:** the Small fork wrote, validated and posted its handoff, and returned (finding 1 fixed).
 - **G2 on Opus in the main session:** the fork's reply carried both `MAIN SESSION:` lines. The main session turned Auto-fix off (the app had just switched it on), then ran `review` itself. The red-team ran at spawn depth 1, briefed by the main session, not nested under the builder. The G2 report and the fix round were written on Opus (finding 2 fixed). InvoiceMe has no `reviewOnReady`, so that part wasn't exercised.
 - **Cost of the move:** the main-session review up to the G2 report cost $0.45. That's above D22's estimate of $0.2–0.3: 11 Opus calls at about 110k context.
+
+## #120 Onboarding follow-up: the docs items (Small), PR #131
+
+#120 is a tracking list. At G1 the owner limited this pass to its documentation items and kept the issue open for the rest: the questions, and the code and branding notes. The pass covered:
+- the issue's stale-docs list
+- the epic audit's findings (#68)
+- the same stale facts found elsewhere
+- two new pending ADRs in the owner's wording: ADR-012, money in integer cents, and ADR-013, dates of service
+
+That's one sub-phase: 7 doc files, plus a one-line fix at G2. The owner chose the tier at G1 (`/scope 120`, then "Small" in the answers), and used the surveyor. One desktop-app session (bfe6b989), 20 minutes, under D22. The owner's Roadmap session afterwards (PR #132, on Haiku, outside the harness) isn't counted here.
+
+| Part | Model | Calls | Context: first → peak | Cost |
+|---|---|---|---|---|
+| Plan mode to G1 accept (two rounds of G1 questions) | Opus 5.5 | 15 | 76k → 119k | $1.31 |
+| Survey | Sonnet 5.5 | 6 | peak 43k | $0.23 |
+| Build: the main session around the fork | Opus 5.5 | 2 | 125k | $0.11 |
+| Build: the forked `builder` | Sonnet 5.5 | 21 | peak 89k | $0.49 |
+| Review to the G2 report: main session | Opus 5.5 | 10 | 127k → 139k | $0.47 |
+| Review: red-team | Opus 5.5 | 14 | peak 48k | $0.51 |
+| G2 fix round: one line, a narrow re-review (4 red-team calls, $0.11), mark ready | Opus 5.5 | 13 + 4 | → 149k | $0.63 |
+| `/close` | Opus 5.5 | 4 | 149k → 152k | $0.18 |
+| **Total** | | 89 | | **$3.93** |
+
+**Against the targets:**
+- **Cost:** **missed.** $3.93 is above the baseline's small issues ($3.08), and $3.30 without the fix round. This was the largest Small issue so far: 7 files, two new ADRs, a survey, and two rounds of G1 questions. Planning alone cost $1.31 + $0.23.
+- **Peak context ≤ 200k:** 152k, met.
+- **≤ 85k before the first prompt:** 76k, met.
+- **Owner turns:** 6, met against Small's ≤ 6. They were `/scope`, two rounds of G1 answers, the G1 accept, the G2 reply and `/close`, plus the merge.
+- **Quality:** red-team pass with 1 finding: the README header version disagreed with its history. It was fixed at G2 and narrowly re-reviewed with no findings.
+
+**Hooks and checks:**
+- **Checks:** `fast` 15 runs and `full` 5, all passing.
+- **Stop gate:** 2 passes.
+- **Finish guard:** 1 `done`, no block.
+- **Handoff check:** the plan was invalid twice on the 12k cap (≈ 260 characters over), then valid; the handoff was valid twice.
+- **Docs gate:** **1 deny**, then 2 allows (finding 4).
+- **`close`:** done. The issue stays open as the tracking list.
+
+**D22, second real run:** the same as #68. The fork handed off and returned. The main session turned Auto-fix off, ran `review`, briefed the red-team at depth 1, and wrote G2 on Opus. The main-session review cost $0.47 up to the G2 report, again above D22's ≈ $0.2–0.3.
+
+### Findings
+
+4. **The docs gate can't see an ack written in the same command as the commit.** The builder appended two acks to `stale-docs.md` and ran `git commit` in one shell command. The gate runs before the command (PreToolUse), so it saw no acks and denied it. The builder re-ran the commit and it passed, about 16 s lost. The build skill could say to write acks in their own command. Separately, the two flags came from editing `NODEAPI/VersionLog.md`. It isn't in InvoiceMe's `docs` list, so it counts as code, and docs that name it (`CLAUDE.md`, `rules/ui.md`) get flagged. Listing `VersionLog.md` and the `.env.example` files as docs would close the gap research/07 noted.
+5. **Two Small issues missed or nearly missed the cost target, both through planning and G2 rounds, not the build.** The fork cost $0.30–0.55 in every Small run. Plan mode to G1 cost $0.94–1.31, and the main-session review $0.45–0.47. Small's ≈ $2.2–2.5 holds only for a tiny issue with no fix round. Across the three: $2.23, $2.91 and $3.93, a median of **$2.91**, under $3.08.
