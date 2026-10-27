@@ -191,3 +191,29 @@ test('an unknown project or a non-repo target is an error', () => {
   assert.strictEqual(r2.status, 2);
   assert.match(r2.stderr, /not a git repository/);
 });
+
+test('a vendored skill installs pinned and is tracked by the manifest; one without its pin or license is refused (D24)', () => {
+  const pin = { source: 'https://example.com/x', commit: 'a'.repeat(40), license: 'Apache-2.0' };
+  const proj = projects({ install: { vendoredSkills: { vend: pin } } });
+  write(proj, 'demo/vendor/skills/vend/SKILL.md', '---\nname: vend\n---\nthird party\n');
+  write(proj, 'demo/vendor/skills/vend/LICENSE.txt', 'license\n');
+  const dir = target();
+  const r = install(dir, ['--apply'], proj);
+  assert.strictEqual(r.code, 0, r.out);
+  assert.ok(exists(dir, '.claude/skills/vend/SKILL.md') && exists(dir, '.claude/skills/vend/LICENSE.txt'));
+  assert.ok(manifest(dir).files['.claude/skills/vend/SKILL.md'], 'tracked, so a local edit is flagged at the next install');
+
+  const unpinned = projects({ install: { vendoredSkills: { vend: { ...pin, commit: 'main' } } } });
+  write(unpinned, 'demo/vendor/skills/vend/SKILL.md', 'x\n');
+  write(unpinned, 'demo/vendor/skills/vend/LICENSE', 'license\n');
+  assert.match(install(target(), [], unpinned).out, /needs source, a 40-hex commit and license/);
+
+  const unlisted = projects();
+  write(unlisted, 'demo/vendor/skills/vend/SKILL.md', 'x\n');
+  write(unlisted, 'demo/vendor/skills/vend/LICENSE', 'license\n');
+  assert.match(install(target(), [], unlisted).out, /needs source/);
+
+  const unlicensed = projects({ install: { vendoredSkills: { vend: pin } } });
+  write(unlicensed, 'demo/vendor/skills/vend/SKILL.md', 'x\n');
+  assert.match(install(target(), [], unlicensed).out, /ships no LICENSE file/);
+});

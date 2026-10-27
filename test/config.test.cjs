@@ -184,11 +184,12 @@ test('each project\'s own skills are docs, so the docs gate flags them (D21a, re
     const install = fs.existsSync(path.join(dir, 'install.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'install.json'), 'utf8')) : {};
     const skills = new Set(install.redTeamSkills || []);
     const local = path.join(__dirname, '..', '..', p, '.claude', 'skills');
-    if (fs.existsSync(local)) for (const s of fs.readdirSync(local)) if (!harnessSkills.includes(s)) skills.add(s);
+    const vendored = Object.keys(install.vendoredSkills || {});
+    if (fs.existsSync(local)) for (const s of fs.readdirSync(local)) if (!harnessSkills.includes(s) && !vendored.includes(s)) skills.add(s);
     assert.ok(skills.size > 0, `${p} has project skills`);
     for (const s of skills)
       assert.ok(cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: .claude/skills/${s}/SKILL.md is in docs`);
-    for (const s of harnessSkills)
+    for (const s of [...harnessSkills, ...vendored])
       assert.ok(!cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: the harness's own ${s} skill stays out of docs`);
   }
 });
@@ -230,4 +231,37 @@ test('only the scope skill briefs the surveyor, and only with a Survey (D23, Pro
   const surveyor = read('agents/surveyor.md');
   assert.match(frontmatter(surveyor).description, /only by the scope skill/);
   assert.doesNotMatch(surveyor, /\*\*Read\*\*|Change summary|Block B|Block C/);
+});
+
+test('the D24 trials are wired into scope, build and review (research/10)', () => {
+  const scope = read('skills/scope/SKILL.md');
+  assert.ok(scope.includes('**The smallest complete change (T1, D24):**'));
+  assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
+  assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation/);
+  const build = read('skills/build/SKILL.md');
+  assert.match(build, /`frontend-design` skill if it has one \(T7\)/);
+  assert.match(build, /A UI check \(T6\) saves its screenshots under `\.harness\/work\/<n>\/ui\/`/);
+  const review = read('skills/review/SKILL.md');
+  const brief = review.slice(review.indexOf('## 2.'), review.indexOf('## 3.'));
+  assert.ok(brief.includes('**Error-handling lens (T4, D24),**'), 'T4 is part of the red-team brief');
+  assert.ok(brief.includes('**Security pass (T5),**') && brief.includes('git rev-parse HEAD') && brief.includes('built-in `security-review`'));
+  assert.ok(review.includes('`red-team`, `red-team T4`, `security-review T5`, `PR comment` or `reviewOnReady`'), 'each finding names its source');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'research', '10-trials.md')), 'the trial register exists');
+});
+
+test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
+    const dir = path.join(__dirname, '..', 'projects', p);
+    const f = path.join(dir, 'install.json');
+    const vendored = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')).vendoredSkills || {} : {};
+    for (const [name, v] of Object.entries(vendored)) {
+      assert.match(v.commit, /^[0-9a-f]{40}$/, `${p}/${name} is pinned to a commit`);
+      assert.ok(v.source.includes(v.commit), `${p}/${name}: the source URL names the pinned commit`);
+      const skill = path.join(dir, 'vendor', 'skills', name);
+      assert.ok(fs.existsSync(path.join(skill, 'SKILL.md')), `${p}/${name} has its SKILL.md`);
+      assert.ok(fs.readdirSync(skill).some(x => /^LICEN[SC]E/i.test(x)), `${p}/${name} ships its license`);
+      // Policy: no third-party scripts or hooks come in with a vendored skill.
+      assert.ok(!fs.readdirSync(skill, { recursive: true }).some(x => /\.(c?js|mjs|sh|ps1|cmd|exe|py)$/i.test(x)), `${p}/${name} ships no scripts`);
+    }
+  }
 });

@@ -7,6 +7,8 @@
 // --apply writes, and only on a clean target tree. Files the harness didn't install are replaced only
 // when named with --replace; files edited since the last install are kept unless --force.
 // It never writes CLAUDE.md or .claude/rules/; those are authored per project.
+// A project's vendored third-party skills (projects/<p>/vendor/skills/<name>/) install into .claude/skills/,
+// each pinned in install.json's vendoredSkills by source, commit and license (D24).
 // Exit 0 ok · 3 blocked (conflicts, local edits, dirty tree; nothing written) · 2 error.
 
 const fs = require('fs');
@@ -73,6 +75,19 @@ function sourceFiles(project) {
     files.set(rel, text);
   }
   for (const f of INSTALLED_FILES) files.set('.claude/' + f, lf(fs.readFileSync(path.join(HARNESS, f))));
+  const vendored = extra.vendoredSkills || {};
+  const vendorDir = path.join(projDir, 'vendor', 'skills');
+  const names = fs.existsSync(vendorDir) ? fs.readdirSync(vendorDir) : [];
+  for (const name of new Set([...names, ...Object.keys(vendored)])) {
+    const v = vendored[name];
+    if (!names.includes(name)) throw new Usage(`install.json: vendoredSkills.${name} has no vendor/skills/${name}/`);
+    if (!v || typeof v.source !== 'string' || !/^[0-9a-f]{40}$/.test(v.commit || '') || typeof v.license !== 'string')
+      throw new Usage(`install.json: vendoredSkills.${name} needs source, a 40-hex commit and license (D24)`);
+    const dir = path.join(vendorDir, name);
+    if (fs.existsSync(path.join(HARNESS, 'skills', name))) throw new Usage(`vendored skill "${name}" would overwrite the harness's own`);
+    if (!walk(dir).some(f => /^LICEN[SC]E/i.test(path.basename(f)))) throw new Usage(`vendored skill "${name}" ships no LICENSE file`);
+    for (const f of walk(dir)) files.set(`.claude/skills/${name}/` + posix(path.relative(dir, f)), lf(fs.readFileSync(f)));
+  }
   files.set('.claude/harness.json', cfgText);
   return { files, redTeamSkills: extra.redTeamSkills || [] };
 }

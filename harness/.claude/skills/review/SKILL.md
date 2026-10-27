@@ -25,6 +25,9 @@ Brief the `red-team` in the background with:
 - **Goal:** the issue, the plan's acceptance criteria, and its invariants.
 - **Target:** the PR **and the SHA** from the handoff.
 - **Constraints:** the plan's "Out of scope" and the docs it expected to change.
+- **Error-handling lens (T4, D24),** when the change touches error handling, validation or fallbacks: hunt silent failures too. Empty or broad catches, errors logged and then ignored, a default or success returned on failure, and errors that reach the user without saying what went wrong.
+
+**Security pass (T5),** when the issue touches auth, sessions, secrets, permissions or access to user data: check that `git rev-parse HEAD` is the handoff's SHA, then run the built-in `security-review` skill. Its findings go into the G2 table.
 
 Don't read the full diff yourself; it goes to the red-team.
 
@@ -40,6 +43,8 @@ For each finding and each comment, answer three questions:
 
 Recommend **fix** or **decline**, with the reason, and name what would make a declined finding real. Verify a claim before relying on it.
 
+**Source** names what found each one: `red-team`, `red-team T4`, `security-review T5`, `PR comment` or `reviewOnReady`. The trial register (research/10, D24) counts by it.
+
 ## 4. G2 report (one message; the owner decides everything in one reply)
 
 ```
@@ -51,7 +56,7 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 ### Docs
 <docs diff summary; acks>
 ### Optional owner steps
-<e.g. a local MAUI run; CI's build is the required check>
+<e.g. a local MAUI run; CI's build is the required check; the UI screenshots in .harness/work/<n>/ui/ (T6)>
 ```
 
 **A blocking finding** (security, data integrity, correctness) **can't go to a follow-up issue** unless the owner explicitly accepts it. Record that acceptance in the report.

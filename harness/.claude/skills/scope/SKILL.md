@@ -47,6 +47,8 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - Every section is filled in, or says "none".
    - `check <id>` must name a check in `.claude/harness.json`.
    - Prefer an automated check. A manual one needs its reason.
+   - **The smallest complete change (T1, D24):** for each sub-phase, take the first option that fully works: it isn't needed; this codebase already has it; the standard library or platform covers it; an installed dependency does; only then new code. Never cut validation at trust boundaries, error handling, security or accessibility. Name what you skipped under "Rejected approaches".
+   - **A sub-phase that changes the UI (T6, T7):** its check is the app driven through the platform's built-in UI automation (on Windows, PowerShell `UIAutomationClient`) plus window screenshots; say what to look at. If the project has a `frontend-design` skill, plan the design with it; the issue and the project's UI guidelines are its brief.
    - **"Rejected approaches" and "Invariants to preserve" carry what the clear will discard.** Write down anything Block B must know from your reasoning here.
 6. **Validate:** `node .claude/scripts/handoff-check.cjs .harness/work/<n>/plan.md --plan`. Fix every problem it lists, then run it again until it passes.
 7. **Present the plan for approval (G1)** with the plan's full text. The owner may edit it.
