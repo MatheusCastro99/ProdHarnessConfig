@@ -48,3 +48,52 @@ One row per issue run under D24. Trial cost is the trial's own step, priced from
 
 | Issue | Repo | Tier | Trials fired | Trial cost | Findings by source | Owner turns | Cost | Notes |
 |---|---|---|---|---|---|---|---|---|
+| #133 | BabyBuddyHelper | Standard | T1 (nothing to cut); T4 and T5 skipped, as the brief says; T6 and T7 don't apply | none (T1 is a plan rule) | `red-team` 1 low, deferred to #150; `reviewOnReady` 0 | ≈ 7 | $6.03 | A pure move: 25 files, 70 changed. See Runs |
+
+## Runs
+
+### BabyBuddyHelper #133 Core feature subfolders (Standard), PR #149
+
+The first issue run under D23 and D24 (harness `51aa524`). It was a refactor:
+- 25 files in `Core/Interfaces`, `Models` and `Services` moved into `Baby`, `TaskList`, `Vaccine` and `Cub` subfolders, with namespaces following the folders.
+- About 41 other files had their `using` lines rewritten.
+- ADR-015 was amended.
+
+It was mechanical, but it is the largest diff under the harness so far: 70 files, +294 / −184, in 3 commits.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 7b088392 | Opus 5.5 | 21, plus 8 surveyor (Sonnet, peak 43k, $0.25) | 77k → 121k | 10 min | $1.69 |
+| B `build`: the main session | 150d760d | Opus 5.5 | 9 | 74k → 85k | 17 min | $0.46 |
+| B `build`: the forked builder | 150d760d/subagents | Sonnet 5.5 | 50 | 58k → 136k | (same) | $1.53 |
+| C `/review` to G2 | 71772a35 | Opus 5.5 | plus 31 red-team (Opus, peak 89k, $1.18) | 76k → 93k | 7 min | $1.81 |
+| C: mark ready, CI reviewer, merge note | 71772a35 | Opus 5.5 | | | 5 min | $0.27 |
+| C `/close` | 71772a35 | Opus 5.5 | 27 main calls across all of C | → 104k | 1 min | $0.26 |
+| **Total** | | | | | ≈ 45 min | **$6.03** |
+
+**Against the targets:**
+- **Cost:** $6.03. That is under §8.4's $7.49 and above #72 ($5.16) and #73 ($4.80), on a diff about three times their size.
+- **Context:** the peak was 136k, in the builder, under 200k. Each session started at 74–77k before the first prompt.
+- **Owner turns:** ≈ 7, the desktop floor. They were `/scope`, the G1 answers (4 decisions in one prompt), the G1 accept, "continue 133", `/review`, one G2 reply and `/close`.
+- **Quality:**
+  - The red-team approved with one low finding: the subfolder rule isn't in CLAUDE.md's placement rule. The owner deferred it to follow-up #150.
+  - The CI reviewer had no comments, and there was no fix round.
+  - Escapes are tracked to 2026-11-24.
+
+**Findings:**
+1. **The cost went where a mechanical issue should put it.**
+   - Opus planned the issue, including 4 real G1 decisions. One of them was a trap: a `Task` namespace would hide .NET's `Task` type (CS0118).
+   - Opus also reviewed. The red-team checked the imports of all 97 `.cs` files with its own script.
+   - Sonnet did the volume. The builder wrote a throwaway script for the `git mv`, namespace and `using` rewrites instead of making 66 edits by hand.
+
+   Standard was the right tier: the size was mechanical, but the 4 decisions and the ADR change were not.
+2. **D23 held.** The surveyor ran only in Block A, and the builder did its own reading without a subagent. The handoff was complete, so the review didn't need the `git log --stat` fallback.
+3. **The trials had almost nothing to do, and that is correct.**
+   - **T1:** its ladder has little to say about a pure move. The plan's Rejected approaches still named the churn it skipped: file-scoped namespaces and `global using` lines.
+   - **T4 and T5:** the review's brief skipped both, with the reason "No error-handling or security surface is touched", as the conditions require.
+   - **T6 and T7:** there was no UI change, and T7 is InvoiceMe only.
+
+   So #133 says nothing about the trials' value. It only shows that the conditional trials stay off when they should.
+4. **Two small things, with no change needed yet:**
+   - **Order of steps:** Block B's main session read the work folder, the issue and `scope`'s SKILL.md before invoking `build`, though the plan's step 0 says to invoke it first. This cost about $0.10. Watch for it on the next issue.
+   - **A missed BOM:** the builder's script missed the BOM in two model files, which the plan had named. The namespace check caught it. Sub-phase 1 was already committed, so the builder reset its own uncommitted sub-phase (`git reset --hard HEAD`) and ran the fixed script again. That was safe here, and the plan's note did its job.
