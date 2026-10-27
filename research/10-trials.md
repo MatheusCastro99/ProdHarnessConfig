@@ -49,6 +49,38 @@ One row per issue run under D24. Trial cost is the trial's own step, priced from
 | Issue | Repo | Tier | Trials fired | Trial cost | Findings by source | Owner turns | Cost | Notes |
 |---|---|---|---|---|---|---|---|---|
 | #133 | BabyBuddyHelper | Standard | T1 (nothing to cut); T4 and T5 skipped, as the brief says; T6 and T7 don't apply | none (T1 is a plan rule) | `red-team` 1 low, deferred to #150; `reviewOnReady` 0 | ≈ 7 | $6.03 | A pure move: 25 files, 70 changed. See Runs |
+| #150 | BabyBuddyHelper | Small | T1 (nothing to cut); T4, T5, T6 and T7 don't apply | none | `red-team` 2 (7, 5), both fixed, 1 adjacent declined; `reviewOnReady` 0 | ≈ 6 | $3.83 | The fork called the run Standard: one extra owner turn. See Runs |
+| #69 | InvoiceMe | Standard | T1; **T4 fired**; T5 skipped, as the review says | red-team first run $0.61 with the T4 lens | `red-team T4` 2 (7, 5), both fixed; `red-team` 2 out of scope, now #144 and #145 | ≈ 7 | $5.36 | The first T4 run. See Runs |
+
+## Batch comparison
+
+The three issues so far, all run under D23 and D24 on harness `51aa524`, against the configuration before them. All prices are list prices from the transcripts.
+
+| | Before D23/D24 | #133 BBH | #150 BBH | #69 IM |
+|---|---|---|---|---|
+| Tier | Standard: #72 $5.16, #73 $4.80. Small: #134 $2.23, #68 $2.91, #120 $3.93 | Standard | Small | Standard |
+| Diff | #72, #73: about 20–25 changed files | 70 files, +294 / −184, a pure move | 20 files, +34 / −23, a pure move | 15 files, +259 / −41 |
+| Planning (A, with the surveyor) | $1.36, $1.61 | $1.69 | $1.12 (no surveyor) | $1.68 |
+| Build: main session + builder | $0.56 + $1.05, $0.52 + $0.73 | $0.46 + $1.53 | $0.25 + $0.59 | $0.45 + $0.82 |
+| Red-team runs | $0.93 (2 runs), $0.71 (1 run) | $1.18 (1 run) | $0.41 + $0.29 re-review | $0.61 + $0.22 re-review |
+| Review + fixes + close, main session | $1.27, $1.24 | $1.17 | $1.17 | $1.58 |
+| **Total** | **$5.16, $4.80** / **$2.23, $2.91, $3.93** | **$6.03** | **$3.83** | **$5.36** |
+| G2 fix round | #72: 1; #73: none | none | 1 (2 doc lines) | 1 (2 code fixes) |
+| Owner turns | ≈ 7–8 / ≈ 4–5 | ≈ 7 | ≈ 6 (5 without the tier slip) | ≈ 7 |
+| Peak context | 126k, 123k / 125k | 136k (builder) | 150k (one session) | 129k |
+
+**Reading it:**
+- **Standard runs cost about the same as before, on harder or larger work.**
+  - #69 cost $5.36 against $4.80–5.16. That included a G2 fix round with a re-review ($0.94), and #73 had no fix round.
+  - #133 cost $6.03 on a diff three times the size of #72's or #73's.
+  - Neither run shows a cost from the trials. T4's red-team run ($0.61) was the cheapest first run so far.
+- **#150 was the second most expensive Small run so far, after #120 ($3.93), for two reasons.**
+  - It had a fix round with a re-review: $0.62.
+  - The single session grew to 150k, so every call after G1 read 125–150k tokens at Opus rates.
+  - Its build ($0.84 in all) was in line with #134's ($0.79).
+- **Planning cost (T1's rule):** #69 cost $1.68, against the baseline median of $1.49. That's $0.19 more, just under the $0.20 limit. The rule is judged on the Schema epic's median, so #137–#139 decide it. #133's $1.69 is BabyBuddyHelper and outside the rule.
+- **T4 has met the first half of its keep rule after one issue:** 2 fix-worthy findings, both fixed. Its cost half holds so far: $0.61 against $0.71 for #73's single run. Keep counting over #70 and the money-in-cents work, as the rule says.
+- **T5, T6 and T7 haven't fired yet.** They wait for the auth and UI epics.
 
 ## Runs
 
@@ -97,3 +129,74 @@ It was mechanical, but it is the largest diff under the harness so far: 70 files
 4. **Two small things, with no change needed yet:**
    - **Order of steps:** Block B's main session read the work folder, the issue and `scope`'s SKILL.md before invoking `build`, though the plan's step 0 says to invoke it first. This cost about $0.10. Watch for it on the next issue.
    - **A missed BOM:** the builder's script missed the BOM in two model files, which the plan had named. The namespace check caught it. Sub-phase 1 was already committed, so the builder reset its own uncommitted sub-phase (`git reset --hard HEAD`) and ran the fixed script again. That was safe here, and the plan's note did its job.
+
+### BabyBuddyHelper #150 Mirror the Core feature subfolders in the test project (Small), PR #151
+
+The follow-up from #133. 17 test files moved into feature subfolders, plus a new `Remote/` folder. Both standing rules got the owner's wording. The tier was asked at G1 together with 3 other decisions, and the owner chose Small. Everything ran in one desktop session, d4e9e1b0, over 36 minutes.
+
+| Part | Model | Calls | Context peak | Cost |
+|---|---|---|---|---|
+| Plan mode to the G1 accept | Opus 5.5 | 16 | 117k | $1.12 |
+| Build: the main session around the fork | Opus 5.5 | 6 | 125k | $0.25 |
+| Build: the forked `builder` | Sonnet 5.5 | 14 | 87k | $0.59 |
+| Review to G2: main session | Opus 5.5 | 7 | 136k | $0.36 |
+| Review to G2: red-team | Opus 5.5 | 10 | 44k | $0.41 |
+| Fix round: main session | Opus 5.5 | 8 | 143k | $0.33 |
+| Fix round: red-team re-review (resumed with SendMessage) | Opus 5.5 | 3 | 49k | $0.29 |
+| Mark ready, CI reviewer, merge note | Opus 5.5 | 8 | 147k | $0.30 |
+| `/close` | Opus 5.5 | 4 | 150k | $0.18 |
+| **Total** | | 76 | | **$3.83** |
+
+**Against the targets:**
+- **Cost:** $3.83, against the Small median of $2.91 (#134, #68, #120). See the batch comparison.
+- **Context:** the peak was 150k, under 200k. The session started at 77k.
+- **Owner turns:** ≈ 6, met against Small's ≤ 6. They were `/scope`, the G1 answers, the G1 accept, "Run /review 150 in this session", the G2 reply and `/close`. The fourth one shouldn't have been needed (finding 1).
+- **Quality:** the red-team found 2 doc gaps (scores 7 and 5), both fixed in one commit, and one adjacent note the owner declined. The narrow re-review found nothing new, and the CI reviewer had no comments. Escapes are tracked to 2026-11-24.
+
+**Findings:**
+1. **The fork ignored the plan's tier.** The plan's first line and its Scope both say `Tier: Small`, and the builder printed the plan before starting. Its reply still followed `build`'s Standard instruction: "start Block C in a fresh session … then `/review 150`". It left out the Small line, `MAIN SESSION: run the review skill … (Small tier, this session)`. The main session saw the mismatch and asked the owner, which cost one owner turn. This is D22's hand-back failing on the model's side, not in the design. A fix is proposed below.
+2. **A resumed red-team is not cheaper than a fresh one.** The re-review resumed the first red-team with SendMessage more than 5 minutes later, so its 44k context was written to the cache again: $0.29 for 3 calls. #69's fresh, narrow re-review cost $0.22. No change needed.
+3. **The single session's long tail.** Everything after G1 ran at 125–150k context on Opus, and the main session cost $1.42 there across 33 calls. That is the known cost of Small (D18), and it was still cheaper than a second session's start plus an owner turn. No change.
+
+### InvoiceMe #69 API returns 500 for client errors (Standard), PR #143
+
+The first issue of the Schema epic (#136), and the first with T4's conditions. It made the validators and the tax controller reject wrong types instead of throwing. `errorMiddleware` now maps Mongoose cast and validation errors to 400 and duplicate keys to 409, and stops leaking messages on a 500. A disallowed CORS origin answers 403. 11 `test.failing` markers were flipped. Three commits came from the build and two from G2 fixes. The diff is 15 files, +259 / −41.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Cost |
+|---|---|---|---|---|---|
+| A `/scope` | 5215caf8 | Opus 5.5 | 17, plus 10 surveyor (Sonnet, peak 48k, $0.25) | 76k → 129k | $1.68 |
+| B `build`: the main session | cbbdf19f | Opus 5.5 | 9 | 74k → 84k | $0.45 |
+| B `build`: the forked builder | cbbdf19f/subagents | Sonnet 5.5 | 45 | 58k → 114k | $0.82 |
+| C `/review` to G2 | 61e37daf | Opus 5.5 | 9, plus 15 red-team (Opus, peak 52k, $0.61) | 76k → 94k | $1.22 |
+| C: the G2 fixes and a narrow re-review | 61e37daf | Opus 5.5 | 18, plus 8 red-team ($0.22) | → 115k | $0.94 |
+| C `/close` | 61e37daf | Opus 5.5 | 6 | → 121k | $0.25 |
+| **Total** | | | | | **$5.36** |
+
+The epic planning session before it (bfdc4df0, which split epic #136 into its issues) isn't part of #69 and isn't counted.
+
+**Against the targets:**
+- **Cost:** $5.36, under $7.49.
+- **Context:** the peak was 129k, and each session started at 74–76k.
+- **Owner turns:** ≈ 7, the desktop floor. They were `/scope`, the G1 answers (3 decisions, each the recommended option), the G1 accept, "continue 69", `/review`, the G2 reply and `/close`.
+- **Quality:** the red-team approved with 2 findings, both tagged `red-team T4`, scored 7 and 5, and both fixed at G2. It also found 2 out-of-scope issues in code this PR didn't change, which became #144 and #145. The owner accepted the open email-limit gap under the pending ADR-003. InvoiceMe has no CI reviewer configured. Escapes are tracked to 2026-11-24.
+
+**Findings:**
+1. **T4 earned its place on its first run.**
+   - **Finding 1:** Express's URI decode failure sets only `err.status`, so it still answered 500, now with the generic message. It was fixed with `err.statusCode || err.status || 500`.
+   - **Finding 2:** the refused CORS origin was no longer logged anywhere. It's now logged on the server only.
+
+   Both are "an error that doesn't say what went wrong", the lens's own wording.
+
+   **Caveat for attribution:** Opus wrote the brief, and it added a pointed hint to the lens: "body-parser's `status` vs `statusCode`". So finding 1 is credited to the T4 lens as briefed, not to its wording alone. That's how the trial runs in practice, and it should be counted that way.
+2. **T1 left visible marks in the plan.** The plan rejected a per-route `isValidObjectId` middleware (it would duplicate the `CastError` mapping) and a test-only model for E11000 (a unit test is enough until #137). It also named 3 gaps it left alone. The red-team found no missing or excess code. A2, `calculateTax`'s `parseFloat`, was in code the plan didn't name; it isn't traceable to a T1 skip.
+3. **T5 was skipped correctly and said why.** The review noted that the CORS change alters only the status a refused origin gets, not which origins are allowed.
+4. **Block B's main session read before invoking `build` again:** the work folder, `gate.json` and the issue, about $0.05–0.10. This is the second Standard run in a row (#133). After `/clear`, "continue <n>" gives the main session nothing but the number, so it looks for the plan before it finds step 0. The cost is small; a one-line fix is noted below.
+
+### Proposed changes from this batch (not made)
+
+1. **Tier hand-back (from #150), worth doing.** Make the tier the plan's, read by both sides:
+   - **`build`, step 6:** "Take the tier from the plan's first line (`Tier: Small` or `Tier: Standard`) and end with that tier's line."
+   - **The Small path in `scope` and CLAUDE.md:** "When the forked build returns on the Small tier, run `review` in this session. The approved plan's tier decides, not the fork's reply."
+
+   Either fix alone would have saved #150's extra turn; together they cover a slip on either side. A test can check that both lines exist.
+2. **"continue <n>" (from #133 and #69), optional.** Add to CLAUDE.md's workflow: "After G1, 'continue <n>' means invoke `build` for <n> at once; the fork reads the plan." This saves about $0.05–0.10 per Standard issue.
