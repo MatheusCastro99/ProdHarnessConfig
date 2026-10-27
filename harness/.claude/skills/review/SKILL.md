@@ -16,7 +16,7 @@ Issue: `$ARGUMENTS`. This session runs on Opus: on Standard a fresh one (`claude
   - Run `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`.
   - Exit 1 (invalid), 3 (BLOCKED, or the PR head moved) or 2 (error): stop and report why. Don't review a moving target.
 
-If the handoff passes but is too thin to triage against, brief the `surveyor` with one **Change summary** of the PR's commits. Note in the G2 report that you did.
+If the handoff passes but is too thin to triage against, read the PR's commit log with `git log --stat` yourself, not the diff: the red-team reads the diff. Note in the G2 report what the handoff lacked.
 
 ## 2. Red-team
 

@@ -1,6 +1,6 @@
 # Production Harness: Optimization Plan
 
-Status: **all decisions made (D1–D22); validated for continued use (D19, 2026-10-26).** Implemented in ProdHarnessConfig and installed in BabyBuddyHelper and InvoiceMe. The pilot's measurements are in §8.2 and §8.6.
+Status: **all decisions made (D1–D23); validated for continued use (D19, 2026-10-26).** Implemented in ProdHarnessConfig and installed in BabyBuddyHelper and InvoiceMe. The pilot's measurements are in §8.2 and §8.6.
 Owner: Matheus Castro. Written 2026-10-21. **Revised 2026-10-22** from a meta-review of four independent assessments ([research/03](research/03-assessment-review.md)): P0 safety fixes, hardening, and decisions D3, D6, D8, D9 and D18.
 
 Every recommendation here rests on one of four things: measured data from past session records (the study repo and BabyBuddyHelper), Anthropic's documentation (linked), an established engineering standard, or an owner decision (logged in §9). Estimates are labelled as estimates.
@@ -148,7 +148,7 @@ Note on P5: gates mostly cost the owner's time (O8), not tokens. Each owner turn
 - **Session:** fresh, in plan mode. `opusplan` puts plan mode on Opus 5.5 (D12); effort is high (D13). The owner invokes the `scope` skill and names the tier (Standard or Small, D18).
 - **Steps:**
   - The main session reads the issue and its comments.
-  - It delegates the code survey to the read-only `surveyor` subagent on Sonnet (P2, D14). The surveyor returns a summary, not file contents, and reads the project docs only when they are relevant (D5).
+  - It delegates the code survey to the read-only `surveyor` subagent on Sonnet (P2, D14), or reads the code itself when the issue names only a few files (D23). The surveyor returns a summary, not file contents, and reads the project docs only when they are relevant (D5).
   - It writes one plan containing:
     - facts checked, and facts in the issue that turned out wrong
     - open decisions, each as 2–3 options with a recommendation (Working Agreements format)
@@ -188,7 +188,7 @@ Note on P5: gates mostly cost the owner's time (O8), not tokens. Each owner turn
     - stop
   - The file is deleted only when the check passes.
 - **Output filtering (P2):** checks run through the S5 runner, which trims output to failures. H3 remains only as a fallback for test commands typed directly (§6.2).
-- **Reading when the plan is thin (F10):** Block B may call the `surveyor` once per sub-phase to read code the plan didn't cover. It returns a summary, not file contents.
+- **Reading when the plan is thin (F10):** Block B reads the code the plan didn't cover itself, narrowly. **Amended by D23:** it no longer briefs the `surveyor`. The forked builder already runs on Sonnet in a fresh context, so the surveyor would add a hop and a lossy summary for nothing.
 - **Escalation, kept from Working Agreements rule 5:** anything the plan does not cover, such as a behaviour change, a new dependency or a scope change, stops and asks. Auto mode still asks when the prompt or skill explicitly requires it.
 - **Docs (D2):** doc updates land in the same commit as the code they describe, so docs never trail code and no separate doc pass is needed.
 - **Exit** (only without `BLOCKED`):
@@ -208,7 +208,7 @@ Note on P5: gates mostly cost the owner's time (O8), not tokens. Each owner turn
   - It runs S3 and refuses to start on a missing, invalid or `BLOCKED` handoff.
   - **It refuses if the PR head has moved** since the handoff's recorded SHA (F3).
   - Its inputs are the handoff and the PR diff (P3). A small context also makes waiting at G2 cheap: a cold resume costs little.
-- **Thin handoff (F10):** if the handoff passes S3 but is too thin to triage against, `review` may ask the `surveyor` for one bounded summary of Block B's commits and diff before G2. Each use is counted (§8.3).
+- **Thin handoff (F10):** if the handoff passes S3 but is too thin to triage against, `review` reads the commit log (`git log --stat`) itself before G2, and the G2 report says what the handoff lacked. **Amended by D23:** no `surveyor` here; the red-team already reads the full diff.
 - **Red-team:** a background subagent with `model: opus` in its frontmatter (§7.2). It reviews the diff at the recorded SHA against the plan's acceptance criteria and invariants. It checks the docs against *behaviour*, not only against paths: S1 can't see drift that names no path (F11). It returns scored findings. The full diff goes to the red-team, not into the main session.
 - **Triage:** the main session runs each finding and review comment through the three questions (reachable today? affects users? fix cost justified?) and recommends fix or decline.
 - **G2:** one report holds:
@@ -665,7 +665,7 @@ Effort is **high for every role** (D13).
 | Block C: review (main) | Opus 5.5 (`--model opus`) | Triage needs judgment. The context is small (≈ 87k at start) and there are few calls. |
 | Block D: close | session's model | Mostly script. A skill `model` override would cost a full cache miss for one turn. |
 | red-team | **Opus 5.5, `model: opus` in frontmatter** | Independent review is where quality matters most, and the Opus red-team is the safety net for a Sonnet builder. About $0.50 per run in #28. |
-| surveyor (A; at most once per sub-phase in B; a thin-handoff summary in C) | Sonnet 5.5 | Proven in #28. Half the price of inheriting Opus. |
+| surveyor (Block A only, D23) | Sonnet 5.5 | Proven in #28. Half the price of inheriting Opus. |
 | Any other subagent | Sonnet, via `CLAUDE_CODE_SUBAGENT_MODEL` (D14) | Stops built-in agents from silently inheriting Opus. |
 
 **Not adopted:**
@@ -841,6 +841,7 @@ Four Standard issues: BabyBuddyHelper #96 and #97, InvoiceMe #72 and #73. Record
 | D20 | **Owner turns: ≤ 7 per Standard issue on the desktop app**, counted as in §8.6; ≤ 6 again if the app adds clear-on-accept (F4). The Small tier keeps ≤ 6. A turn spent on anything else (a question mid-build, a second G2 round) counts. *Alternative: keep ≤ 6 and merge the G1 answers into the accept: `/scope` would put open decisions in the plan as options with a default, so one accept or one reply settles them. That costs a weaker G1 when the defaults are wrong.* | Decided 2026-10-26 |
 | D21 | **Two fixes from #73 (research/08, finding 7):** (a) each project's own skills go in its `harness.json` `docs` (InvoiceMe `guardrails-review` and `ux-design`; BabyBuddyHelper `review-guardrails` and `ux-design`), so the docs gate flags them, with a test that every `redTeamSkills` entry is a listed doc. (b) The `build` skill: a doc line the change makes untrue is updated in the same commit **even when the plan narrows the files**, and it's listed under the handoff's Docs. The plan's file list scopes code, not the docs a change falsifies. Then a reinstall PR in each repo. The plan size cap (12k) stays and is watched. | Decided 2026-10-26 |
 | D22 | **The Small tier hands off like Standard, and its G2 runs on Opus in the main session** (research/09, #134). On Small, the forked build writes, validates and posts the handoff, then ends its reply with "MAIN SESSION: run the review skill for #<n> now (Small tier, this session)". The main session acts on it (CLAUDE.md), so the review, the red-team brief and the G2 triage run on Opus, the same session that ran plan mode. That session also turns Auto-fix off and handles `reviewOnReady`. No fork runs `review`, and the review binds to the handoff's SHA on both tiers. This removes #134's two faults: the finish guard blocking a Small fork that had no handoff, and a G2 triaged by the Sonnet builder. Estimated cost: ≈ $0.2–0.3 more per Small issue. | Decided 2026-10-26 |
+| D23 | **The `surveyor` is Block A's only** (ProdHarnessConfig#1, 2026-10-27). In the pilot it was briefed only in Block A (#96, #97, #72, #73, #120), never in B or C. There it cost $0.16–0.29 and its summary replaced the planner's own reading: #73 was planned from the summary alone and the red-team approved it. The same reads by Opus at 90–120k context are estimated at $0.2–0.75. So it stays in Block A, but the planner reads the code itself when the issue names only a few files, on either tier. Its Block B and C roles (F10, from GRK-15 and GRK-9) go: the forked builder already runs on Sonnet in a fresh context, and the red-team reads the full diff. Block B reads narrowly itself; a thin handoff is triaged from `git log --stat`. The red-team and the `builder` stay: the fork adds about $0.30 per Standard issue (its 57k start on Sonnet plus a few wrapper calls; the wrapper's own start is paid inline too), against $3.3 saved in #97's replay (Opus $6.07, Sonnet $2.73). | Decided 2026-10-27 |
 
 The 2026-10-22 changes come from the meta-review of four independent assessments ([research/03-assessment-review.md](research/03-assessment-review.md)). The findings applied without a new decision, because they add to or specify existing ones: F1, F3, F4, F5, F7–F14 and F16. They are referenced by F-number where they appear.
 

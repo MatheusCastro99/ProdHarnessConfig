@@ -31,7 +31,7 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
    - Keep to its "Invariants to preserve".
    - Don't re-explore its "Rejected approaches".
    - The file-check hook lints each edit; fix what it reports.
-2. **Need to read code the plan didn't cover?** Brief the `surveyor` with one **Read** question, at most once per sub-phase, rather than reading broadly yourself.
+2. **Need to read code the plan didn't cover?** Read only that code yourself, narrowly: search first, then the lines you need. You already run on Sonnet in a fresh context, so a subagent would only add a hop (D23).
 3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
 4. **Docs:**
    - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.

@@ -217,3 +217,17 @@ test('the build updates the docs a change makes untrue, even when the plan narro
   assert.ok(docs.includes('even when the plan limits the files'), 'the docs step overrides a narrowed file list');
   assert.ok(docs.includes('Docs'), 'the change is listed in the handoff');
 });
+
+test('only the scope skill briefs the surveyor, and only with a Survey (D23, ProdHarnessConfig#1)', () => {
+  // The pilot briefed it only in Block A. The forked builder is already Sonnet in a fresh context,
+  // and the red-team reads the full diff, so the Block B and C roles went.
+  for (const skill of ['build', 'review', 'close']) {
+    assert.doesNotMatch(read(`skills/${skill}/SKILL.md`), /surveyor/, `${skill} briefs the surveyor`);
+  }
+  const scope = read('skills/scope/SKILL.md');
+  assert.match(scope, /Brief the `surveyor` with a \*\*Survey\*\*/);
+  assert.ok(scope.includes('read them yourself instead, on either tier (D23)'), 'a few named files are read directly');
+  const surveyor = read('agents/surveyor.md');
+  assert.match(frontmatter(surveyor).description, /only by the scope skill/);
+  assert.doesNotMatch(surveyor, /\*\*Read\*\*|Change summary|Block B|Block C/);
+});
