@@ -2,7 +2,7 @@
 
 A production harness for [Claude Code](https://code.claude.com/docs): the workflow, skills, subagents, hooks and scripts I use to take a GitHub issue from plan to merge, with a person deciding at two gates and the agent doing the rest.
 
-It was built from measured session data, and it's measured on every issue it runs. On the two repositories it runs in, a typical issue costs about 40% less than one long session did, with less than half the context and fewer messages from me.
+It was built from measured session data, and it's measured on every issue it runs. A typical issue now costs about 40% less than one long session did, with less than half the context and fewer messages from me.
 
 **Who this is for:** developers who already use Claude Code on real projects, and want a repeatable way to run it on issues that keeps cost and context down without giving up review. You'll need GitHub, CI on pull requests, and the habit of reading a plan before it's built.
 
@@ -26,15 +26,15 @@ flowchart LR
 3. **`/review <n>`:** a fresh Opus session briefs a read-only red-team on the handed-off commit, triages its findings with the PR's comments, and brings you one report with numbered decisions (**G2**). It fixes what you approve and re-reviews once.
 4. **You merge;** then `/close <n>` cleans up.
 
-Each step starts a new context from a file (the plan, the handoff), so no session carries the whole issue. A **Small** tier runs the same gates in one session for single-step issues. Hooks enforce the rest: no stop while checks fail, no commit that leaves a doc stale, no merge or force push.
+Each step starts a new context from a file (the plan, the handoff), so no session carries the whole issue. A **Small** tier runs the same gates in one session for single-step issues. Hooks enforce the rest: no stop while checks fail, and no commit that leaves a doc stale. Permission rules, backed by a GitHub ruleset, rule out a merge or a force push.
 
 The details are in [Docs/01. The workflow](Docs/01-workflow.md).
 
 ## Results
 
-From [Evidence/research/11](Evidence/research/11-meta-analysis.md): 30 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness and 15 with it, on BabyBuddyHelper (.NET MAUI) and InvoiceMe (MERN).
+From [Evidence/research/11](Evidence/research/11-meta-analysis.md): 30 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness: 10 code issues on BabyBuddyHelper (.NET MAUI) and 5 docs issues on HarnessEngineering101. 15 ran with it, on BabyBuddyHelper and InvoiceMe (MERN).
 
-| | Before the harness (10 code issues) | Harness, Standard tier (5 issues) |
+| | Before the harness (10 code issues, BabyBuddyHelper) | Harness, Standard tier (5 issues: 4 InvoiceMe, 1 BabyBuddyHelper) |
 |---|---|---|
 | Median cost per issue | $9.99 | **$6.03** (every run ≤ $6.43) |
 | Main-session peak context | 291k tokens | **121–129k** |
@@ -45,7 +45,8 @@ From [Evidence/research/11](Evidence/research/11-meta-analysis.md): 30 issue run
 - **Quality held.** No blocking finding was left at merge. Review found 0–3 fix-worthy problems per issue, and most of them were doc lines a change had made untrue.
 - **Caveats:**
   - The costs are list-price equivalents; I'm on a subscription.
-  - The samples are small, on two repositories with one owner, so the medians show direction, not effect size.
+  - The samples are small, with one owner, so the medians show direction, not effect size.
+  - The two columns come mostly from different repositories: the code baseline is BabyBuddyHelper only, and 4 of the 5 Standard runs are InvoiceMe. The issues differ in size too.
   - The Small tier is cheaper only when nothing heavy follows the plan (median $2.92 on docs issues, $4.88 on code issues).
   - D25, the version installed now, is under validation.
 

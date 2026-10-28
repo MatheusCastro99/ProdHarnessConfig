@@ -55,8 +55,8 @@ The fork can't ask the owner, so it ends with `QUESTION:` when the plan doesn't 
 | Agent | Model | Tools | Briefed by | Returns |
 |---|---|---|---|---|
 | [`builder`](../harness/.claude/agents/builder.md) | Sonnet, effort high | All (it implements) | Only the `build` skill, as its fork | A handoff, `BLOCKED`, or a `QUESTION:` |
-| [`red-team`](../harness/.claude/agents/red-team.md) | Opus, effort high | Read-only: Read, Grep, Glob, Bash for inspection (no Edit or Write) | `review` (and once more for the re-review); `close` on an epic | A verdict and scored findings, at most 60 lines |
-| [`surveyor`](../harness/.claude/agents/surveyor.md) | Sonnet, effort high | Read-only, the same as the red-team | `scope` only | Facts with `file:line`, and gaps, never file contents |
+| [`red-team`](../harness/.claude/agents/red-team.md) | Opus, effort high | Read-only: Read, Grep, Glob, Bash for inspection (no Edit or Write) | `review` (and once more for the re-review); `close` on an epic | A verdict and scored findings |
+| [`surveyor`](../harness/.claude/agents/surveyor.md) | Sonnet, effort high | Read-only, the same as the red-team | `scope` only | Facts with `file:line`, and gaps, never file contents; at most 60 lines |
 
 - **The red-team reviews one commit.** If the PR head isn't the SHA it was given, that is its only finding. It scores each finding (Priority = Severity + Confidence + Impact − Fix cost, each 1–5), drops anything at 3 or below, and marks security, data-integrity and correctness findings blocking whatever their score.
 - **A project can preload skills into the red-team,** such as its own review guidelines, with `redTeamSkills` in `install.json` (see [05](05-installer.md#installjson)).

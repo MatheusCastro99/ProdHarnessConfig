@@ -5,7 +5,7 @@ The harness in this repo is built for Claude Code. Most of what makes it work is
 - **This page:** each idea, why it matters (with the measured effect where there is one), and what you'd need to rebuild it.
 - **[SETUP.md](SETUP.md):** a phase-by-phase guide, with a prompt you can give any agent to set it up with you.
 
-The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analysis.md): 30 priced runs on two repositories by one owner. That's enough to show which way things move, not to measure effects precisely, and none of it was measured on another platform.
+The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analysis.md): 30 priced runs on three repositories by one owner, with the harness running on two of them. That's enough to show which way things move, not to measure effects precisely, and none of it was measured on another platform.
 
 ## What carries over
 
@@ -19,7 +19,7 @@ The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analys
 | **Bind the review to one commit** | A push after the handoff makes the review stale. The review refuses a moved head | Record the SHA in the handoff; compare it with the PR head before reviewing |
 | **A check runner that keeps the real exit code** | Trimmed output never turns a failure into a pass, and the checks are named, so plans can cite them | [`check.cjs`](../harness/.claude/scripts/check.cjs) and a `harness.json`; both are portable |
 | **A stop gate on failing checks** | The agent can't hand off with failing fast checks. After 3 failures it stops for the owner instead of looping | Your agent's "before finishing" hook, or a wrapper script that runs the checks and refuses the handoff |
-| **A docs gate** | A commit that touches code named in a doc must update or acknowledge that doc | [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) as a git pre-commit hook works without any agent |
+| **A docs gate** | A commit that touches code named in a doc must update or acknowledge that doc | A git pre-commit hook, with no agent involved. [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) only lists candidates (it always exits 0); to block, wrap its exported `unresolved()`, which also honours the `ack:` lines, and exit non-zero when it returns any |
 | **Server-side branch protection** | "The owner merges" holds even if the agent's own rules are bypassed | A ruleset on the default branch: a required PR and checks, no force pushes |
 | **Price every run** | Without it, the 40% saving was a guess. Raw token totals misread cost by about 2× until priced | Your platform's session logs and its price table. The scripts in [`Evidence/research/scripts/`](../Evidence/research/scripts/) read Claude Code's format; the method carries over |
 

@@ -16,7 +16,7 @@ Every command in the file has the same shape:
 
 - **`run`** is an argument list, not a shell string, so there's nothing to quote or inject. On Windows, `.cmd` shims such as `npm` and `npx` run through `cmd.exe`, and an argument that can't be quoted safely there is refused.
 - **`cwd`** is relative to the repo root. It is optional.
-- **`timeoutSec`** is optional. The defaults are 120 for `fast`, 600 for `full` and 300 for any other check. A timeout exits 124.
+- **`timeoutSec`** is optional. The defaults are 120 for `fast`, 600 for `full`, 300 for any other check, and 60 for a `fileTools` command. A timeout exits 124.
 
 ## Fields
 

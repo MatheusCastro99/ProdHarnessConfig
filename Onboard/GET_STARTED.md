@@ -53,7 +53,7 @@ Try the checks before installing anything. From your project's root, point the r
 HARNESS_CONFIG=../ProdHarnessConfig/projects/YourProject/harness.json node ../ProdHarnessConfig/harness/.claude/scripts/check.cjs fast
 ```
 
-Fix the config until `fast` and `full` pass on a clean checkout.
+Fix the config until `fast` and `full` pass on a clean checkout. The runner logs to `.harness/work/hooks.log`, so this creates a `.harness/` folder in your project. Delete it, or ignore it with the gitignore lines in step 6.
 
 Optionally, add `projects/<YourProject>/install.json`. It can preload your own review rules into the red-team (`redTeamSkills`), or vendor a third-party skill (see [Docs/05](../Docs/05-installer.md#installjson)).
 
@@ -81,13 +81,14 @@ node ../ProdHarnessConfig/scripts/install.cjs . YourProject
 
 1. **Read the dry run.** It lists every file it would add and any conflicts: files that exist but weren't installed by the harness, such as an old `.claude/agents/red-team.md`. Each conflict needs a decision: `--replace <path>` to replace it, or move your file aside.
 2. **Add the gitignore lines it prints:** `.harness/work/` and `.claude/settings.local.json`. Remove any rule it says would hide an installed file.
-3. **Apply:**
+3. **Commit your `CLAUDE.md` and the `.gitignore` change first.** `--apply` writes only to a clean working tree, so the install lands as one reviewable diff. If it says "the target has uncommitted changes", `git status` shows what's left.
+4. **Apply:**
 
    ```bash
    node ../ProdHarnessConfig/scripts/install.cjs . YourProject --apply
    ```
 
-4. **Commit** everything, including `.claude/harness-manifest.json`, together with your `CLAUDE.md`. Open a PR and merge it the usual way.
+5. **Commit what it wrote,** including `.claude/harness-manifest.json`. Open a PR and merge it the usual way.
 
 What the installer does in each case is in [Docs/05](../Docs/05-installer.md).
 
@@ -96,7 +97,7 @@ What the installer does in each case is in [Docs/05](../Docs/05-installer.md).
 Before the first real issue:
 - [ ] `node .claude/scripts/check.cjs full` passes.
 - [ ] In a fresh Claude Code session, `/context` shows the starting context. The harness was tuned to start under about 85k tokens; a long `CLAUDE.md` or many enabled plugins push it up. `settings.json` turns off a few plugins that weren't needed; adjust `enabledPlugins` for yours.
-- [ ] The hooks fire. Make a throwaway edit to a file with a `fileTools` linter and see it run, then revert the edit.
+- [ ] The hooks fire. The lint hook is silent when a file is clean, so make a throwaway edit that breaks a `fileTools` linter's rule and watch Claude get the error, then revert it. With no `fileTools`, have Claude make a throwaway commit on a scratch branch and look for a `docs-gate` line in `.harness/work/hooks.log`, where every hook logs what it did.
 
 ## 8. Your first issue
 
