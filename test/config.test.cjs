@@ -246,7 +246,7 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   assert.ok(brief.includes('**Error-handling lens (T4, D24),**'), 'T4 is part of the red-team brief');
   assert.ok(brief.includes('**Security pass (T5),**') && brief.includes('git rev-parse HEAD') && brief.includes('built-in `security-review`'));
   assert.ok(review.includes('`red-team`, `red-team T4`, `security-review T5`, `PR comment` or `reviewOnReady`'), 'each finding names its source');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'research', '10-trials.md')), 'the trial register exists');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '10-trials.md')), 'the trial register exists');
 });
 
 test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {

@@ -1,12 +1,12 @@
 'use strict';
-// research/scripts/runs.js: phases, the UI check, extra work, and the data file's shape.
+// Evidence/research/scripts/runs.js: phases, the UI check, extra work, and the data file's shape.
 
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const { tempDir, write } = require('./helpers.cjs');
-const { priceRun, groups } = require('../research/scripts/runs.js');
+const { priceRun, groups } = require('../Evidence/research/scripts/runs.js');
 
 const OPUS = 'claude-opus-5-5', SONNET = 'claude-sonnet-5-5';
 // 1M cache reads on Opus cost $0.20, on Sonnet $0.10: easy totals.
@@ -76,7 +76,7 @@ test('extra work is priced apart and left out of the total', () => {
 });
 
 test('runs.json: every run has a known config, a project, a recorded cost and session ids', () => {
-  const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'research', 'scripts', 'runs.json'), 'utf8'));
+  const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', 'scripts', 'runs.json'), 'utf8'));
   for (const r of data.runs) {
     const name = `${r.repo} #${r.issue}`;
     assert.ok(data.configs[r.config], name + ': config');
@@ -85,4 +85,13 @@ test('runs.json: every run has a known config, a project, a recorded cost and se
     assert.ok(r.sessions.length && r.sessions.every(s => /^[0-9a-f]{8}$/.test(s.id)), name + ': sessions');
     if (r.config !== 'baseline') assert.ok(['Standard', 'Small'].includes(r.tier) && r.sessions.every(s => s.start), name + ': tier and start');
   }
+});
+
+test('README: every cost and context figure is one research/11 reports', () => {
+  // The README's results come from runs.js through research/11 (#3); a figure typed in by hand would drift.
+  const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+  const r11 = fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', '11-meta-analysis.md'), 'utf8');
+  const figures = readme.match(/\$\d+\.\d\d|\b\d+(?:–\d+)?k\b/g) || [];
+  assert.ok(figures.length >= 8, 'the README states its results');
+  for (const f of new Set(figures)) assert.ok(r11.includes(f), `README's ${f} appears in research/11`);
 });

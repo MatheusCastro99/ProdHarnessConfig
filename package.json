@@ -1,7 +1,7 @@
 {
   "name": "prod-harness-config",
   "private": true,
-  "description": "Production harness configuration for Claude Code (see OPTIMIZATION_PLAN.md)",
+  "description": "Production harness configuration for Claude Code (see README.md)",
   "engines": { "node": ">=22" },
   "scripts": {
     "test": "node --test --test-concurrency=4 \"test/*.test.cjs\""

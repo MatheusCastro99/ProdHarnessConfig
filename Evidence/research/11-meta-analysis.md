@@ -20,7 +20,7 @@ Date: 2026-10-28. Data: [scripts/runs.json](scripts/runs.json), 30 runs. Script:
 
 ## 1. The runs
 
-The harness runs, from `node research/scripts/runs.js`. The 15 baseline runs are summarized in the second table.
+The harness runs, from `node Evidence/research/scripts/runs.js`. The 15 baseline runs are summarized in the second table.
 
 | Run | Config | Tier | Diff | Plan | Build | UI check | Review | Close | Total | Main peak | Turns |
 |---|---|---|---|---|---|---|---|---|---|---|---|
