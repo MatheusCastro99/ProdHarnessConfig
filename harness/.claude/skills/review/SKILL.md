@@ -57,7 +57,11 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 <docs diff summary; acks>
 ### Optional owner steps
 <e.g. a local MAUI run; CI's build is the required check; the UI screenshots in .harness/work/<n>/ui/ (T6)>
+### Decisions for you
+1. <one per open decision: each finding to fix or decline, each follow-up issue, each item only the owner can change>
 ```
+
+**Number every open decision under "Decisions for you" (D25)**, so one reply can answer them all ("1, 2 fix; 3 decline; 4 open the issue"). Ask nothing anywhere else in the report.
 
 **A blocking finding** (security, data integrity, correctness) **can't go to a follow-up issue** unless the owner explicitly accepts it. Record that acceptance in the report.
 

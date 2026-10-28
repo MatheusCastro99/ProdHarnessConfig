@@ -146,6 +146,20 @@ test('a Small-tier plan has exactly one sub-phase (D18)', () => {
   assert.strictEqual(check(plan({ tier: 'Standard', phases: two }), ['--plan']).code, 0);
 });
 
+test('with frontend-design installed, a UI sub-phase must say whether it used it (T7, D25)', () => {
+  // #138, #149 and #151 changed UI sub-phases and never mentioned it, so T7 couldn't be judged.
+  const withSkill = dir => write(dir, '.claude/skills/frontend-design/SKILL.md', '---\nname: frontend-design\n---\n');
+  const ui = line => plan({ phases: [`### 1. A\n- Files: src/pages/InvoicePage.jsx\n- Change: a${line}\n- Check: check fast`] });
+  const silent = check(ui(''), ['--plan'], {}, withSkill);
+  assert.strictEqual(silent.code, 1);
+  assert.match(silent.out, /sub-phase 1 changes the UI: say "frontend-design: used for/);
+  assert.strictEqual(check(ui('\n  - frontend-design: not needed, because only the text format changes'), ['--plan'], {}, withSkill).code, 0);
+  assert.strictEqual(check(ui('\n  - frontend-design: used for the picker layout'), ['--plan'], {}, withSkill).code, 0);
+  // Without the skill (BabyBuddyHelper), or with no UI file, nothing is required.
+  assert.strictEqual(check(ui(''), ['--plan']).code, 0);
+  assert.strictEqual(check(plan(), ['--plan'], {}, withSkill).code, 0);
+});
+
 test('a sub-phase check must name a defined check, or give a reason for being manual (F14)', () => {
   const unknown = check(plan({ phases: ['### 1. A\n- Files: a\n- Change: a\n- Check: check nope'] }), ['--plan']);
   assert.match(unknown.out, /check "nope" isn't defined/);

@@ -237,10 +237,10 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   const scope = read('skills/scope/SKILL.md');
   assert.ok(scope.includes('**The smallest complete change (T1, D24):**'));
   assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
-  assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation/);
+  assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
   const build = read('skills/build/SKILL.md');
   assert.match(build, /`frontend-design` skill if it has one \(T7\)/);
-  assert.match(build, /A UI check \(T6\) saves its screenshots under `\.harness\/work\/<n>\/ui\/`/);
+  assert.match(build, /\*\*A UI check \(T6\):\*\*[\s\S]*Save its screenshots under `\.harness\/work\/<n>\/ui\/`/);
   const review = read('skills/review/SKILL.md');
   const brief = review.slice(review.indexOf('## 2.'), review.indexOf('## 3.'));
   assert.ok(brief.includes('**Error-handling lens (T4, D24),**'), 'T4 is part of the red-team brief');
@@ -264,4 +264,28 @@ test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {
       assert.ok(!fs.readdirSync(skill, { recursive: true }).some(x => /\.(c?js|mjs|sh|ps1|cmd|exe|py)$/i.test(x)), `${p}/${name} ships no scripts`);
     }
   }
+});
+
+test('D25: the UI check stays in the builder on safe data, the tier comes from the plan, and the owner answers by number (research/11)', () => {
+  const claude = read('CLAUDE.md'), workflow = claude.split('## Workflow')[1].split('\n## ')[0];
+  // C1: #149 and #151 ran the UI check in the Opus main session ($1.42 and $2.73), and #151 wrote to the owner's data.
+  assert.ok(workflow.includes("the fork can't reach the app's PR tools. It drives the browser pane and runs the UI check itself."));
+  const scope = read('skills/scope/SKILL.md');
+  assert.ok(scope.includes('The builder runs it, on either tier; never route it to the main session (D25).'));
+  assert.ok(scope.includes('Never plan a write to the owner\'s data, even one undone afterwards.'));
+  const build = read('skills/build/SKILL.md');
+  assert.ok(build.includes("**A UI check (T6):** run it yourself, on either tier") && build.includes("Don't hand it to the main session (D25)."));
+  // C2: on all 3 Small runs the fork ended with Standard's line; the plan's tier now decides on both sides.
+  const step6 = build.slice(build.indexOf('6. **Then stop.'), build.indexOf('## Never'));
+  assert.ok(step6.includes("Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25)."));
+  assert.ok(workflow.includes("the approved plan's tier decides, not the fork's reply."));
+  assert.ok(scope.includes("The approved plan's tier decides, not the fork's reply (D25)."));
+  // C3: on 5 of 5 Standard runs "continue <n>" read before building; on #139 it waited for a go.
+  assert.ok(workflow.includes('"continue <n>" means: invoke `build` for <n> at once.'));
+  // C4 is enforced by handoff-check (test/handoff-check.test.cjs); C5: #149 kept Small after 5 decisions.
+  assert.ok(scope.includes('`frontend-design: used for <what>` or `frontend-design: not needed, because <why>`'));
+  assert.ok(scope.includes('**Then check the tier again (D25),**'));
+  // C8: on #139 a follow-up question went unanswered and had to be asked again.
+  const review = read('skills/review/SKILL.md');
+  assert.ok(review.includes('### Decisions for you') && review.includes('**Number every open decision under "Decisions for you" (D25)**'));
 });

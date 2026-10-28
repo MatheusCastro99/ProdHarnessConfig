@@ -33,7 +33,10 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
    - The file-check hook lints each edit; fix what it reports.
    - On a UI sub-phase, follow the project's `frontend-design` skill if it has one (T7).
 2. **Need to read code the plan didn't cover?** Read only that code yourself, narrowly: search first, then the lines you need. You already run on Sonnet in a fresh context, so a subagent would only add a hop (D23).
-3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails. A UI check (T6) saves its screenshots under `.harness/work/<n>/ui/`; list them under the handoff's Checks. Never change the owner's real data while driving the app.
+3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
+   - **A UI check (T6):** run it yourself, on either tier; the browser pane and UI automation work from the fork. Don't hand it to the main session (D25).
+   - Use the throwaway data the plan names. Never change the owner's real data while driving the app.
+   - Save its screenshots under `.harness/work/<n>/ui/`; list them under the handoff's Checks.
 4. **Docs:**
    - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
    - Update each candidate doc that is now wrong, in this same commit.
@@ -83,7 +86,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 
    - Validate it with `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`, and fix it until it passes.
    - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
-6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22).
+6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22). Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25).
    - **Standard:** tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`.
    - **Small:** end your reply with `MAIN SESSION: run the review skill for #<n> now (Small tier, this session).`
 

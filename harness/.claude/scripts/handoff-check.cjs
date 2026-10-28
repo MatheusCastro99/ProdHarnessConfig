@@ -89,7 +89,10 @@ function checkHandoff(root, cfg, text, { verifyHead }) {
   return problems;
 }
 
-function checkPlan(cfg, text) {
+// A sub-phase that lists one of these files changes the UI (T7, D25).
+const UI_FILE = /\.(jsx|tsx|vue|svelte|html?|css|scss|xaml)\b/i;
+
+function checkPlan(cfg, text, { frontendDesign = false } = {}) {
   const problems = [];
   const header = text.match(/^#\s*Plan:\s*#(\d+).*?Tier:\s*(Standard|Small)\b/m);
   if (!header) problems.push('first line must be "# Plan: #<issue> <title> · Tier: Standard | Small"');
@@ -114,6 +117,9 @@ function checkPlan(cfg, text) {
       if (/^manual\b/i.test(check) && !/^manual\s*[—:-]\s*\S/i.test(check))
         problems.push(`${name}: a manual check needs a reason ("manual — <why it can't be automated>"; F14)`);
     }
+    const files = (p.match(/^- Files:\s*(.+)$/m) || [])[1] || '';
+    if (frontendDesign && UI_FILE.test(files) && !/frontend-design:\s*(used for|not needed, because)\s+\S/i.test(p))
+      problems.push(`${name} changes the UI: say "frontend-design: used for <what>" or "frontend-design: not needed, because <why>" (T7, D25)`);
   });
   return problems;
 }
@@ -123,7 +129,8 @@ function run(root, file, { plan, verifyHead }) {
   let text;
   try { text = fs.readFileSync(path.resolve(root, file), 'utf8'); } catch { throw new HarnessError(`can't read ${file}`); }
   const kind = plan ? 'plan' : 'handoff';
-  const problems = plan ? checkPlan(cfg, text) : checkHandoff(root, cfg, text, { verifyHead });
+  const frontendDesign = fs.existsSync(path.join(root, '.claude', 'skills', 'frontend-design', 'SKILL.md'));
+  const problems = plan ? checkPlan(cfg, text, { frontendDesign }) : checkHandoff(root, cfg, text, { verifyHead });
   if (text.length > MAX_CHARS[kind])
     problems.push(`${kind} is ${text.length} characters; the budget is ${MAX_CHARS[kind]} (≈ ${MAX_CHARS[kind] / 4} tokens, §5.2)`);
   return { kind, problems };
