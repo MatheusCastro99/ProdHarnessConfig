@@ -86,3 +86,12 @@ test('runs.json: every run has a known config, a project, a recorded cost and se
     if (r.config !== 'baseline') assert.ok(['Standard', 'Small'].includes(r.tier) && r.sessions.every(s => s.start), name + ': tier and start');
   }
 });
+
+test('README: every cost and context figure is one research/11 reports', () => {
+  // The README's results come from runs.js through research/11 (#3); a figure typed in by hand would drift.
+  const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+  const r11 = fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', '11-meta-analysis.md'), 'utf8');
+  const figures = readme.match(/\$\d+\.\d\d|\b\d+(?:–\d+)?k\b/g) || [];
+  assert.ok(figures.length >= 8, 'the README states its results');
+  for (const f of new Set(figures)) assert.ok(r11.includes(f), `README's ${f} appears in research/11`);
+});
