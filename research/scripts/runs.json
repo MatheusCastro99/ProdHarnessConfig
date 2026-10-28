@@ -1,0 +1,50 @@
+{
+  "about": "Every priced issue run, for research/11. runs.js re-prices them from the transcripts (kept out of git). recorded = the cost and owner turns as first written in the source doc. diff = the merged PR's files, additions, deletions; a baseline PR that closed several issues is noted. start = the phase a session begins in; markers in the transcript move it on (see runs.js). extra = work in a session that isn't the issue's, from that time on: priced apart and left out of the total.",
+  "projects": {
+    "BabyBuddyHelper": "C--Users-mathe-source-repos-BabyBuddyHelper",
+    "InvoiceMe": "C--Users-mathe-source-repos-InvoiceMe",
+    "HarnessEngineering101": "C--Users-mathe-source-repos-HarnessEngineering101"
+  },
+  "configs": {
+    "baseline": "Before the harness: one long session per issue (research/02)",
+    "V1": "Pilot V1: three blocks, Block B on Opus in the main session (research/05)",
+    "V3": "Pilot V3: Block B forked on a Sonnet builder (research/08)",
+    "D22": "Small tier after D22: one session, G2 on Opus in the main session (research/09)",
+    "D24": "D23 and D24: surveyor in Block A only, five trials on (research/10)"
+  },
+  "runs": [
+    { "issue": 38, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 70, "diff": [14, 233, 55], "diffNote": "PR also closed #39", "recorded": { "cost": 7.59, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "928728bf" }] },
+    { "issue": 40, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "note": "research and a decision, no PR", "recorded": { "cost": 9.66, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "e2e1daa1" }] },
+    { "issue": 45, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 77, "diff": [25, 780, 2076], "diffNote": "PR also closed #46", "recorded": { "cost": 10.32, "turns": 8 }, "source": "research/02", "sessions": [{ "id": "84414c64" }] },
+    { "issue": 47, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 78, "diff": [8, 92, 20], "diffNote": "PR also closed #44", "recorded": { "cost": 3.82, "turns": 6 }, "source": "research/02", "sessions": [{ "id": "0a83f832" }] },
+    { "issue": 48, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 83, "diff": [11, 87, 50], "diffNote": "PR also closed #36", "recorded": { "cost": 20.21, "turns": 32 }, "source": "research/02", "sessions": [{ "id": "29fafa52" }, { "id": "abc952f3" }] },
+    { "issue": 93, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 98, "diff": [40, 604, 226], "recorded": { "cost": 13.17, "turns": 11 }, "source": "research/02", "sessions": [{ "id": "46d544f8" }] },
+    { "issue": 94, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 99, "diff": [23, 576, 190], "recorded": { "cost": 11.74, "turns": 14 }, "source": "research/02", "sessions": [{ "id": "726ebd79" }] },
+    { "issue": 95, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "note": "planning session only", "pr": 102, "diff": [16, 145, 24], "recorded": { "cost": 6.65, "turns": 9 }, "source": "research/02", "sessions": [{ "id": "bb6f60f1" }] },
+    { "issue": 100, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 103, "diff": [32, 802, 46], "recorded": { "cost": 12.46, "turns": 11 }, "source": "research/02", "sessions": [{ "id": "bdd266f8" }] },
+    { "issue": 118, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "note": "small bug", "pr": 119, "diff": [3, 16, 1], "recorded": { "cost": 3.08, "turns": 7 }, "source": "research/02", "sessions": [{ "id": "dbd952b7" }] },
+    { "issue": 14, "repo": "HarnessEngineering101", "config": "baseline", "kind": "docs", "recorded": { "cost": 10.01, "turns": 27 }, "source": "research/02", "sessions": [{ "id": "2b4fe0ef" }] },
+    { "issue": 19, "repo": "HarnessEngineering101", "config": "baseline", "kind": "docs", "recorded": { "cost": 11.59, "turns": 19 }, "source": "research/02", "sessions": [{ "id": "5f1b6776" }] },
+    { "issue": 15, "repo": "HarnessEngineering101", "config": "baseline", "kind": "docs", "recorded": { "cost": 9.10, "turns": 19 }, "source": "research/02", "sessions": [{ "id": "77aed23a" }] },
+    { "issue": 26, "repo": "HarnessEngineering101", "config": "baseline", "kind": "docs", "recorded": { "cost": 7.40, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "24c82810" }] },
+    { "issue": 27, "repo": "HarnessEngineering101", "config": "baseline", "kind": "docs", "recorded": { "cost": 10.55, "turns": 18 }, "source": "research/02", "sessions": [{ "id": "71bcd6fe" }, { "id": "d7c9e10b" }] },
+
+    { "issue": 96, "repo": "BabyBuddyHelper", "config": "V1", "tier": "Standard", "kind": "code", "pr": 129, "diff": [29, 1327, 72], "recorded": { "cost": 20.86, "turns": 10 }, "source": "research/05", "sessions": [{ "id": "b8ccb350", "start": "A" }, { "id": "7c82a920", "start": "B" }, { "id": "d4d44451", "start": "C" }] },
+    { "issue": 97, "repo": "BabyBuddyHelper", "config": "V1", "tier": "Standard", "kind": "code", "pr": 132, "diff": [33, 1041, 157], "recorded": { "cost": 14.20, "turns": 9 }, "source": "research/05", "sessions": [{ "id": "6dff0c08", "start": "A" }, { "id": "4476b68d", "start": "B" }, { "id": "5aeb909a", "start": "C" }] },
+    { "issue": 72, "repo": "InvoiceMe", "config": "V3", "tier": "Standard", "kind": "code", "pr": 123, "diff": [15, 5799, 559], "diffNote": "most of it package-lock.json", "recorded": { "cost": 5.16, "turns": 8 }, "source": "research/08", "sessions": [{ "id": "f62de5a3", "start": "A" }, { "id": "40bbe773", "start": "B" }, { "id": "d413c7c5", "start": "C" }] },
+    { "issue": 73, "repo": "InvoiceMe", "config": "V3", "tier": "Standard", "kind": "code", "pr": 126, "diff": [5, 746, 0], "recorded": { "cost": 4.80, "turns": 7 }, "source": "research/08", "sessions": [{ "id": "2b004eff", "start": "A" }, { "id": "df4483d9", "start": "B" }, { "id": "90bc0736", "start": "C" }] },
+
+    { "issue": 134, "repo": "BabyBuddyHelper", "config": "D22", "tier": "Small", "kind": "docs", "note": "before D22: the red-team ran nested in the fork", "pr": 140, "diff": [1, 2, 0], "recorded": { "cost": 2.23, "turns": 4 }, "source": "research/09", "sessions": [{ "id": "31a0c1c2", "start": "A" }] },
+    { "issue": 68, "repo": "InvoiceMe", "config": "D22", "tier": "Small", "kind": "docs", "note": "epic close-out; the knowledge audit after /close is in the close phase", "pr": 130, "diff": [3, 7, 7], "recorded": { "cost": 2.91, "turns": 5 }, "source": "research/09", "sessions": [{ "id": "89f086d9", "start": "A", "extra": { "from": "2026-10-26T21:04:00Z", "what": "the epic knowledge audit, asked after /close" } }] },
+    { "issue": 120, "repo": "InvoiceMe", "config": "D22", "tier": "Small", "kind": "docs", "pr": 131, "diff": [7, 52, 22], "recorded": { "cost": 3.93, "turns": 6 }, "source": "research/09", "sessions": [{ "id": "bfe6b989", "start": "A" }] },
+
+    { "issue": 133, "repo": "BabyBuddyHelper", "config": "D24", "tier": "Standard", "kind": "code", "note": "a pure move", "pr": 149, "diff": [70, 294, 184], "recorded": { "cost": 6.03, "turns": 7 }, "source": "research/10", "sessions": [{ "id": "7b088392", "start": "A" }, { "id": "150d760d", "start": "B" }, { "id": "71772a35", "start": "C" }] },
+    { "issue": 150, "repo": "BabyBuddyHelper", "config": "D24", "tier": "Small", "kind": "code", "note": "a pure move; tier slip", "pr": 151, "diff": [20, 34, 23], "recorded": { "cost": 3.83, "turns": 6 }, "source": "research/10", "sessions": [{ "id": "d4e9e1b0", "start": "A" }] },
+    { "issue": 69, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "pr": 143, "diff": [15, 259, 41], "recorded": { "cost": 5.36, "turns": 7 }, "source": "research/10", "sessions": [{ "id": "5215caf8", "start": "A" }, { "id": "cbbdf19f", "start": "B" }, { "id": "61e37daf", "start": "C" }] },
+    { "issue": 137, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "pr": 146, "diff": [19, 243, 83], "diffNote": "includes the owner's 1-line ADR edit", "recorded": { "cost": 6.26, "turns": 7 }, "source": "research/10", "sessions": [{ "id": "c053df86", "start": "A" }, { "id": "46afb955", "start": "B" }, { "id": "2cd3c633", "start": "C" }] },
+    { "issue": 138, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "pr": 147, "diff": [15, 199, 61], "recorded": { "cost": 6.43, "turns": 7 }, "source": "research/10", "sessions": [{ "id": "7b943934", "start": "A" }, { "id": "c8aab726", "start": "B" }, { "id": "def6aecf", "start": "C" }] },
+    { "issue": 139, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "note": "asked as Small; extra build prompt", "pr": 148, "diff": [15, 146, 36], "recorded": { "cost": 5.99, "turns": 9 }, "source": "research/10", "sessions": [{ "id": "9e34fb42", "start": "A" }, { "id": "8b0e861e", "start": "B" }, { "id": "191f2da5", "start": "C" }] },
+    { "issue": 149, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session; tier slip", "pr": 150, "diff": [6, 75, 32], "recorded": { "cost": 7.80, "turns": 8 }, "source": "research/10", "sessions": [{ "id": "877b2635", "start": "A" }] },
+    { "issue": 151, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session", "pr": 152, "diff": [3, 3, 2], "recorded": { "cost": 4.88, "turns": 5 }, "source": "research/10", "sessions": [{ "id": "df909e08", "start": "A" }] }
+  ]
+}
