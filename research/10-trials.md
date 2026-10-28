@@ -52,38 +52,40 @@ One row per issue run under D24. Trial cost is the trial's own step, priced from
 | #150 | BabyBuddyHelper | Small | T1 (nothing to cut); T4, T5, T6 and T7 don't apply | none | `red-team` 2 (7, 5), both fixed, 1 adjacent declined; `reviewOnReady` 0 | ≈ 6 | $3.83 | The fork called the run Standard: one extra owner turn. See Runs |
 | #69 | InvoiceMe | Standard | T1; **T4 fired**; T5 skipped, as the review says | red-team first run $0.61 with the T4 lens | `red-team T4` 2 (7, 5), both fixed; `red-team` 2 out of scope, now #144 and #145 | ≈ 7 | $5.36 | The first T4 run. See Runs |
 | #137 | InvoiceMe | Standard | T1; **T4 fired**; **T6 fired** (early: a client sub-phase); T5 skipped; T7 skipped, as the plan says | UI check $0.54 (builder); red-team first run $0.82 with the T4 lens | `red-team T4` 1 (6), fixed; `red-team` 1 (6) left to the owner, done by them; 1 adjacent (2), fixed | ≈ 7 | $6.26 | Server, client and docs together. See Runs |
+| #138 | InvoiceMe | Standard | T1; **T4 fired**; **T6 fired**; T5 skipped; **T7 not planned, with no reason given** | UI check $0.77 (builder); red-team first run $0.78 with the T4 lens | `red-team T4` 1 (6), fixed; `red-team` 3 adjacent, declined; re-review 1 (4), left | ≈ 7 | $6.43 | A new date picker on a UI sub-phase, without `frontend-design`. See Runs |
 
 ## Batch comparison
 
-The four issues so far, all run under D23 and D24 on harness `51aa524`, against the configuration before them. All prices are list prices from the transcripts.
+The five issues so far, all run under D23 and D24 on harness `51aa524`, against the configuration before them. All prices are list prices from the transcripts.
 
-| | Before D23/D24 | #133 BBH | #150 BBH | #69 IM | #137 IM |
-|---|---|---|---|---|---|
-| Tier | Standard: #72 $5.16, #73 $4.80. Small: #134 $2.23, #68 $2.91, #120 $3.93 | Standard | Small | Standard | Standard |
-| Diff | #72, #73: about 20–25 changed files | 70 files, +294 / −184, a pure move | 20 files, +34 / −23, a pure move | 15 files, +259 / −41 | 18 files, +243 / −82, server, client and docs (plus the owner's 1-line ADR edit) |
-| Planning (A, with the surveyor) | $1.36, $1.61 | $1.69 | $1.12 (no surveyor) | $1.68 | $1.66 |
-| Build: main session + builder | $0.56 + $1.05, $0.52 + $0.73 | $0.46 + $1.53 | $0.25 + $0.59 | $0.45 + $0.82 | $0.47 + $1.85 (UI check $0.54 of it) |
-| Red-team runs | $0.93 (2 runs), $0.71 (1 run) | $1.18 (1 run) | $0.41 + $0.29 re-review | $0.61 + $0.22 re-review | $0.82 + $0.11 re-review |
-| Review + fixes + close, main session | $1.27, $1.24 | $1.17 | $1.17 | $1.58 | $1.35 |
-| **Total** | **$5.16, $4.80** / **$2.23, $2.91, $3.93** | **$6.03** | **$3.83** | **$5.36** | **$6.26** |
-| G2 fix round | #72: 1; #73: none | none | 1 (2 doc lines) | 1 (2 code fixes) | 1 (2 doc lines) |
-| Owner turns | ≈ 7–8 / ≈ 4–5 | ≈ 7 | ≈ 6 (5 without the tier slip) | ≈ 7 | ≈ 7 |
-| Peak context | 126k, 123k / 125k | 136k (builder) | 150k (one session) | 129k | 172k (builder, after the UI check) |
+| | Before D23/D24 | #133 BBH | #150 BBH | #69 IM | #137 IM | #138 IM |
+|---|---|---|---|---|---|---|
+| Tier | Standard: #72 $5.16, #73 $4.80. Small: #134 $2.23, #68 $2.91, #120 $3.93 | Standard | Small | Standard | Standard | Standard |
+| Diff | #72, #73: about 20–25 changed files | 70 files, +294 / −184, a pure move | 20 files, +34 / −23, a pure move | 15 files, +259 / −41 | 18 files, +243 / −82, server, client and docs (plus the owner's 1-line ADR edit) | 15 files, +199 / −61, server, client and docs |
+| Planning (A, with the surveyor) | $1.36, $1.61 | $1.69 | $1.12 (no surveyor) | $1.68 | $1.66 | $1.84 |
+| Build: main session + builder | $0.56 + $1.05, $0.52 + $0.73 | $0.46 + $1.53 | $0.25 + $0.59 | $0.45 + $0.82 | $0.47 + $1.85 (UI check $0.54 of it) | $0.49 + $1.88 (UI check $0.77 of it) |
+| Red-team runs | $0.93 (2 runs), $0.71 (1 run) | $1.18 (1 run) | $0.41 + $0.29 re-review | $0.61 + $0.22 re-review | $0.82 + $0.11 re-review | $0.78 + $0.15 re-review |
+| Review + fixes + close, main session | $1.27, $1.24 | $1.17 | $1.17 | $1.58 | $1.35 | $1.28 |
+| **Total** | **$5.16, $4.80** / **$2.23, $2.91, $3.93** | **$6.03** | **$3.83** | **$5.36** | **$6.26** | **$6.43** |
+| G2 fix round | #72: 1; #73: none | none | 1 (2 doc lines) | 1 (2 code fixes) | 1 (2 doc lines) | 1 (1 doc line) |
+| Owner turns | ≈ 7–8 / ≈ 4–5 | ≈ 7 | ≈ 6 (5 without the tier slip) | ≈ 7 | ≈ 7 | ≈ 7 |
+| Peak context | 126k, 123k / 125k | 136k (builder) | 150k (one session) | 129k | 172k (builder, after the UI check) | 167k (builder, after the UI check) |
 
 **Reading it:**
 - **Standard runs cost about the same as before, on harder or larger work.**
   - #69 cost $5.36 against $4.80–5.16. That included a G2 fix round with a re-review ($0.94), and #73 had no fix round.
   - #133 cost $6.03 on a diff three times the size of #72's or #73's.
-  - #137 cost $6.26, the most so far, and the reason is visible: it is the first run with a UI check (T6, $0.54 in the builder) and the first to touch server, client and docs at once. Without the UI check it would have been $5.72. Its red-team ($0.82) did more than read: it ran the real `server.js` against a database holding a duplicate.
-  - T4's first runs ($0.61, $0.82) average $0.72, against $0.71 for #73's single run.
+  - #137 cost $6.26 and #138 $6.43, the two most so far, and the reason is visible: both ran a UI check (T6, $0.54 and $0.77 in the builder) and both touched server, client and docs at once. Without their UI checks they would have cost $5.72 and $5.66. #137's red-team ($0.82) did more than read: it ran the real `server.js` against a database holding a duplicate.
+  - T4's first runs ($0.61, $0.82, $0.78) average $0.74, against $0.71 for #73's single run.
 - **#150 was the second most expensive Small run so far, after #120 ($3.93), for two reasons.**
   - It had a fix round with a re-review: $0.62.
   - The single session grew to 150k, so every call after G1 read 125–150k tokens at Opus rates.
   - Its build ($0.84 in all) was in line with #134's ($0.79).
-- **Planning cost (T1's rule):** the Schema epic's median is now $1.67 (#69 $1.68, #137 $1.66), against the baseline median of $1.49. That's $0.18 more, under the $0.20 limit but close to it. #138–#141 decide it. #133's $1.69 is BabyBuddyHelper and outside the rule.
-- **T4 has met the first half of its keep rule:** 3 fix-worthy findings over 2 issues, all fixed. Its cost half holds: the red-team's first runs average $0.72, 1% above #73's $0.71; #137's run alone was 15% above. Keep counting over #138–#140, as the rule says.
-- **T6 fired early,** on #137's client sub-phase, before the UI epic. The check worked: 3 screenshots, a throwaway in-memory database, no owner UI adjustments after G2. It cost $0.54 and pushed the builder's context to 172k, the highest peak so far.
-- **T5 and T7 haven't fired yet.** T7 was skipped on #137 with the plan's reason: the change alters text formats, not styles.
+- **Planning cost (T1's rule):** the Schema epic's median is now $1.68 (#69 $1.68, #137 $1.66, #138 $1.84), against the baseline median of $1.49. That's $0.19 more, under the $0.20 limit by a cent. #138's planning included two time-zone experiments in Node and 3 G1 decisions. #139–#141 decide it. #133's $1.69 is BabyBuddyHelper and outside the rule.
+- **T4 has met the first half of its keep rule:** 4 fix-worthy findings over 3 issues, all fixed. Its cost half holds: the red-team's first runs average $0.74, 4% above #73's $0.71. Keep counting over #139–#140, as the rule says.
+- **T6 has run twice, both early,** on client sub-phases before the UI epic. Both checks worked against a throwaway in-memory database, and neither run had owner UI adjustments after G2. They cost $0.54 and $0.77 and took the builder to 172k and 167k, the two highest peaks so far. Both times the pane failed to draw the PDF, and #138's also missed the table.
+- **T7 has not run yet, and on #138 it should have been considered.** #137's plan skipped it with a reason. #138 added a new control, a date picker, on a UI sub-phase, and the plan doesn't mention `frontend-design` at all, though `scope` says to plan the design with it. See #138's findings.
+- **T5 hasn't fired yet.** It waits for the auth epic.
 
 ## Runs
 
@@ -226,6 +228,34 @@ The second issue of the Schema epic. It also closed #144. The customer's `phoneN
 4. **T7 stayed off for a stated reason.** The plan said the change alters text formats, not styles, so `frontend-design` had nothing to plan. The builder used the project's own `ux-design` skill for the hint's wording instead; that skill isn't a trial.
 5. **Block B's main session read before invoking `build` for the third Standard run in a row:** the work folder and the issue twice, about $0.09 above the session's unavoidable first cache write. This supports proposal 2 below.
 
+### InvoiceMe #138 Date of service as a calendar date (Standard), PR #147
+
+The third issue of the Schema epic, ADR-013's first half. The API's `dateOfService` is now a required `Date` stored at UTC midnight. A new validator accepts only a real calendar date written `YYYY-MM-DD`, and a `toJSON` transform answers that form on every path, whatever the server's time zone. The invoice page enters the date with MUI's `DatePicker`, which was already installed. The table, its month filter and the PDF show `MM/DD/YYYY` from the string, with no time-zone shift, through a new `date.js` that mirrors the server's rule. One `#70` marker was flipped. Two commits came from the build and one from G2. The diff is 15 files, +199 / −61.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 7b943934 | Opus 5.5 | 21, plus 8 surveyor (Sonnet, $0.22) | 76k → 129k | 10 min | $1.84 |
+| B `build`: the main session | c8aab726 | Opus 5.5 | 10 | 74k → 87k | 15 min | $0.49 |
+| B `build`: the forked builder | c8aab726/subagents | Sonnet 5.5 | 86, of which 39 for the UI check ($0.77) | → 167k | (same) | $1.88 |
+| C `/review` to G2 | def6aecf | Opus 5.5 | 9, plus 12 red-team (Opus, $0.78) | 76k → 94k | 5 min | $1.34 |
+| C: the G2 fix and a narrow re-review | def6aecf | Opus 5.5 | 6, plus 7 red-team ($0.15) | → 102k | 2 min | $0.42 |
+| C: mark ready, merge note | def6aecf | Opus 5.5 | 4 | → 104k | 1 min | $0.14 |
+| C `/close` | def6aecf | Opus 5.5 | 8 | → 113k | 1 min | $0.32 |
+| **Total** | | | | | ≈ 35 min | **$6.43** |
+
+**Against the targets:**
+- **Cost:** $6.43, under $7.49.
+- **Context:** the builder peaked at 167k after the UI check; the main sessions stayed at 129k or below.
+- **Owner turns:** ≈ 7, the desktop floor. They were `/scope`, the G1 answers (3 decisions), the G1 accept, "continue 138", `/review`, "Fix 1, keep ADR" and `/close`.
+- **Quality:** the red-team approved with one fix-worthy finding, fixed in one line, and three adjacent findings in older code, which the owner declined for this PR. The narrow re-review found a stale code comment (priority 4) and left it, under the one-re-review rule. InvoiceMe has no CI reviewer configured. Escapes are tracked to 2026-11-24.
+
+**Findings:**
+1. **T4 found its fourth fix-worthy gap, but the brief pointed at it.** Finding 1, `red-team T4`, score 6: the API reference said an old non-date row "still lists" without saying its answer leaves out `dateOfService`. That's "success returned on failure" again, in the docs. **Caveat for attribution:** the brief told the red-team to check "the handoff's claim that Mongoose omits an uncastable stored value", so the handoff found the behaviour and the lens judged it. It is credited to T4 as briefed, the same as on #69 and #137.
+2. **T7 didn't run where its rule says it should.** Sub-phase 2 replaced a text input with a `DatePicker`, a new control on the invoice page. `scope` says a UI sub-phase plans its design with `frontend-design` when the project has one. The plan doesn't name it, and neither the plan nor the builder gives a reason. #137's plan said why it was skipping T7; #138's said nothing. The picker copies the pattern `TableInvoice.jsx` already uses, and the owner made no UI adjustments, so nothing went wrong this time. But the trial can't be judged on runs where it is silently left out. A change is proposed below.
+3. **T6 ran a second time, with the same blind spot.** The builder checked the page in the browser against a throwaway in-memory database and saved 2 screenshots. The pane drew neither the PDF nor the table, and the browser ran only in New York's time zone, so a zone ahead of UTC was checked by a Node script, not on screen. The handoff and G2 both said so, and G2 asked the owner to look at the PDF and table locally. This check cost $0.77, 41% of the builder.
+4. **Two adjacent findings are real but not tracked.** A1: a failed save on the PDF page shows axios's generic message instead of the server's errors, which matters once #139 adds a 409. A2: blurring the invoice-number field crashes when no invoice exists yet, which hits a new user on their first invoice. The owner declined both for this PR, and neither is an issue yet. G2 suggested #139 for both.
+5. **Block B's main session read before invoking `build` for the fourth Standard run in a row:** the work folder, `gate.json`, the issue and `build`'s own SKILL.md, about $0.12 above the first cache write. Proposal 2 below covers it.
+
 ### Proposed changes from this batch (not made)
 
 1. **Tier hand-back (from #150), worth doing.** Make the tier the plan's, read by both sides:
@@ -233,5 +263,6 @@ The second issue of the Schema epic. It also closed #144. The customer's `phoneN
    - **The Small path in `scope` and CLAUDE.md:** "When the forked build returns on the Small tier, run `review` in this session. The approved plan's tier decides, not the fork's reply."
 
    Either fix alone would have saved #150's extra turn; together they cover a slip on either side. A test can check that both lines exist.
-2. **"continue <n>" (from #133, #69 and #137), optional.** Add to CLAUDE.md's workflow: "After G1, 'continue <n>' means invoke `build` for <n> at once; the fork reads the plan." This saves about $0.05–0.10 per Standard issue.
-3. **T6's web-app method (from #137), in InvoiceMe's `ux-design` skill.** Record what #137 did: the built-in browser, a throwaway in-memory MongoDB, never the real `.env`, screenshots under `.harness/work/<n>/ui/`, and the PDF viewer's blank render (check the PDF through the component tree). This closes the register's open note on T6. It is an InvoiceMe change, made through an issue there.
+2. **"continue <n>" (from #133, #69, #137 and #138), optional.** Add to CLAUDE.md's workflow: "After G1, 'continue <n>' means invoke `build` for <n> at once; the fork reads the plan." This saves about $0.05–0.10 per Standard issue.
+3. **T6's web-app method (from #137), in InvoiceMe's `ux-design` skill.** Record what #137 did: the built-in browser, a throwaway in-memory MongoDB, never the real `.env`, screenshots under `.harness/work/<n>/ui/`, and the PDF viewer's blank render (check the PDF through the component tree). This closes the register's open note on T6. It is an InvoiceMe change, made through an issue there. Add #138's limit too: the pane may not draw the table, and it runs in one time zone.
+4. **T7 named on every UI sub-phase (from #138).** In `scope`'s UI rule: "Each UI sub-phase says `frontend-design: used for <what>` or `frontend-design: not needed, because <why>`." The plan check (`handoff-check --plan`) could require the line when a sub-phase lists a `.jsx` file, and a test can check both. Without it T7 can be left out silently, and the trial can't be judged.
