@@ -188,9 +188,32 @@ Estimated savings use the data above. "Evidence" is how many runs show the probl
 - **Dropping the Small tier.** It still saves $1.50–2.00 when nothing heavy follows G1. C1 removes the main case where it doesn't.
 - **Compacting the Small session before G2.** C1 removes most of the long tail's cost, and a compact would add an owner turn.
 
-## 10. Open after this analysis
+## 10. Triage (owner's decisions, 2026-10-28)
+
+The owner accepted every recommendation as it stood.
+
+| # | Change or item | Decision | Where |
+|---|---|---|---|
+| C1 | The builder runs the UI check on both tiers. CLAUDE.md says "the app's PR tools". `scope`'s UI rule: the builder runs it; throwaway data where the project can make it, otherwise read-only, never a write to the owner's data; the browser pane for a web app, `UIAutomationClient` for a desktop app | **Do** | Harness pass (D25) |
+| C2 | Tier hand-back: `build` ends with the plan's tier line; on Small the main session runs `review` whatever the reply says | **Do** | Harness pass |
+| C3 | "continue <n>" invokes `build` at once | **Do** | Harness pass |
+| C4 | Every UI sub-phase says "`frontend-design`: used for …" or "not needed, because …", and the plan check requires it | **Do** | Harness pass |
+| C5 | `scope` checks the tier again after G1 when the decisions add a sub-phase, a fix or a UI check, or number more than 3; it recommends, the owner decides | **Do** | Harness pass |
+| C6 | Surveyor off by default when the issue names its files | **Defer.** Record which runs went without it; judge after 3 more same-sized Standard issues | Follow-up |
+| C7 | No re-review for a doc-only fix round | **Not done.** The reviewed SHA stays the merged SHA | — |
+| C8 | G2 asks its open decisions as numbered questions | **Do** | Harness pass |
+| C9 | InvoiceMe's `ux-design` records the browser-check method and its limits | **Do** | InvoiceMe's rollout PR |
+| C10 | Docs-gate noise (F-IM-1): folder mentions flag docs that need an ack | **Not done for now.** Low cost; tuning risks hiding real staleness | — |
+| C11 | BabyBuddyHelper's `reviewOnReady`: no comments in 3 runs | **Keep.** Look again after the UI epic | Follow-up |
+| H1 | Stale entries in OPTIMIZATION_PLAN §10 "Next" (D21 shipped in `6be4510`; D19's cost check met at a $6.03 median; ProdHarnessConfig#1 closed) and §11 (InvoiceMe's test suite came with Phase 0) | **Do** | Harness pass (docs) |
+| H2 | The 12k plan cap (research/08 #8) | **Keep watching.** Not hit since #73 | — |
+| H3 | ProdHarnessConfig#3, the public README and "Get Started" | **Defer** until after the rollout, as the issue says | Follow-up |
+| H4 | ProdHarnessConfig#2, third-party skills | **Keep open** until the trials end | — |
+
+## 11. Open after this analysis
 
 - **T1:** judge again after #140 and #141.
 - **Escapes:** check on 2026-11-25, when the last window closes.
 - **T5, T6, T7:** wait for the auth and UI epics.
-- **The surveyor:** C6 needs more same-sized runs either way.
+- **The surveyor (C6):** judge after 3 more same-sized Standard issues.
+- **`reviewOnReady` (C11):** look again after the UI epic.
