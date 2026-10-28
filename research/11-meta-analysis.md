@@ -217,3 +217,19 @@ The owner accepted every recommendation as it stood.
 - **T5, T6, T7:** wait for the auth and UI epics.
 - **The surveyor (C6):** judge after 3 more same-sized Standard issues.
 - **`reviewOnReady` (C11):** look again after the UI epic.
+
+## 12. Validating D25
+
+D25 is installed by the sync PRs BabyBuddyHelper#154 (issue #153) and InvoiceMe#155 (issue #154), once the owner merges them. Each run after the merge goes into `runs.json` with config `D25`, and is priced by `runs.js`. D25 holds if the next runs show:
+
+| Change | What the runs must show | Judged on |
+|---|---|---|
+| C1 | A UI check runs in the builder (`builder:ui` in `runs.js`, no main-session `ui`), on throwaway data or read-only. A Small run with a UI check stays under 200k and costs no more than the Small median plus about $0.70 | The next Small and Standard runs with a UI sub-phase |
+| C2 | The fork's last line matches the plan's tier, and the main session starts `review` on Small without an owner turn | The next 3 Small runs |
+| C3 | After "continue <n>", `build` is the session's first or second call, with no owner turn before it | The next 3 Standard runs |
+| C4 | Every InvoiceMe UI sub-phase names `frontend-design` as used or not needed, with a reason | The next InvoiceMe UI issue; `handoff-check` enforces it |
+| C5 | When the G1 answers add work, `scope` raises the tier before writing the plan | The next run whose G1 adds a sub-phase, a fix or a UI check |
+| C8 | The G2 report ends with numbered decisions, and the owner answers G2 in one reply | The next 3 runs with open decisions |
+| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 owner turns. Peak context ≤ 200k in every block | The next 5 runs |
+
+Still on the calendar: T1 after InvoiceMe #140 and #141; escapes on 2026-11-25; C6 after 3 more same-sized Standard issues.

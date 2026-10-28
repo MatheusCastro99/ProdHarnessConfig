@@ -10,7 +10,8 @@
     "V1": "Pilot V1: three blocks, Block B on Opus in the main session (research/05)",
     "V3": "Pilot V3: Block B forked on a Sonnet builder (research/08)",
     "D22": "Small tier after D22: one session, G2 on Opus in the main session (research/09)",
-    "D24": "D23 and D24: surveyor in Block A only, five trials on (research/10)"
+    "D24": "D23 and D24: surveyor in Block A only, five trials on (research/10)",
+    "D25": "D25: the meta-analysis fixes (research/11 §12)"
   },
   "runs": [
     { "issue": 38, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 70, "diff": [14, 233, 55], "diffNote": "PR also closed #39", "recorded": { "cost": 7.59, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "928728bf" }] },
