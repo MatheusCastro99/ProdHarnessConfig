@@ -1,12 +1,12 @@
 'use strict';
-// research/scripts/runs.js: phases, the UI check, extra work, and the data file's shape.
+// Evidence/research/scripts/runs.js: phases, the UI check, extra work, and the data file's shape.
 
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const { tempDir, write } = require('./helpers.cjs');
-const { priceRun, groups } = require('../research/scripts/runs.js');
+const { priceRun, groups } = require('../Evidence/research/scripts/runs.js');
 
 const OPUS = 'claude-opus-5-5', SONNET = 'claude-sonnet-5-5';
 // 1M cache reads on Opus cost $0.20, on Sonnet $0.10: easy totals.
@@ -76,7 +76,7 @@ test('extra work is priced apart and left out of the total', () => {
 });
 
 test('runs.json: every run has a known config, a project, a recorded cost and session ids', () => {
-  const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'research', 'scripts', 'runs.json'), 'utf8'));
+  const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', 'scripts', 'runs.json'), 'utf8'));
   for (const r of data.runs) {
     const name = `${r.repo} #${r.issue}`;
     assert.ok(data.configs[r.config], name + ': config');

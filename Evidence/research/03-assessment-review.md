@@ -1,6 +1,6 @@
 # R3: Meta-review of the four independent assessments
 
-Date: 2026-10-21. Input: four assessments in `Independant Assessments/` (ChatGPT, Copilot, Gemini, Grok). Each one was reviewed separately in `Independant Assessments/review/`. This file combines them.
+Date: 2026-10-21. Input: four assessments in `Independent_Assessments/` (ChatGPT, Copilot, Gemini, Grok). Each one was reviewed separately in `Independent_Assessments/review/`. This file combines them.
 
 **Scope:** reasoning only. `OPTIMIZATION_PLAN.md` is unchanged; §6 lists the changes proposed for the owner's decision.
 
