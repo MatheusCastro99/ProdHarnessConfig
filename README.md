@@ -4,7 +4,7 @@ A production harness for [Claude Code](https://code.claude.com/docs): the workfl
 
 It was built from measured session data, and it's measured on every issue it runs. A typical issue now costs about 40% less than one long session did, with less than half the context and fewer messages from me.
 
-**Who this is for:** developers who already use Claude Code on real projects, and want a repeatable way to run it on issues that keeps cost and context down without giving up review. You'll need GitHub, CI on pull requests, and the habit of reading a plan before it's built.
+**Who this is for:** developers who already use Claude Code on real projects, and want a repeatable way to run it on issues that keeps cost and context down without giving up review. You'll need GitHub, CI on pull requests, the habit of reading, filtering, and evaluating a plan before it's built, and also the habit of reviewing commits closely against the implementation goal and personal quality standards.
 
 **What this is not:**
 - **A framework or a product.** It is one owner's working setup, documented so you can adapt it.
@@ -15,10 +15,30 @@ It was built from measured session data, and it's measured on every issue it run
 
 ```mermaid
 flowchart LR
-  A["/scope n<br/>plan mode · Opus"] -->|"G1: you approve the plan"| B["build<br/>forked · Sonnet"]
-  B -->|"draft PR + handoff"| C["/review n<br/>fresh Opus + red-team"]
-  C -->|"G2: you decide each finding"| M["you merge"]
-  M --> D["/close n"]
+  %% --- BLOCK DEFINITIONS ---
+  A["Block A: Scope"]
+  B["Block B: Build"]
+  C["Block C: Review"]
+  D["Block D: Close"]
+
+  G1(["G1: Plan Review"])
+  G2(["G2: PR Review, <br/>CI, and <br/>Findings Triage"])
+
+  %% --- UPWARD GAIT LINES ---
+  A --> G1
+  C --> G2
+
+  %% --- G1 CONDITIONAL BIFURCATIONS ---
+  G1 -.->|"Revise"| A
+  G1 -.->|"Approved"| B
+
+  %% --- MAIN AUTOMATION HANDOFF ---
+  B --> C
+
+  %% --- G2 CONDITIONAL BIFURCATIONS ---
+  G2 -.->|"Fix Findings"| B
+  G2 -.->|"PR Approved and Merged"| D
+
 ```
 
 1. **`/scope <n>`:** reads the issue, surveys the code, asks its open questions with a recommendation each, and writes one plan. You approve it (**G1**).
@@ -94,6 +114,7 @@ Run the tests with `npm test` (Node 22 or later).
 ## Related
 
 - [HarnessEngineering101](https://github.com/MatheusCastro99/HarnessEngineering101): the study repository this harness came out of.
+- [bruno-agent-pipeline](https://github.com/resende-bruno/bruno-agent-pipeline): A mobile approach to Harness Engineering.
 
 ## License
 
