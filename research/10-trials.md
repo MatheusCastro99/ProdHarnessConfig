@@ -357,6 +357,8 @@ The follow-up from #149's G2, run on Small to collect Small metrics. A profile's
 
 ### Proposed changes from this batch (not made)
 
+[research/11](11-meta-analysis.md) §9 ranks these with the rest of the evidence, as C1–C9.
+
 1. **Tier hand-back (from #150, #149 and #151), worth doing.** The slip has now happened on all 3 Small runs under D24: in full on #150 and #149, half on #151. Make the tier the plan's, read by both sides:
    - **`build`, step 6:** "Take the tier from the plan's first line (`Tier: Small` or `Tier: Standard`) and end with that tier's line."
    - **The Small path in `scope` and CLAUDE.md:** "When the forked build returns on the Small tier, run `review` in this session. The approved plan's tier decides, not the fork's reply."
