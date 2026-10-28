@@ -97,7 +97,7 @@ What the installer does in each case is in [Docs/05](../Docs/05-installer.md).
 Before the first real issue:
 - [ ] `node .claude/scripts/check.cjs full` passes.
 - [ ] In a fresh Claude Code session, `/context` shows the starting context. The harness was tuned to start under about 85k tokens; a long `CLAUDE.md` or many enabled plugins push it up. `settings.json` turns off a few plugins that weren't needed; adjust `enabledPlugins` for yours.
-- [ ] The hooks fire. The lint hook is silent when a file is clean, so make a throwaway edit that breaks a `fileTools` linter's rule and watch Claude get the error, then revert it. With no `fileTools`, have Claude make a throwaway commit on a scratch branch and look for a `docs-gate` line in `.harness/work/hooks.log`, where every hook logs what it did.
+- [ ] The hooks fire. The lint hook is silent when a file is clean, so make a throwaway edit that breaks a `fileTools` linter's rule and watch Claude get the error, then revert it. With no `fileTools`, have Claude make a throwaway commit on a scratch branch and look for a `docs-gate` line in `.harness/work/hooks.log`, where the lint hook, the docs gate, the check gate and the finish guard log what they did.
 
 ## 8. Your first issue
 

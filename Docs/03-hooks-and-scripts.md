@@ -1,6 +1,6 @@
 # 03. Hooks and scripts
 
-The skills ask; the hooks and scripts enforce. Everything here is plain Node (CommonJS `.cjs`, no dependencies), reads the project's `.claude/harness.json`, prints messages tagged `[harness <name>]`, and logs one line per event to `.harness/work/hooks.log`.
+The skills ask; the hooks and scripts enforce. Everything here is plain Node (CommonJS `.cjs`, no dependencies), reads the project's `.claude/harness.json`, and prints messages tagged `[harness <name>]`. The hooks that act (lint, the docs gate, the check gate, the finish guard) and the scripts log one line per event to `.harness/work/hooks.log`.
 
 The hooks are wired in [`settings.json`](../harness/.claude/settings.json).
 - **Always on:** the lint-on-edit, the docs gate and the check reroute run in every session.
