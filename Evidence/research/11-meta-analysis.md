@@ -233,3 +233,5 @@ D25 is installed by the sync PRs BabyBuddyHelper#154 (issue #153) and InvoiceMe#
 | All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 owner turns. Peak context ≤ 200k in every block | The next 5 runs |
 
 Still on the calendar: T1 after InvoiceMe #140 and #141; escapes on 2026-11-25; C6 after 3 more same-sized Standard issues.
+
+The runs, and the tracker against this table, are in [research/12](12-d25-validation.md).

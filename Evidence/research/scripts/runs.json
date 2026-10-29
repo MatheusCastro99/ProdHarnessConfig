@@ -11,7 +11,8 @@
     "V3": "Pilot V3: Block B forked on a Sonnet builder (research/08)",
     "D22": "Small tier after D22: one session, G2 on Opus in the main session (research/09)",
     "D24": "D23 and D24: surveyor in Block A only, five trials on (research/10)",
-    "D25": "D25: the meta-analysis fixes (research/11 §12)"
+    "D25": "D25: the meta-analysis fixes (research/11 §12)",
+    "D24/D25": "Plan and build on D24's files (the checkout was on a branch from before D25), review and close on D25's (research/12)"
   },
   "runs": [
     { "issue": 38, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 70, "diff": [14, 233, 55], "diffNote": "PR also closed #39", "recorded": { "cost": 7.59, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "928728bf" }] },
@@ -46,6 +47,8 @@
     { "issue": 138, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "pr": 147, "diff": [15, 199, 61], "recorded": { "cost": 6.43, "turns": 7 }, "source": "research/10", "sessions": [{ "id": "7b943934", "start": "A" }, { "id": "c8aab726", "start": "B" }, { "id": "def6aecf", "start": "C" }] },
     { "issue": 139, "repo": "InvoiceMe", "config": "D24", "tier": "Standard", "kind": "code", "note": "asked as Small; extra build prompt", "pr": 148, "diff": [15, 146, 36], "recorded": { "cost": 5.99, "turns": 9 }, "source": "research/10", "sessions": [{ "id": "9e34fb42", "start": "A" }, { "id": "8b0e861e", "start": "B" }, { "id": "191f2da5", "start": "C" }] },
     { "issue": 149, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session; tier slip", "pr": 150, "diff": [6, 75, 32], "recorded": { "cost": 7.80, "turns": 8 }, "source": "research/10", "sessions": [{ "id": "877b2635", "start": "A" }] },
-    { "issue": 151, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session", "pr": 152, "diff": [3, 3, 2], "recorded": { "cost": 4.88, "turns": 5 }, "source": "research/10", "sessions": [{ "id": "df909e08", "start": "A" }] }
+    { "issue": 151, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session", "pr": 152, "diff": [3, 3, 2], "recorded": { "cost": 4.88, "turns": 5 }, "source": "research/10", "sessions": [{ "id": "df909e08", "start": "A" }] },
+
+    { "issue": 155, "repo": "BabyBuddyHelper", "config": "D24/D25", "tier": "Standard", "kind": "code", "note": "a 4th sub-phase built in the review session, after the owner's live check found the real cause", "pr": 156, "diff": [15, 185, 49], "recorded": { "cost": 9.88, "turns": 13 }, "source": "research/12", "sessions": [{ "id": "598e297c", "start": "A" }, { "id": "fea0e5dc", "start": "B" }, { "id": "c984af7b", "start": "C" }] }
   ]
 }
