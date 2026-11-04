@@ -50,6 +50,7 @@
     { "issue": 151, "repo": "InvoiceMe", "config": "D24", "tier": "Small", "kind": "code", "note": "UI check in the main session", "pr": 152, "diff": [3, 3, 2], "recorded": { "cost": 4.88, "turns": 5 }, "source": "research/10", "sessions": [{ "id": "df909e08", "start": "A" }] },
 
     { "issue": 155, "repo": "BabyBuddyHelper", "config": "D24/D25", "tier": "Standard", "kind": "code", "note": "a 4th sub-phase built in the review session, after the owner's live check found the real cause", "pr": 156, "diff": [15, 185, 49], "recorded": { "cost": 9.88, "turns": 13 }, "source": "research/12", "sessions": [{ "id": "598e297c", "start": "A" }, { "id": "fea0e5dc", "start": "B" }, { "id": "c984af7b", "start": "C" }] },
-    { "issue": 157, "repo": "BabyBuddyHelper", "config": "D25", "tier": "Small", "kind": "code", "note": "scoped as Standard; G1's tier recheck moved it to Small", "pr": 160, "diff": [4, 7, 4], "recorded": { "cost": 3.99, "turns": 7 }, "source": "research/12", "sessions": [{ "id": "a37f976a", "start": "A" }] }
+    { "issue": 157, "repo": "BabyBuddyHelper", "config": "D25", "tier": "Small", "kind": "code", "note": "scoped as Standard; G1's tier recheck moved it to Small", "pr": 160, "diff": [4, 7, 4], "recorded": { "cost": 3.99, "turns": 7 }, "source": "research/12", "sessions": [{ "id": "a37f976a", "start": "A" }] },
+    { "issue": 140, "repo": "InvoiceMe", "config": "D25", "tier": "Standard", "kind": "code", "note": "also closed #145; Auto-fix turned itself back on", "pr": 158, "diff": [22, 815, 316], "recorded": { "cost": 10.02, "turns": 9 }, "source": "research/12", "sessions": [{ "id": "5204bd9d", "start": "A" }, { "id": "96a3280c", "start": "B" }, { "id": "756acf86", "start": "C" }] }
   ]
 }
