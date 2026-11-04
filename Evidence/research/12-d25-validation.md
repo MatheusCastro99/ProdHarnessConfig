@@ -6,19 +6,20 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 
 | Change | What counts | Runs so far |
 |---|---|---|
-| C1 | A UI check in the builder, on throwaway data or read-only | none yet; #155 had no UI sub-phase |
-| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | none yet (0 of 3) |
-| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | none yet (0 of 3). #155 doesn't count, because its build session ran on D24's files |
+| C1 | A UI check in the builder, on throwaway data or read-only | none yet; #155 and #157 had no UI sub-phase |
+| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157: met** (1 of 3) |
+| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | none yet (0 of 3). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
 | C4 | Every InvoiceMe UI sub-phase names `frontend-design` | none yet |
-| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files |
-| C8 | Numbered decisions, answered in one reply | **#155: met** (1 of 3). Both the G2 report and its addendum were answered in one reply |
-| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | #155 missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k |
+| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small |
+| C8 | Numbered decisions, answered in one reply | **#155 and #157: met** (2 of 3) |
+| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | #155 missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. #157 met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7) |
 
 ## Log
 
 | Issue | Repo | Config | Tier | Trials fired | Findings by source | Owner turns | Cost | Notes |
 |---|---|---|---|---|---|---|---|---|
 | #155 | BabyBuddyHelper | D24/D25 | Standard | T1; **T4 fired** on both full reviews; T5, T6 and T7 don't apply | `red-team` 3 (6, 5, 5), all fixed; the owner's live check 1 root cause, fixed as sub-phase 4, and 1 rule mismatch, now #157; `reviewOnReady` 0 | ≈ 13 (7 on the planned path) | $9.88 | Plan and build on D24's files. The PR missed the bug; the owner's live check found it. See Runs |
+| #157 | BabyBuddyHelper | D25 | Small (scoped as Standard; moved after G1) | T1; T4 skipped (a prompt-wording change); T5, T6 and T7 don't apply | `red-team` 1 (7), fixed; `reviewOnReady` 0 | ≈ 7 | $3.99 | The first full D25 run. The tier recheck moved it to Small, and the fork handed back with Small's line. See Runs |
 
 ## Runs
 
@@ -89,6 +90,55 @@ The diff is 15 files, +185 / −49, in 6 commits.
    - This goes to C11's look after the UI epic.
 6. **T4 fired on both full reviews.** Neither found a silent failure. The grader already failed closed, and finding 1 of the addendum added a test that pins it for a cut-off, empty grade.
 
+### BabyBuddyHelper #157 Cub: emergencies get a FAIL grade, and the parent sees the generic message (Small), PR #160
+
+#155's follow-up. Cub's emergency rule listed "a high fever in a baby under 3 months" with true emergencies, and checklist row 4 accepted "a doctor or emergency services". So the grader failed doctor-first replies. At G1 the owner chose:
+- to name the threshold: 38 °C (100.4 °F) or more;
+- to make the failed-grade retry note specific: lead with medical attention or emergency services;
+- for row 4 to follow the rule.
+
+The diff is 4 files, +7 / −4, in 2 commits: the change, and the G2 fix.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | a37f976a | Opus 5.5 | 22, no surveyor | 73k → 120k | 8 min, with 3 rounds of questions | $1.41 |
+| B `build`: the main session | a37f976a | Opus 5.5 | 4 | → 124k | 8 min | $0.14 |
+| B `build`: the forked builder | a37f976a/subagents | Sonnet 5.5 | 15 | → 74k | (same) | $0.52 |
+| C `review` to ready-to-merge, in the same session | a37f976a | Opus 5.5 | 25, plus 13 red-team over two runs (Opus, $0.52) | → 145k | 14 min | $1.55 |
+| C `/close` | a37f976a | Opus 5.5 | 8 | → 154k | 1 min | $0.37 |
+| **Total** | | | | | ≈ 32 min | **$3.99** |
+
+**Against the targets:**
+- **Cost:** $3.99. That is below D24's Small code median ($4.88) and above D22's docs median ($2.92) and the $3.08 Small target. Small code issues run nearer $4, as research/11 §2 found.
+- **Context:** the peak was 154k at `/close`, and no call went over 200k.
+- **Owner turns:** ≈ 7, one over Small's 6. They were:
+  - `/scope 157`;
+  - three rounds of G1 answers: the fix, which side changes, and the tier;
+  - the G1 accept;
+  - "Yes, fix 1";
+  - `/close`.
+
+  The second round came from the owner's own wording in the first answer. The third was the tier recheck.
+- **Quality:**
+  - The red-team approved, with 1 finding (7): the retry test compared the note with itself. It was fixed, and the re-review was clean.
+  - `claude-code-review.yml` left no comments, as on every BabyBuddyHelper run. Copilot's review didn't run because the account is out of quota.
+  - **Not yet checked:** the ready-to-merge note asked for a checklist run with a real key, to see whether row 4 now passes the grade. Like #155, the change is only proven live.
+  - **Escapes** are tracked to 2026-12-02.
+
+**Findings:**
+1. **D25's Small path worked end to end.**
+   - The fork ended with Small's line only: `MAIN SESSION: run the review skill for #157 now (Small tier, this session).`
+   - The main session started `review` 1 minute later, with no owner turn.
+   - On D24, all 3 Small runs slipped here (research/11 §8). C2 is met, 1 of 3.
+2. **The tier recheck ran, and lowered the tier.**
+   - The owner typed `/scope 157`, so the tier was Standard by default.
+   - After the G1 answers, `scope` said the issue "now fits the Small tier: one sub-phase…" and asked. The owner chose Small.
+   - C5 is about raising the tier, so this doesn't count toward it. It does show step 4's recheck firing.
+   - **It cost one owner turn,** which is the one turn over Small's 6. The recheck can only come after the answers, but the plan's first line already states the tier, and the G1 accept approves it.
+   - **Candidate R12-4:** when the recheck only confirms or lowers the tier, put it in the plan with its reason instead of a separate question. Ask separately only to raise it.
+3. **G2 was one decision, answered in one reply** ("Yes, fix 1"). C8 is now 2 of 3.
+4. **The live check is still the owner's.** As on #155, nothing the harness runs can call the real model. This change is to prompt wording, which only a live run proves. R12-2 covers planning that step; here it's correctly an owner step after the merge, and the ready-to-merge note says so.
+
 ## Candidates for the next pass
 
 Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the rest of the D25 runs.
@@ -98,3 +148,4 @@ Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the res
 | R12-1 | #155 finding 1 | The session-state hook (or `scope` step 1) says so when the checkout isn't on an up-to-date default branch |
 | R12-2 | #155 finding 2 | For a bug that only the owner can reproduce, plan a "reproduce first" step before Block B |
 | R12-3 | #155 finding 3 | New scope found at G2 goes through a plan amendment and a forked `build`, not the review session |
+| R12-4 | #157 finding 2 | A tier recheck that confirms or lowers the tier goes in the plan for the G1 accept, not in a separate question |
