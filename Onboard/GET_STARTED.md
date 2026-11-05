@@ -88,7 +88,8 @@ node ../ProdHarnessConfig/scripts/install.cjs . YourProject
    node ../ProdHarnessConfig/scripts/install.cjs . YourProject --apply
    ```
 
-5. **Commit what it wrote,** including `.claude/harness-manifest.json`. Open a PR and merge it the usual way.
+5. **If your linter or formatter covers the whole tree,** make it skip `.claude/`. The installed hooks and scripts are CommonJS and follow this repo's style, not yours. Editing them to pass your linter would count as a local edit and block the next upgrade. For example, ThisIsMatheusCastro adds `.claude/**` to ESLint's ignores and `.claude/` to `.prettierignore`. Run `node .claude/scripts/check.cjs full` again.
+6. **Commit what it wrote,** including `.claude/harness-manifest.json`. Open a PR and merge it the usual way.
 
 What the installer does in each case is in [Docs/05](../Docs/05-installer.md).
 
