@@ -10,23 +10,23 @@
   "defaultBranch": "main",
   "checks": {
     "fast": [
-      { "run": ["npm", "run", "lint"], "timeoutSec": 180 },
-      { "run": ["npm", "run", "format:check"], "timeoutSec": 60 },
-      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 },
-      { "run": ["npm", "test"], "timeoutSec": 180 }
+      { "run": ["npm", "run", "lint"], "timeoutSec": 120 },
+      { "run": ["npm", "run", "format:check"], "timeoutSec": 30 },
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 120 },
+      { "run": ["npm", "test"], "timeoutSec": 90 }
     ],
     "full": [
-      { "run": ["npm", "run", "lint"], "timeoutSec": 180 },
-      { "run": ["npm", "run", "format:check"], "timeoutSec": 60 },
-      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 },
-      { "run": ["npm", "test"], "timeoutSec": 180 },
+      { "run": ["npm", "run", "lint"], "timeoutSec": 120 },
+      { "run": ["npm", "run", "format:check"], "timeoutSec": 30 },
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 120 },
+      { "run": ["npm", "test"], "timeoutSec": 90 },
       { "run": ["npm", "run", "build"], "timeoutSec": 600 }
     ],
     "typecheck": [
-      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 }
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 120 }
     ],
     "unit": [
-      { "run": ["npm", "test"], "timeoutSec": 180 }
+      { "run": ["npm", "test"], "timeoutSec": 90 }
     ]
   },
   "requiredCiChecks": ["Lint", "Typecheck", "Unit tests", "Build"],

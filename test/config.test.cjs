@@ -178,6 +178,7 @@ test('each project\'s own skills are docs, so the docs gate flags them (D21a, re
   // In #72 guardrails-review was given a line that went stale in #73, and the docs gate couldn't see it.
   const { matchesGlob } = require('../harness/.claude/lib/harness.cjs');
   const harnessSkills = fs.readdirSync(path.join(HARNESS, 'skills'));
+  let checked = 0; // a project may have no skills of its own yet (ThisIsMatheusCastro at install)
   for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
     const dir = path.join(__dirname, '..', 'projects', p);
     const cfg = JSON.parse(fs.readFileSync(path.join(dir, 'harness.json'), 'utf8'));
@@ -186,12 +187,13 @@ test('each project\'s own skills are docs, so the docs gate flags them (D21a, re
     const local = path.join(__dirname, '..', '..', p, '.claude', 'skills');
     const vendored = Object.keys(install.vendoredSkills || {});
     if (fs.existsSync(local)) for (const s of fs.readdirSync(local)) if (!harnessSkills.includes(s) && !vendored.includes(s)) skills.add(s);
-    assert.ok(skills.size > 0, `${p} has project skills`);
+    checked += skills.size;
     for (const s of skills)
       assert.ok(cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: .claude/skills/${s}/SKILL.md is in docs`);
     for (const s of [...harnessSkills, ...vendored])
       assert.ok(!cfg.docs.some(g => matchesGlob(`.claude/skills/${s}/SKILL.md`, g)), `${p}: the harness's own ${s} skill stays out of docs`);
   }
+  assert.ok(checked > 0, 'some project has skills of its own, so this test checks something');
 });
 
 test('on the Small tier the fork writes a handoff and the main session runs review on Opus (D22, research/09)', () => {
