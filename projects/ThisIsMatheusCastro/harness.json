@@ -5,7 +5,7 @@
     "full adds CI's Build job (next build).",
     "fileTools formats with Prettier, then lints with ESLint, each edited source file. *.md is Prettier-ignored in this repo.",
     "The default branch is main. production only changes through the promote PRs at launch phases; its ruleset (ProdProtection) guards it.",
-    "docs: content/ is registered ahead of Phase 3.1; revisit its glob when 3.1 settles the content format."
+    "docs: Docs/ (what and in what order), Harness_Config/Context/ (how: architecture, decisions, UI guidelines), the rules, the two project skills, and content/, registered ahead of Phase 3.1; revisit its glob when 3.1 settles the content format."
   ],
   "defaultBranch": "main",
   "checks": {
@@ -39,6 +39,6 @@
       "format": { "run": ["npx", "prettier", "--write", "{file}"], "timeoutSec": 60 }
     }
   },
-  "docs": ["README.md", "PortfolioPlan.md", "Roadmap.md", "content/**/*.{md,mdx}", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docs": ["README.md", "Docs/**/*.md", "Harness_Config/**/*.md", "content/**/*.{md,mdx}", ".claude/CLAUDE.md", ".claude/rules/**/*.md", ".claude/skills/{guardrails-review,ux-design}/SKILL.md"],
   "docmap": {}
 }
