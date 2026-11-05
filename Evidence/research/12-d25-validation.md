@@ -7,12 +7,12 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 | Change | What counts | Runs so far |
 |---|---|---|
 | C1 | A UI check in the builder, on throwaway data or read-only | **#140: met** for where it ran: in the builder, on throwaway data. But it cost $1.25, against D24's $0.51–0.77, and the builder passed 200k (259k). **#6 (ThisIsMatheusCastro): met** for a browser check that isn't UI: a read-only service check on the preview deploy, 3 calls, $0.04. No Small UI run yet |
-| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157: met** (1 of 3) |
+| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157 and #9: met** (2 of 3) |
 | C3 | After "continue <n>", `build` is the first or second call, with no owner turn | **#140 and #6: met** (2 of 3). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
 | C4 | Every InvoiceMe UI sub-phase names `frontend-design` | **#140: met**: "not needed, because the layout is unchanged…" |
-| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140 and #6 were Standard from the start |
-| C8 | Numbered decisions, answered in one reply | **#155, #157, #140 and #6: met** (4 of 4). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open. On #6, the re-review found a regression in a G2 fix, so G2 took a second numbered round (3 decisions, one reply) |
-| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far. **#6** met peak (167k; the builder 99k) and missed cost ($8.33) and turns (≈ 11). The review was 58% of its cost |
+| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140 and #6 were Standard from the start. On #9 the plan said Standard for one sub-phase, because Small's criteria exclude a dependency change, and the owner moved it to Small at the plan |
+| C8 | Numbered decisions, answered in one reply | **#155, #157, #140 and #6: met; #9: not met** (4 of 5). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open. On #6, the re-review found a regression in a G2 fix, so G2 took a second numbered round (3 decisions, one reply). On #9 the owner's "Mark it ready" answered decision 1 of 2, and the session asked again about the second |
+| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far. **#6** met peak (167k; the builder 99k) and missed cost ($8.33) and turns (≈ 11). The review was 58% of its cost. **#9** met cost and peak ($2.44, 131k) and missed Small's turns by one (≈ 7) |
 
 ## Log
 
@@ -22,6 +22,7 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 | #157 | BabyBuddyHelper | D25 | Small (scoped as Standard; moved after G1) | T1; T4 skipped (a prompt-wording change); T5, T6 and T7 don't apply | `red-team` 1 (7), fixed; `reviewOnReady` 0 | ≈ 7 | $3.99 | The first full D25 run. The tier recheck moved it to Small, and the fork handed back with Small's line. See Runs |
 | #140 | InvoiceMe | D25 | Standard | T1; **T4 fired**, 1 finding; **T6 fired** in the builder ($1.25); T7 not needed, with a reason; T5 skipped | `red-team` 1 (7), fixed; `red-team T4` 1 (7), half fixed, half declined; 3 older bugs to backlog #153 | ≈ 9 | $10.02 | 22 files, +815 / −316, and it also closed #145. Auto-fix turned itself back on twice. See Runs |
 | #6 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired for the first time** ($0.37), 0 findings; a browser check in the builder ($0.04); T7 doesn't apply | `red-team` 3 (9, 9, 7), fixed; `red-team T4` 1 (5), carried into Phase 5.1; the re-review 1 regression in a fix, fixed; `security-review T5` 0 | ≈ 11 | $8.33 | The first run on this project and stack (Next.js). The owner flagged the installed `Decisions.md` at G2. See Runs |
+| #9 | ThisIsMatheusCastro | D25 | Small (planned as Standard; the owner moved it) | T1; T4 doesn't apply (no error handling), nor do T5, T6 and T7 | `red-team` 0; PR comment 0 (the Vercel bot) | ≈ 7 | $2.44 | #6's follow-up. The cheapest D25 run so far. See Runs |
 
 ## Runs
 
@@ -259,6 +260,38 @@ The merged PR is 26 files, +1,064 / −138. That includes `dcc73d4`, the `Decisi
 7. **T5 fired for the first time.** `security-review` ran because the issue touches secrets and access to user data. It found nothing the red-team didn't; both scanned the history for the temporary route's commit. It cost $0.37, under T5's $0.50 drop line, and counts toward the auth epic's verdict.
 8. **The builder.** Its build cost $0.77 in 9 minutes. It ran the plan's temporary check route on the preview deploy in the browser pane: read-only, plus a send to Resend's test address. It saved a screenshot, then removed the route in the next commit. The handoff noted that `npm install` reported 13 audit warnings (2 low, 11 moderate), which it didn't triage.
 
+### ThisIsMatheusCastro #9 Move shadcn to devDependencies (Small), PR #10
+
+#6's follow-up. `shadcn` is a CLI, but it sat in `dependencies`, and `npm audit --omit=dev` traced all 6 of the production audit's warnings to it. The fix moves it to `devDependencies` at the same range. The lockfile change is only flags: 226 packages gained `"dev": true`, and no version changed. The PR is 2 files, +228 / −2.
+
+The issue's comment also asked to move the dependency configuration into a `project_dependencies/` folder. `scope` checked npm, Next.js, Vercel, CI's cache and the harness's per-file Prettier run, and found that each expects the files at the root. At G1 the owner kept them there.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | ca2414df | Opus 5.5 | 17 | 78k → 110k | 6 min, 1 question, 1 plan rejected for its tier | $1.07 |
+| B `build`: the main session and the forked builder | ca2414df | Opus 5.5 and Sonnet 5.5 | 3, plus 11 builder | 113k; the builder 64k | 3 min | $0.35 |
+| C `review` to ready-to-merge | ca2414df | Opus 5.5 | 13, plus 7 red-team (Opus, $0.29) | → 127k | 4 min | $0.82 |
+| C `/close` | ca2414df | Opus 5.5 | 5 | → 131k | 1 min | $0.20 |
+| **Total** | | | | | ≈ 16 min | **$2.44** |
+
+**Against the targets:**
+- **Cost:** met. $2.44 is the cheapest D25 run so far, and the second cheapest Small run, after D22's #134 ($2.23). The D25 Small median is $3.21 over 2 runs.
+- **Context:** met, 131k.
+- **Owner turns:** ≈ 7, one over Small's 6. They were:
+  - `/scope`, the G1 answer, the plan's rejection ("It has only 1 subphase, run it under Tier: Small") and the accept;
+  - "Mark it ready" and "Skip it";
+  - `/close`.
+
+  Without the tier correction and the second answer, it would have been 5.
+- **Quality:** the red-team found nothing to report. It checked again that the production audit was clean, and traced every production dependency through its dependencies to confirm that no newly flagged package is needed at run time. **Escapes** are tracked to 2026-12-03.
+
+**Findings:**
+1. **The tier rule and the plan's size disagreed, and the owner corrected it.** The plan had one sub-phase, but `scope` said Standard because Small's criteria exclude a dependency change. The owner rejected the plan for that one line, which cost a turn. The change moved no version and added or removed no package. **Candidate R12-8.**
+2. **C2 met:** the fork ended with Small's two `MAIN SESSION:` lines (turn off Auto-fix; run `review` now), and `review` started with no owner turn.
+3. **C8 not met.** G2 had 2 numbered decisions: approve with no fixes, and whether to open an issue for a CI check that fails on a production audit warning (recommended). The owner's "Mark it ready" answered the first. The session marked the PR ready and asked again about the second; the owner turned it down ("Skip it"). A reply in the owner's own words doesn't always answer by number.
+4. **Auto-fix stayed off,** as on #6: `set_monitor` succeeded in the main session. Then a stale event for the Vercel bot's comment arrived, and the session ignored it and said why.
+5. **The `/scope` session ran everything,** as Small intends: one transcript from `/scope` to `/close`, and the main session never passed 131k.
+
 ## Candidates for the next pass
 
 Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the rest of the D25 runs.
@@ -272,3 +305,4 @@ Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the res
 | R12-5 | #140 finding 1 | Allow `mcp__ccd_pr__set_monitor` in `settings.json`, and have `review` turn Auto-fix off again after each push and before the ready-to-merge note |
 | R12-6 | #6 finding 6 | A doc change the plan needs after the merge, like the Roadmap's Status row, goes in the PR. `/close` commits nothing, and a protected default branch takes changes only through a pull request |
 | R12-7 | #6 finding 4 | The install (Get Started and the project's docs step) says what `Decisions.md` holds: standing patterns a review can check code against, each with its reason, rules and status. Product decisions stay in the project's plan |
+| R12-8 | #9 finding 1 | When Small's criteria and the plan's size disagree, such as one sub-phase that only moves a dependency, `scope` recommends a tier with both reasons and lets the G1 accept settle it, or Small allows a dependency change that adds, removes and upgrades nothing |
