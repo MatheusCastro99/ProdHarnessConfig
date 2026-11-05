@@ -167,7 +167,7 @@ function main() {
   for (const { run, total, extra, parts, mainPeak } of rows) {
     const g = groups(parts), diff = run.diff ? `${run.diff[0]}f +${run.diff[1]} −${run.diff[2]}` : '—';
     const cell = n => n ? d(n) : '—';
-    console.log(`| ${run.repo === 'InvoiceMe' ? 'IM' : run.repo === 'BabyBuddyHelper' ? 'BBH' : 'HE101'} #${run.issue} | ${run.config} | ${run.tier || '—'} | ${diff} | ${cell(g.plan)} | ${cell(g.build)} | ${cell(g.ui)} | ${cell(g.review)} | ${cell(g.close)} | ${cell(g.other)} | **${d(total)}** | ${d(run.recorded.cost)} | ${cell(extra)} | ${k(mainPeak)} | ${run.recorded.turns} |`);
+    console.log(`| ${({ InvoiceMe: 'IM', BabyBuddyHelper: 'BBH', ThisIsMatheusCastro: 'TIMC' })[run.repo] || 'HE101'} #${run.issue} | ${run.config} | ${run.tier || '—'} | ${diff} | ${cell(g.plan)} | ${cell(g.build)} | ${cell(g.ui)} | ${cell(g.review)} | ${cell(g.close)} | ${cell(g.other)} | **${d(total)}** | ${d(run.recorded.cost)} | ${cell(extra)} | ${k(mainPeak)} | ${run.recorded.turns} |`);
   }
   console.log('\n| Config | Tier | Runs | Median cost | Median plan | Median build | Median review | Median main peak | Median turns |');
   console.log('|---|---|---|---|---|---|---|---|---|');

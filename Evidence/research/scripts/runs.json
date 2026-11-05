@@ -3,7 +3,8 @@
   "projects": {
     "BabyBuddyHelper": "C--Users-mathe-source-repos-BabyBuddyHelper",
     "InvoiceMe": "C--Users-mathe-source-repos-InvoiceMe",
-    "HarnessEngineering101": "C--Users-mathe-source-repos-HarnessEngineering101"
+    "HarnessEngineering101": "C--Users-mathe-source-repos-HarnessEngineering101",
+    "ThisIsMatheusCastro": "C--Users-mathe-source-repos-ThisIsMatheusCastro"
   },
   "configs": {
     "baseline": "Before the harness: one long session per issue (research/02)",
@@ -51,6 +52,7 @@
 
     { "issue": 155, "repo": "BabyBuddyHelper", "config": "D24/D25", "tier": "Standard", "kind": "code", "note": "a 4th sub-phase built in the review session, after the owner's live check found the real cause", "pr": 156, "diff": [15, 185, 49], "recorded": { "cost": 9.88, "turns": 13 }, "source": "research/12", "sessions": [{ "id": "598e297c", "start": "A" }, { "id": "fea0e5dc", "start": "B" }, { "id": "c984af7b", "start": "C" }] },
     { "issue": 157, "repo": "BabyBuddyHelper", "config": "D25", "tier": "Small", "kind": "code", "note": "scoped as Standard; G1's tier recheck moved it to Small", "pr": 160, "diff": [4, 7, 4], "recorded": { "cost": 3.99, "turns": 7 }, "source": "research/12", "sessions": [{ "id": "a37f976a", "start": "A" }] },
-    { "issue": 140, "repo": "InvoiceMe", "config": "D25", "tier": "Standard", "kind": "code", "note": "also closed #145; Auto-fix turned itself back on", "pr": 158, "diff": [22, 815, 316], "recorded": { "cost": 10.02, "turns": 9 }, "source": "research/12", "sessions": [{ "id": "5204bd9d", "start": "A" }, { "id": "96a3280c", "start": "B" }, { "id": "756acf86", "start": "C" }] }
+    { "issue": 140, "repo": "InvoiceMe", "config": "D25", "tier": "Standard", "kind": "code", "note": "also closed #145; Auto-fix turned itself back on", "pr": 158, "diff": [22, 815, 316], "recorded": { "cost": 10.02, "turns": 9 }, "source": "research/12", "sessions": [{ "id": "5204bd9d", "start": "A" }, { "id": "96a3280c", "start": "B" }, { "id": "756acf86", "start": "C" }] },
+    { "issue": 6, "repo": "ThisIsMatheusCastro", "config": "D25", "tier": "Standard", "kind": "code", "note": "first run on this project and stack; the merged PR also carries the Decisions.md rework, made outside the run", "pr": 8, "diff": [26, 1064, 138], "recorded": { "cost": 8.33, "turns": 11 }, "source": "research/12", "sessions": [{ "id": "caf5dbef", "start": "A" }, { "id": "786a33d3", "start": "B" }, { "id": "b49babf7", "start": "C" }] }
   ]
 }

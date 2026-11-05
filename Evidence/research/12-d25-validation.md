@@ -6,13 +6,13 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 
 | Change | What counts | Runs so far |
 |---|---|---|
-| C1 | A UI check in the builder, on throwaway data or read-only | **#140: met** for where it ran: in the builder, on throwaway data. But it cost $1.25, against D24's $0.51–0.77, and the builder passed 200k (259k). No Small UI run yet |
+| C1 | A UI check in the builder, on throwaway data or read-only | **#140: met** for where it ran: in the builder, on throwaway data. But it cost $1.25, against D24's $0.51–0.77, and the builder passed 200k (259k). **#6 (ThisIsMatheusCastro): met** for a browser check that isn't UI: a read-only service check on the preview deploy, 3 calls, $0.04. No Small UI run yet |
 | C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157: met** (1 of 3) |
-| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | **#140: met** (1 of 3). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
+| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | **#140 and #6: met** (2 of 3). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
 | C4 | Every InvoiceMe UI sub-phase names `frontend-design` | **#140: met**: "not needed, because the layout is unchanged…" |
-| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140 was Standard from the start |
-| C8 | Numbered decisions, answered in one reply | **#155, #157 and #140: met** (3 of 3). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open |
-| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far |
+| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140 and #6 were Standard from the start |
+| C8 | Numbered decisions, answered in one reply | **#155, #157, #140 and #6: met** (4 of 4). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open. On #6, the re-review found a regression in a G2 fix, so G2 took a second numbered round (3 decisions, one reply) |
+| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far. **#6** met peak (167k; the builder 99k) and missed cost ($8.33) and turns (≈ 11). The review was 58% of its cost |
 
 ## Log
 
@@ -21,6 +21,7 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 | #155 | BabyBuddyHelper | D24/D25 | Standard | T1; **T4 fired** on both full reviews; T5, T6 and T7 don't apply | `red-team` 3 (6, 5, 5), all fixed; the owner's live check 1 root cause, fixed as sub-phase 4, and 1 rule mismatch, now #157; `reviewOnReady` 0 | ≈ 13 (7 on the planned path) | $9.88 | Plan and build on D24's files. The PR missed the bug; the owner's live check found it. See Runs |
 | #157 | BabyBuddyHelper | D25 | Small (scoped as Standard; moved after G1) | T1; T4 skipped (a prompt-wording change); T5, T6 and T7 don't apply | `red-team` 1 (7), fixed; `reviewOnReady` 0 | ≈ 7 | $3.99 | The first full D25 run. The tier recheck moved it to Small, and the fork handed back with Small's line. See Runs |
 | #140 | InvoiceMe | D25 | Standard | T1; **T4 fired**, 1 finding; **T6 fired** in the builder ($1.25); T7 not needed, with a reason; T5 skipped | `red-team` 1 (7), fixed; `red-team T4` 1 (7), half fixed, half declined; 3 older bugs to backlog #153 | ≈ 9 | $10.02 | 22 files, +815 / −316, and it also closed #145. Auto-fix turned itself back on twice. See Runs |
+| #6 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired for the first time** ($0.37), 0 findings; a browser check in the builder ($0.04); T7 doesn't apply | `red-team` 3 (9, 9, 7), fixed; `red-team T4` 1 (5), carried into Phase 5.1; the re-review 1 regression in a fix, fixed; `security-review T5` 0 | ≈ 11 | $8.33 | The first run on this project and stack (Next.js). The owner flagged the installed `Decisions.md` at G2. See Runs |
 
 ## Runs
 
@@ -207,6 +208,57 @@ The diff is 22 files, +815 / −316: the largest under the harness since the pil
    - A decision with no recommendation can't be answered by "as recommended". `review` could give every decision one, or mark one that has none.
 6. **T4 fired and found something:** the Generate PDF toast blamed the wrong fields when the total wasn't ready (7). The message was fixed, and the retry declined. T4's count is 6 fix-worthy findings over 7 InvoiceMe issues.
 
+### ThisIsMatheusCastro #6 Phase 1.3: Services and secrets (Standard), PR #8
+
+The first run on a third project and a third stack: a Next.js 16 site, with the harness installed from ProdHarnessConfig `79a9b7b` the same day. The owner did the console steps (Supabase, Upstash, Turnstile, Resend, the Anthropic key, Vercel's variables). The code added the 7 service SDKs, a zod schema for the 8 variables validated at server startup, one server-only getter per service, a Turnstile verifier, and the first migration (two tables, RLS on, no policies) with a test that guards it.
+
+G1 took 6 decisions in 3 rounds of questions. Two rounds came from the answers: who runs `npm install` (the owner answered in their own words), and how a sending-only Resend key could be checked (a send to Resend's test address). The plan stayed Standard: "the phase changes the schema, security and dependencies, and needed 5 decisions".
+
+The merged PR is 26 files, +1,064 / −138. That includes `dcc73d4`, the `Decisions.md` rework (8 files, +206 / −109), which was made in a ProdHarnessConfig session outside the run. Its cost isn't in this run.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | caf5dbef | Opus 5.5 | 22, plus 7 surveyor (Sonnet, $0.19) | 72k → 123k | 22 min, 3 rounds of questions | $1.95 |
+| B: "continue 6", the main session | 786a33d3 | Opus 5.5 | 7 | 69k → 75k | 9 min | $0.36 |
+| B `build`: the forked builder | 786a33d3/subagents | Sonnet 5.5 | 36, of which 3 for the check on the preview ($0.04) | → 99k | (same) | $0.77 |
+| C `/review` to ready-to-merge | b49babf7 | Opus 5.5 | 60, plus 33 red-team over two runs (Opus, $1.30) and 4 for `security-review` (T5, $0.37) | 71k → 160k | 22 min, 2 rounds of decisions | $4.87 |
+| C `/close` | b49babf7 | Opus 5.5 | 8 | → 167k | 1 min | $0.39 |
+| **Total** | | | | | ≈ 54 min | **$8.33** |
+
+**Against the targets:**
+- **Cost:** $8.33, over $7.49. The D25 Standard median is now $9.18 over 2 runs (#140 and #6).
+  - plan $1.95 (D24: $1.30–1.84; #140: $2.38);
+  - build $1.13, the cheapest Standard build under D25 (D24: $1.27–1.99);
+  - review $4.87, the most so far (D24: $1.90–2.16; #140: $3.08).
+- **Context:** met. The main sessions peaked at 167k, at `/close`; the builder at 99k.
+- **Owner turns:** ≈ 11, four over 7. They were:
+  - `/scope`, three rounds of G1 answers and the G1 accept;
+  - "continue 6";
+  - `/review`, the G2 reply, "1 a 2 a 3 a" and `/close`;
+  - "I'll do it" (the Roadmap's Status row, finding 6).
+
+  On the planned path (one G1 round, one G2 round, no Status row) it would have been 7.
+- **Quality:**
+  - The red-team found 3 issues, all fixed. The worst two (both 9) were docs that dropped `approved = true` from the guestbook insert, which would have kept the public count at 0, and an RLS guard that a later `disable row level security` slipped past.
+  - The re-review found that the review's own guard fix let a `/*` inside a `--` comment hide SQL. It was fixed at the owner's answer, with no third red-team run.
+  - A follow-up, #9 (`shadcn` into devDependencies), was opened.
+  - **Escapes** are tracked to 2026-12-03.
+
+**Findings:**
+1. **The hooks worked on a new stack.** It was the first live run of the hooks outside BabyBuddyHelper and InvoiceMe. The format and lint hooks ran on every edit. The docs gate blocked two review commits that changed `lib/migrations.test.ts` without its doc. The session updated Architecture_Design and split the change into a docs commit and a code commit. The split is noise in the history, but the gate caught a real stale line.
+2. **The review was 58% of the cost.** Three things grew it:
+   - G2 had 8 decisions, and two of the owner's answers changed scope: delete `.env.example`, and the `Decisions.md` point (finding 4).
+   - A fix round, then the re-review's regression and a second fix round.
+   - Writing #9.
+
+   The main review session went from 71k to 160k over 60 calls. The red-team's two runs cost $1.30.
+3. **Auto-fix stayed off.** In the build session, `set_monitor` succeeded this time; on #140 the classifier denied it. The app then delivered a stale Auto-fix event for the Vercel bot's comment. The session saw that it was a deploy status, changed nothing, and noted that Auto-fix was off. It stayed off through the review. That is one run where R12-5's first half wasn't needed, but the classifier isn't consistent.
+4. **The installed `Decisions.md` was the wrong kind of document.** The install moved the plan's 18 product decisions into `Decisions.md` as ADR-001 to 018 ("MSSA Work covers only…"). The red-team couldn't check code against them, and flagged owner files that still said "service-role" instead. At G2 the owner said `Decisions.md` should hold standing patterns for uniformity, as BabyBuddyHelper's and InvoiceMe's do, and called it an install fault. It was reworked into 15 patterns (secrets, env, service clients, data, routes, content, UI, tests, branches, docs), and the product decisions went back to `PortfolioPlan.md` as a record. **Candidate R12-7.**
+5. **An unreviewed commit reached the merge, and `/close` said so.** The review marked the PR ready at `8dbb065`. The `Decisions.md` commit was pushed after that, at the owner's go, and the owner merged at `dcc73d4`. `/close` compared the merged head with the reviewed one and reported that neither review covered `dcc73d4`, and that it holds only docs.
+6. **`/close` can't update the Roadmap's Status row here.** The plan left the row to `/close`, but `close` doesn't edit docs, and ThisIsMatheusCastro's `main` takes changes only through a pull request. The owner took it on ("I'll do it"): one owner turn. **Candidate R12-6.**
+7. **T5 fired for the first time.** `security-review` ran because the issue touches secrets and access to user data. It found nothing the red-team didn't; both scanned the history for the temporary route's commit. It cost $0.37, under T5's $0.50 drop line, and counts toward the auth epic's verdict.
+8. **The builder.** Its build cost $0.77 in 9 minutes. It ran the plan's temporary check route on the preview deploy in the browser pane: read-only, plus a send to Resend's test address. It saved a screenshot, then removed the route in the next commit. The handoff noted that `npm install` reported 13 audit warnings (2 low, 11 moderate), which it didn't triage.
+
 ## Candidates for the next pass
 
 Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the rest of the D25 runs.
@@ -218,3 +270,5 @@ Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the res
 | R12-3 | #155 finding 3 | New scope found at G2 goes through a plan amendment and a forked `build`, not the review session |
 | R12-4 | #157 finding 2 | A tier recheck that confirms or lowers the tier goes in the plan for the G1 accept, not in a separate question |
 | R12-5 | #140 finding 1 | Allow `mcp__ccd_pr__set_monitor` in `settings.json`, and have `review` turn Auto-fix off again after each push and before the ready-to-merge note |
+| R12-6 | #6 finding 6 | A doc change the plan needs after the merge, like the Roadmap's Status row, goes in the PR. `/close` commits nothing, and a protected default branch takes changes only through a pull request |
+| R12-7 | #6 finding 4 | The install (Get Started and the project's docs step) says what `Decisions.md` holds: standing patterns a review can check code against, each with its reason, rules and status. Product decisions stay in the project's plan |
