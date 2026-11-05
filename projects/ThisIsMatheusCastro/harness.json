@@ -1,0 +1,44 @@
+{
+  "notes": [
+    "ThisIsMatheusCastro (Next.js App Router, TypeScript, Tailwind, shadcn/ui; Vitest). Installed by its issue #5 (Phase 1.2).",
+    "fast mirrors CI's Lint, Typecheck and Unit tests jobs; Lint runs ESLint and Prettier's format:check, as CI does.",
+    "full adds CI's Build job (next build).",
+    "fileTools formats with Prettier, then lints with ESLint, each edited source file. *.md is Prettier-ignored in this repo.",
+    "The default branch is main. production only changes through the promote PRs at launch phases; its ruleset (ProdProtection) guards it.",
+    "docs: content/ is registered ahead of Phase 3.1; revisit its glob when 3.1 settles the content format."
+  ],
+  "defaultBranch": "main",
+  "checks": {
+    "fast": [
+      { "run": ["npm", "run", "lint"], "timeoutSec": 180 },
+      { "run": ["npm", "run", "format:check"], "timeoutSec": 60 },
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 },
+      { "run": ["npm", "test"], "timeoutSec": 180 }
+    ],
+    "full": [
+      { "run": ["npm", "run", "lint"], "timeoutSec": 180 },
+      { "run": ["npm", "run", "format:check"], "timeoutSec": 60 },
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 },
+      { "run": ["npm", "test"], "timeoutSec": 180 },
+      { "run": ["npm", "run", "build"], "timeoutSec": 600 }
+    ],
+    "typecheck": [
+      { "run": ["npm", "run", "typecheck"], "timeoutSec": 180 }
+    ],
+    "unit": [
+      { "run": ["npm", "test"], "timeoutSec": 180 }
+    ]
+  },
+  "requiredCiChecks": ["Lint", "Typecheck", "Unit tests", "Build"],
+  "fileTools": {
+    "{app,components,lib}/**/*.{ts,tsx,js,jsx,mjs}": {
+      "format": { "run": ["npx", "prettier", "--write", "{file}"], "timeoutSec": 60 },
+      "lint": { "run": ["npx", "eslint", "{file}"], "timeoutSec": 90 }
+    },
+    "{app,components,lib}/**/*.css": {
+      "format": { "run": ["npx", "prettier", "--write", "{file}"], "timeoutSec": 60 }
+    }
+  },
+  "docs": ["README.md", "PortfolioPlan.md", "Roadmap.md", "content/**/*.{md,mdx}", ".claude/CLAUDE.md", ".claude/rules/**/*.md"],
+  "docmap": {}
+}
