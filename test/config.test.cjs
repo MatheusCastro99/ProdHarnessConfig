@@ -240,10 +240,10 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   const scope = read('skills/scope/SKILL.md');
   assert.ok(scope.includes('**The smallest complete change:**'), 'T1 is a standing rule (D26)');
   assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
-  assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
+  assert.match(scope, /changes the UI:\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
   const build = read('skills/build/SKILL.md');
-  assert.match(build, /`frontend-design` skill if it has one \(T7\)/);
-  assert.match(build, /\*\*A UI check \(T6\):\*\*[\s\S]*Save its screenshots under `\.harness\/work\/<n>\/ui\/`/);
+  assert.match(build, /`frontend-design` skill if it has one\./);
+  assert.doesNotMatch(build + scope, /\(T[1-7]\b|T[1-7], /, 'no trial labels left (D26)');
   const review = read('skills/review/SKILL.md');
   const brief = review.slice(review.indexOf('## 2.'), review.indexOf('## 3.'));
   // D26: T4 is a standing part of the brief; T5 is dropped (0 findings the red-team missed, in 4 runs; research/13).
@@ -298,15 +298,23 @@ test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {
   }
 });
 
-test('D25: the UI check stays in the builder on safe data, the tier comes from the plan, and the owner answers by number (research/11)', () => {
+test('D25 and D26: the UI check runs on its own agent on safe data, the tier comes from the plan, and the owner answers by number (research/11)', () => {
   const claude = read('CLAUDE.md'), workflow = claude.split('## Workflow')[1].split('\n## ')[0];
   // C1: #149 and #151 ran the UI check in the Opus main session ($1.42 and $2.73), and #151 wrote to the owner's data.
-  assert.ok(workflow.includes("the fork can't reach the app's PR tools. It drives the browser pane and runs the UI check itself."));
+  // D26 (E7) then moved it out of the builder too: it took #140's builder to 259k and #34's to 222k.
+  assert.ok(workflow.includes("the fork can't reach the app's PR tools. The UI check runs in `review`, on the `ui-check` agent."));
   const scope = read('skills/scope/SKILL.md');
-  assert.ok(scope.includes('The builder runs it, on either tier; never route it to the main session (D25).'));
+  assert.ok(scope.includes('The `ui-check` agent runs it in Block C, at the handed-off SHA, on either tier (D26); not the builder, and never the main session.'));
   assert.ok(scope.includes('Never plan a write to the owner\'s data, even one undone afterwards.'));
   const build = read('skills/build/SKILL.md');
-  assert.ok(build.includes("**A UI check (T6):** run it yourself, on either tier") && build.includes("Don't hand it to the main session (D25)."));
+  assert.ok(build.includes('**A UI check isn\'t yours:** `review` runs it on the `ui-check` agent'));
+  const ui = frontmatter(read('agents/ui-check.md'));
+  assert.deepStrictEqual([ui.name, ui.model, ui.effort], ['ui-check', 'sonnet', 'high']);
+  assert.match(ui.disallowedTools, /Edit/);
+  assert.match(ui.disallowedTools, /Write/);
+  const review = read('skills/review/SKILL.md');
+  assert.ok(review.slice(review.indexOf('## 2.'), review.indexOf('## 3.')).includes('brief the `ui-check` agent in the background too'));
+  assert.ok(read('agents/ui-check.md').includes("**Never write to the owner's data,**"));
   // C2: on all 3 Small runs the fork ended with Standard's line; the plan's tier now decides on both sides.
   const step6 = build.slice(build.indexOf('6. **Then stop.'), build.indexOf('## Never'));
   assert.ok(step6.includes("Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25)."));
@@ -318,6 +326,5 @@ test('D25: the UI check stays in the builder on safe data, the tier comes from t
   assert.ok(scope.includes('`frontend-design: used for <what>` or `frontend-design: not needed, because <why>`'));
   assert.ok(scope.includes('**Then check the tier again (D25),**'));
   // C8: on #139 a follow-up question went unanswered and had to be asked again.
-  const review = read('skills/review/SKILL.md');
   assert.ok(review.includes('### Decisions for you') && review.includes('**Number every open decision under "Decisions for you" (D25)**'));
 });

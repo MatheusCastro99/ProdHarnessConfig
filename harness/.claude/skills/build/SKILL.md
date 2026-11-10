@@ -32,12 +32,10 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
    - Keep to its "Invariants to preserve".
    - Don't re-explore its "Rejected approaches".
    - The file-check hook lints each edit; fix what it reports.
-   - On a UI sub-phase, follow the project's `frontend-design` skill if it has one (T7).
+   - On a UI sub-phase, follow the project's `frontend-design` skill if it has one.
 2. **Need to read code the plan didn't cover?** Read only that code yourself, narrowly: search first, then the lines you need. You already run on Sonnet in a fresh context, so a subagent would only add a hop (D23).
 3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
-   - **A UI check (T6):** run it yourself, on either tier; the browser pane and UI automation work from the fork. Don't hand it to the main session (D25).
-   - Use the throwaway data the plan names. Never change the owner's real data while driving the app.
-   - Save its screenshots under `.harness/work/<n>/ui/`; list them under the handoff's Checks.
+   - **A UI check isn't yours:** `review` runs it on the `ui-check` agent at the handed-off SHA (D26). Make sure the throwaway data the plan names exists or can be made, and list the check under the handoff's Checks as "in review (ui-check)".
 4. **Docs:**
    - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
    - Update each candidate doc that is now wrong, in this same commit.

@@ -54,8 +54,8 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - `check <id>` must name a check in `.claude/harness.json`.
    - Prefer an automated check. A manual one needs its reason.
    - **The smallest complete change:** for each sub-phase, take the first option that fully works: it isn't needed; this codebase already has it; the standard library or platform covers it; an installed dependency does; only then new code. Never cut validation at trust boundaries, error handling, security or accessibility. Name what you skipped under "Rejected approaches".
-   - **A sub-phase that changes the UI (T6, T7):** its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`. Say what to look at.
-     - The builder runs it, on either tier; never route it to the main session (D25).
+   - **A sub-phase that changes the UI:** its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`. Say what to look at.
+     - The `ui-check` agent runs it in Block C, at the handed-off SHA, on either tier (D26); not the builder, and never the main session.
      - Plan it on throwaway data the project can make (a test or in-memory database). Where it can't, the check only reads. Never plan a write to the owner's data, even one undone afterwards.
      - If the project has a `frontend-design` skill, plan the design with it; the issue and the project's UI guidelines are its brief. Either way the sub-phase says `frontend-design: used for <what>` or `frontend-design: not needed, because <why>`.
    - **What G1 adds is planned too (D26):**

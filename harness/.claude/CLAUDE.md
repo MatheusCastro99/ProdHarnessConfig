@@ -35,7 +35,7 @@ Content, art or design drafted with the owner is drafted before `/scope`, in its
 
 Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.harness/work/<n>/BLOCKED` exists, stop and tell the owner.
 
-When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's PR tools. It drives the browser pane and runs the UI check itself.
+When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's PR tools. The UI check runs in `review`, on the `ui-check` agent.
 
 ## Working agreements
 

@@ -27,6 +27,8 @@ Brief the `red-team` in the background with:
 - **Constraints:** the plan's "Out of scope" and the docs it expected to change.
 - **Error-handling lens,** when the change touches error handling, validation or fallbacks: hunt silent failures too. Empty or broad catches, errors logged and then ignored, a default or success returned on failure, and errors that reach the user without saying what went wrong.
 
+**UI check (D26),** when the plan has a UI sub-phase: brief the `ui-check` agent in the background too, with each UI sub-phase's check and the criteria it serves, the SHA, and the throwaway data the plan names. A failed check is a finding in the G2 table.
+
 Don't read the full diff yourself; it goes to the red-team.
 
 Meanwhile, collect review comments on the PR: `gh pr view <pr> --comments`, and inline comments via `gh api repos/{owner}/{repo}/pulls/<pr>/comments`.
@@ -41,7 +43,7 @@ For each finding and each comment, answer three questions:
 
 Recommend **fix** or **decline**, with the reason, and name what would make a declined finding real. Verify a claim before relying on it.
 
-**Source** names what found each one: `red-team`, `red-team (error lens)`, `PR comment` or `reviewOnReady`. The run records (`Evidence/research/12–13` in ProdHarnessConfig) count by it.
+**Source** names what found each one: `red-team`, `red-team (error lens)`, `ui-check`, `PR comment` or `reviewOnReady`. The run records (`Evidence/research/12–13` in ProdHarnessConfig) count by it.
 
 ## 4. G2 report (one message; the owner decides everything in one reply)
 
@@ -54,7 +56,7 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 ### Docs
 <docs diff summary; acks>
 ### Optional owner steps
-<e.g. a local MAUI run; CI's build is the required check>
+<e.g. a local MAUI run; CI's build is the required check; the UI screenshots in .harness/work/<n>/ui/>
 ### Decisions for you
 1. <one per open decision: each finding to fix or decline, each follow-up issue, each item only the owner can change>
 ```
