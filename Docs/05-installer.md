@@ -1,9 +1,9 @@
 # 05. The installer
 
-[`scripts/install.cjs`](../scripts/install.cjs) installs the harness into a project, and upgrades it later. It changes nothing unless you ask it to, and it never overwrites a file it can't account for.
+[`Onboard/install.cjs`](../Onboard/install.cjs) installs the harness into a project, and upgrades it later. It changes nothing unless you ask it to, and it never overwrites a file it can't account for.
 
 ```
-node scripts/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
+node Onboard/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
 ```
 
 - `<target-repo>`: the path to the project's git checkout.
@@ -85,4 +85,4 @@ An optional `projects/<project>/install.json` holds what the installer adds per 
 ## Design record
 
 - [ADOPTION_PLAN.md](../Evidence/ADOPTION_PLAN.md) §3 (how it gets installed) and §4 (the steps per repo).
-- [research/10](../Evidence/research/10-trials.md) (D24's vendored skills).
+- [research/10](../Evidence/research/10-trials.md) (D24's vendored skills) and [research/13](../Evidence/research/13-d25-meta-analysis.md) §6 (T7, `frontend-design`, now standing).

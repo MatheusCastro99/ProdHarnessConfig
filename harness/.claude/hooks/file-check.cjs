@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// H1: PostToolUse on Edit|Write (OPTIMIZATION_PLAN.md §6.2).
+// H1: PostToolUse on Edit|Write (Evidence/OPTIMIZATION_PLAN.md §6.2).
 // Formats, then lints, the one edited file with its fileTools entry. The edit already happened, so a lint
 // failure exits 2: Claude Code shows stderr to Claude, which fixes the file. Silent when there's nothing to say.
 

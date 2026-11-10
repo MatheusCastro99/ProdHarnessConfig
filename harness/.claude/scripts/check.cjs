@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// S5: the named-check runner (OPTIMIZATION_PLAN.md §6.4, F7).
+// S5: the named-check runner (Evidence/OPTIMIZATION_PLAN.md §6.4, F7).
 // Usage: node .claude/scripts/check.cjs <fast|full|id> [--index <n>]
 // Runs the check's commands in order (or only command n) and stops at the first failure. The exit code is that
 // command's own code (124 on timeout), so trimming the output can never turn a failure into a pass.
@@ -31,7 +31,7 @@ async function runCheck(root, id, { print = s => process.stdout.write(s + '\n'),
       print(tag('check', `${id} FAILED at ${label}: ${why}`));
       const out = tail(r.output);
       print(out ? out : '(the command printed nothing)');
-      return { code: r.code, failed: { index: i, label, timedOut: r.timedOut, output: out } };
+      return { code: r.code, failed: { index: i, label, timedOut: r.timedOut, output: out, fullOutput: r.output } };
     }
   }
   print(tag('check', `${id} passed (${cmds.length} command${cmds.length > 1 ? 's' : ''})`));

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-// Installs or upgrades the harness in a project (ADOPTION_PLAN.md §3).
-// Usage: node scripts/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
+// Installs or upgrades the harness in a project (Evidence/ADOPTION_PLAN.md §3).
+// Usage: node Onboard/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
 //
 // Dry run by default: prints what it would add, update, replace or remove, and changes nothing.
 // --apply writes, and only on a clean target tree. Files the harness didn't install are replaced only

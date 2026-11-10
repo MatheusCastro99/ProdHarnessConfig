@@ -9,7 +9,7 @@ It was built from measured session data, and it's measured on every issue it run
 **What this is not:**
 - **A framework or a product.** It is one owner's working setup, documented so you can adapt it.
 - **Hands-off.** The design assumes someone approves every plan, decides every review finding and merges by hand. Those gates are part of the architecture.
-- **Settled.** The current version (D25) is still being validated, and several of its rules are trials under measurement.
+- **Settled.** The current version (D26) is still being validated against its runs.
 
 ## How an issue goes
 
@@ -52,30 +52,31 @@ The details are in [Docs/01. The workflow](Docs/01-workflow.md).
 
 ## Results
 
-From [Evidence/research/11](Evidence/research/11-meta-analysis.md): 30 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness: 10 code issues on BabyBuddyHelper (.NET MAUI) and 5 docs issues on HarnessEngineering101. 15 ran with it, on BabyBuddyHelper and InvoiceMe (MERN).
+From [Evidence/research/13](Evidence/research/13-d25-meta-analysis.md): 49 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness: 10 code issues on BabyBuddyHelper (.NET MAUI) and 5 docs issues on HarnessEngineering101. 34 ran with it, on BabyBuddyHelper, InvoiceMe (MERN) and ThisIsMatheusCastro (Next.js).
 
-| | Before the harness (10 code issues, BabyBuddyHelper) | Harness, Standard tier (5 issues: 4 InvoiceMe, 1 BabyBuddyHelper) |
-|---|---|---|
-| Median cost per issue | $9.99 | **$6.03** (every run ≤ $6.43) |
-| Main-session peak context | 291k tokens | **121–129k** |
-| Owner messages per issue | 11 | **7** |
-| Context before the first prompt | — | 73–80k |
+| | Before the harness (10 code issues) | D24, Standard tier (5 issues) | D25, Standard tier (10 issues) |
+|---|---|---|---|
+| Median cost per issue | $9.99 | **$6.03** | **$8.32** |
+| Median main-session peak context | 291k tokens | **125k** | **145k** |
+| Median owner messages per issue | 11 | **7** | **9** |
+| Median lines added per issue | — | 243 | 795 |
 
-- **The biggest single change** was running the build forked on Sonnet. Block B fell from $8.04–9.38 on Opus in the main session to $1.25–1.99.
-- **Quality held.** No blocking finding was left at merge. Review found 0–3 fix-worthy problems per issue, and most of them were doc lines a change had made untrue.
+- **The biggest single change** was running the build forked on Sonnet. Its cost stayed flat on D25's issues, about three times the size of D24's (builder median $1.02, against $1.11).
+- **D25 cost more than D24, and none of its own changes caused it.** The review session made its G2 fixes on Opus at high context (+$0.78 per run), and planning took more rounds with the owner (+$0.51). D26, the version this repository now ships, sends those fixes to the forked builder.
+- **Quality held.** No blocking finding was left at merge. The first escapes recorded, five doc lines that no longer matched the code, were caught by an Epic's knowledge audit, not by a user.
 - **Caveats:**
   - The costs are list-price equivalents; I'm on a subscription.
   - The samples are small, with one owner, so the medians show direction, not effect size.
-  - The two columns come mostly from different repositories: the code baseline is BabyBuddyHelper only, and 4 of the 5 Standard runs are InvoiceMe. The issues differ in size too.
-  - The Small tier is cheaper only when nothing heavy follows the plan (median $2.92 on docs issues, $4.88 on code issues).
-  - D25, the version installed now, is under validation.
+  - The columns come from different repositories and issue sizes: the baseline is BabyBuddyHelper only, D24 is mostly InvoiceMe, and D25 is mostly ThisIsMatheusCastro, a new site.
+  - The Small tier is cheaper when nothing heavy follows the plan: a median of $3.99 on code issues and $5.37 on docs issues under D25.
+  - D26 is under validation.
 
 ## Get started
 
 **[Onboard/GET_STARTED.md](Onboard/GET_STARTED.md)** covers:
 - prerequisites;
 - describing your project in a `harness.json`;
-- installing with `scripts/install.cjs`, a dry run first;
+- installing with `Onboard/install.cjs`, a dry run first;
 - writing your `CLAUDE.md`;
 - a first issue, end to end.
 
@@ -95,14 +96,13 @@ Not on Claude Code? **[Platform_Neutral/](Platform_Neutral/README.md)** separate
 ```
 README.md                  this page
 Docs/                      reference: workflow, skills and agents, hooks and scripts, harness.json, installer
-Onboard/                   Get Started (the installer moves here in #4)
+Onboard/                   Get Started and the installer, install.cjs
 Platform_Neutral/          the ideas without Claude Code, and a setup prompt for any agent
 harness/.claude/           what gets installed: CLAUDE.md template, settings, skills, agents, hooks, scripts, lib
 projects/<Project>/        each project's harness.json, install.json and vendored skills
-scripts/install.cjs        installs and upgrades the harness in a project
 test/                      node --test suites for the hooks, scripts, installer and configs
 Evidence/
-  OPTIMIZATION_PLAN.md     the design record: decisions D1–D25, with § numbers the code cites
+  OPTIMIZATION_PLAN.md     the design record: decisions D1–D26, with § numbers the code cites
   ADOPTION_PLAN.md         how the harness was adopted in the two projects
   research/                the measurements, pilot by pilot, and the pricing scripts
   Independent_Assessments/ four other AI models' assessments of the first plan, and the reviews of them

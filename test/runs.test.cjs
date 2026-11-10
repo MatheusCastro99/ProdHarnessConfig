@@ -26,13 +26,13 @@ function project(main, subs = []) {
   write(root, 'P/abcd1234-0000.jsonl', jsonl(main));
   subs.forEach(([type, lines], i) => {
     write(root, `P/abcd1234-0000/subagents/agent-${i}.jsonl`, jsonl(lines));
-    write(root, `P/abcd1234-0000/subagents/agent-${i}.meta.json`, JSON.stringify({ agentType: type }));
+    write(root, `P/abcd1234-0000/subagents/agent-${i}.meta.json`, JSON.stringify(typeof type === 'string' ? { agentType: type } : type));
   });
   return root;
 }
 const run = extra => ({ repo: 'R', sessions: [{ id: 'abcd1234', start: 'A', ...extra }] });
 
-test('a Small session moves A → B → C → close and never back', () => {
+test('a Small session moves A → B → C → close, and only forward', () => {
   const root = project([
     cmd('scope'), call('t01'),
     call('t02', [['Skill', { skill: 'build' }]]), call('t03'),
@@ -46,6 +46,28 @@ test('a Small session moves A → B → C → close and never back', () => {
   const g = groups(r.parts);
   assert.strictEqual(g.build.toFixed(2), '0.50'); // 2 Opus + 1 Sonnet
   assert.strictEqual(r.total.toFixed(2), (7 * 0.2 + 0.1 + 0.2).toFixed(2));
+});
+
+test('a session that opens with /close, then /scope, starts its phases again; an audit counts in close (E13, #26)', () => {
+  const launch = (ts, id, type) => { const c = call(ts, [['Agent', { subagent_type: type }]]); c.message.content[0].id = id; return c; };
+  const root = project([
+    cmd('close'), call('t01'),
+    cmd('scope'), call('t02'), launch('t03', 'tu-s', 'surveyor'),
+    call('t04', [['Skill', { skill: 'build' }]]),
+    call('t05', [['Skill', { skill: 'review' }]]), launch('t06', 'tu-r', 'red-team'), launch('t07', 'tu-u', 'ui-check'),
+    cmd('close'), launch('t08', 'tu-a', 'red-team'),
+  ], [[{ agentType: 'surveyor', toolUseId: 'tu-s' }, [call('s1', [], SONNET)]],
+      [{ agentType: 'red-team', toolUseId: 'tu-r' }, [call('r1')]],
+      [{ agentType: 'ui-check', toolUseId: 'tu-u' }, [call('u1', [], SONNET)]],
+      [{ agentType: 'red-team', toolUseId: 'tu-a' }, [call('a1'), call('a2')]]]);
+  const r = priceRun(run(), root, { R: 'P' });
+  assert.deepStrictEqual(Object.fromEntries(Object.entries(r.parts).map(([k, v]) => [k, v.calls])),
+    { close: 2, A: 3, B: 1, C: 2, surveyor: 1, 'red-team': 1, 'ui-check:ui': 1, 'close/red-team': 2 });
+  const g = groups(r.parts);
+  assert.strictEqual(g.close.toFixed(2), '0.80'); // the stopped /close and the audit's launch, plus the audit
+  assert.strictEqual(g.review.toFixed(2), '0.60');
+  assert.strictEqual(g.ui.toFixed(2), '0.10');
+  assert.strictEqual(g.other, 0);
 });
 
 test('browser calls and short gaps between them count as the UI check', () => {
@@ -87,11 +109,14 @@ test('runs.json: every run has a known config, a project, a recorded cost and se
   }
 });
 
-test('README: every cost and context figure is one research/11 reports', () => {
-  // The README's results come from runs.js through research/11 (#3); a figure typed in by hand would drift.
+test('README: every cost and context figure is one the newest meta-analysis reports', () => {
+  // The README's results come from runs.js through the latest meta-analysis (#3, #4); a figure typed in by hand would drift.
   const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
-  const r11 = fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', '11-meta-analysis.md'), 'utf8');
+  const dir = path.join(__dirname, '..', 'Evidence', 'research');
+  const newest = fs.readdirSync(dir).filter(f => /^\d+-.*meta-analysis\.md$/.test(f)).sort((a, b) => parseInt(b) - parseInt(a))[0];
+  assert.ok(readme.includes(`Evidence/research/${newest}`), `the README cites ${newest}`);
+  const r11 = fs.readFileSync(path.join(dir, newest), 'utf8');
   const figures = readme.match(/\$\d+\.\d\d|\b\d+(?:–\d+)?k\b/g) || [];
   assert.ok(figures.length >= 8, 'the README states its results');
-  for (const f of new Set(figures)) assert.ok(r11.includes(f), `README's ${f} appears in research/11`);
+  for (const f of new Set(figures)) assert.ok(r11.includes(f), `README's ${f} appears in ${newest}`);
 });

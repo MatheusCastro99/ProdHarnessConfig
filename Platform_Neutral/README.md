@@ -19,7 +19,7 @@ The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analys
 | **Bind the review to one commit** | A push after the handoff makes the review stale. The review refuses a moved head | Record the SHA in the handoff; compare it with the PR head before reviewing |
 | **A check runner that keeps the real exit code** | Trimmed output never turns a failure into a pass, and the checks are named, so plans can cite them | [`check.cjs`](../harness/.claude/scripts/check.cjs) and a `harness.json`; both are portable |
 | **A stop gate on failing checks** | The agent can't hand off with failing fast checks. After 3 failures it stops for the owner instead of looping | Your agent's "before finishing" hook, or a wrapper script that runs the checks and refuses the handoff |
-| **A docs gate** | A commit that touches code named in a doc must update or acknowledge that doc | A git pre-commit hook, with no agent involved. [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) only lists candidates (it always exits 0); to block, wrap its exported `unresolved()`, which also honours the `ack:` lines, and exit non-zero when it returns any |
+| **A docs gate** | A commit that touches code named in a doc must update or acknowledge that doc | A git pre-commit hook, with no agent involved. [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) lists candidates; with `--fail` it exits 1 while one is neither updated nor acknowledged with an `ack:` line, so it can be the pre-commit hook as it is |
 | **Server-side branch protection** | "The owner merges" holds even if the agent's own rules are bypassed | A ruleset on the default branch: a required PR and checks, no force pushes |
 | **Price every run** | Without it, the 40% saving was a guess. Raw token totals misread cost by about 2× until priced | Your platform's session logs and its price table. The scripts in [`Evidence/research/scripts/`](../Evidence/research/scripts/) read Claude Code's format; the method carries over |
 
@@ -39,6 +39,6 @@ The full list, with how each was verified, is in [OPTIMIZATION_PLAN.md](../Evide
 
 ## What didn't pay off, or isn't settled
 
-- **A survey subagent** before planning showed no saving on issues that name their files (research/11 §5). It may still help in unfamiliar code.
+- **A survey subagent** before planning showed no saving on issues that name their files (research/11 §5, research/13 §5). It may still help in unfamiliar code, or when the survey is the work.
 - **A small tier** saves money only when nothing heavy follows the plan. One small run that grew after G1 became the dearest of the batch (research/11 §4).
-- **The trials** (the smallest change, an error-handling lens, a security pass, a UI check, a design skill) are still being measured. Copy them as ideas, not as results.
+- **The former trials:** the smallest change, an error-handling lens, a UI check and a design skill held up over two analyses and are standing rules now; a separate security pass found nothing the reviewer missed in 4 runs and was dropped (research/13 §6). The samples are small, so copy them as ideas.

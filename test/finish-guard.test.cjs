@@ -1,5 +1,5 @@
 'use strict';
-// H6 finish-guard (research/06, check 9): a forked build returns only when it is done.
+// H6 finish-guard (Evidence/research/06, check 9): a forked build returns only when it is done.
 
 const test = require('node:test');
 const assert = require('node:assert');

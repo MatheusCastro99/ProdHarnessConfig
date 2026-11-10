@@ -25,7 +25,8 @@
       "Bash(gh pr view *)",
       "Bash(gh pr checks *)",
       "Bash(gh issue view *)",
-      "Bash(gh issue comment *)"
+      "Bash(gh issue comment *)",
+      "mcp__ccd_pr__set_monitor"
     ],
     "deny": [
       "Bash(git push * main)",

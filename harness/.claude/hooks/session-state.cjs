@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// H5: SessionStart on startup|clear (OPTIMIZATION_PLAN.md §6.2, D3, F4).
+// H5: SessionStart on startup|clear (Evidence/OPTIMIZATION_PLAN.md §6.2, D3, F4).
 // One line of state per active issue, so a fresh session (or the /clear fallback after plan accept)
 // knows where the work stands. Prints nothing when no issue is active.
 // It reports and never instructs, except after /clear: that is the plan-accept fallback (F4), where the
@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { repoRoot, workDir } = require('../lib/harness.cjs');
+const { repoRoot, workDir, log } = require('../lib/harness.cjs');
 
 function stateLines(root, source) {
   const w = workDir(root);
@@ -37,7 +37,9 @@ function stateLines(root, source) {
 try {
   let source;
   try { source = JSON.parse(fs.readFileSync(0, 'utf8')).source; } catch { /* no input: treat as startup */ }
-  const lines = stateLines(repoRoot(), source);
+  const root = repoRoot();
+  const lines = stateLines(root, source);
+  if (lines.length) log(root, { tool: 'session-state', source: source || 'startup', lines: lines.length });
   if (lines.length) process.stdout.write(JSON.stringify({
     hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: `[harness session-state] ${lines.join(' · ')}` },
   }));

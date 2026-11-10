@@ -2,10 +2,12 @@
 // Re-prices every run in runs.json from its transcripts, split by phase, with one method (research/11).
 // Phases: A (plan), B (build), C (review and fixes), close. A session starts in its `start` phase;
 // /scope, /review, /close and the Skill calls for build, review and close move it on. Baseline runs
-// have no phases ("all"), and phases only move forward. Main-session calls that drive the browser
-// pane, and the calls between them (gaps of up to UI_GAP calls), are counted as ui in their phase.
-// Subagents go by agentType. A session's `extra.from` puts everything from then on in "extra",
-// which is reported but left out of the total.
+// have no phases ("all"). Phases only move forward, except that /scope starts a new plan (#26 opened with
+// /close). Main-session calls that drive the browser pane, and the calls between them (gaps of up to
+// UI_GAP calls), are counted as ui in their phase. Subagents go by agentType, or as "<phase>/<agentType>"
+// when the main-session call that launched them was in another phase than the agent's own (the Epic
+// audit's red-team in close); ui-check counts as a UI check. A session's `extra.from` puts everything
+// from then on in "extra", which is reported but left out of the total.
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -30,7 +32,7 @@ function calls(lines) {
     let c = byId.get(o.message.id);
     if (!c) { c = { model: o.message.model, ts: o.timestamp, tools: [], i }; byId.set(o.message.id, c); order.push(c); }
     c.u = o.message.usage;
-    for (const b of o.message.content || []) if (b.type === 'tool_use') c.tools.push({ name: b.name, input: b.input || {} });
+    for (const b of o.message.content || []) if (b.type === 'tool_use') c.tools.push({ name: b.name, input: b.input || {}, id: b.id });
   });
   return order.filter(x => x.u || x.marker);
 }
@@ -67,6 +69,8 @@ function price(c) {
 const ctx = c => { const s = split(c.u); return s.in + s.w5 + s.w1 + s.read; };
 
 const RANK = { A: 0, B: 1, C: 2, close: 3 };
+// Each subagent's own phase; launched from another, it is counted there (E13, D26).
+const HOME = { surveyor: 'A', builder: 'B', 'red-team': 'C', 'ui-check': 'C' };
 
 // Tag each main-session call with its phase and whether it is part of a browser check.
 function tagMain(entries, start) {
@@ -74,7 +78,7 @@ function tagMain(entries, start) {
   const to = p => { if (phase !== 'all' && p && RANK[p] > RANK[phase]) phase = p; };
   const out = [];
   for (const e of entries) {
-    if (e.marker) { to(e.marker); continue; }
+    if (e.marker) { if (e.marker === 'A' && phase !== 'all') phase = 'A'; else to(e.marker); continue; }
     out.push({ ...e, phase, browser: e.tools.some(t => BROWSER.test(t.name)) });
     for (const t of e.tools) to(toolPhase(t));
   }
@@ -111,6 +115,8 @@ function priceRun(run, projectsDir, projects) {
     const isExtra = c => from && c.ts >= from;
     const main = tagMain(calls(read(f)), s.start);
     if (main.length) starts.push(ctx(main[0]));
+    const launchedIn = {};
+    for (const c of main) for (const t of c.tools) if (t.id) launchedIn[t.id] = c.phase;
     for (const c of main) {
       if (isExtra(c)) { add(parts, 'extra', c); extra += price(c); continue; }
       add(parts, c.ui ? `${c.phase}:ui` : c.phase, c);
@@ -121,9 +127,11 @@ function priceRun(run, projectsDir, projects) {
       const meta = JSON.parse(fs.readFileSync(path.join(sub, x.replace('.jsonl', '.meta.json')), 'utf8'));
       const cs = calls(read(path.join(sub, x))).filter(e => e.u);
       if (cs.length && isExtra(cs[0])) { for (const c of cs) { add(parts, 'extra', c); extra += price(c); } continue; }
-      const ui = cs.map(c => ({ ...c, phase: meta.agentType, browser: c.tools.some(t => BROWSER.test(t.name)) }));
+      const at = launchedIn[meta.toolUseId], type = meta.agentType;
+      const key = at && HOME[type] && at !== HOME[type] && at !== 'all' ? `${at}/${type}` : type;
+      const ui = cs.map(c => ({ ...c, phase: key, browser: type === 'ui-check' || c.tools.some(t => BROWSER.test(t.name)) }));
       markUi(ui);
-      for (const c of ui) { add(parts, c.ui ? `${meta.agentType}:ui` : meta.agentType, c); total += price(c); }
+      for (const c of ui) { add(parts, c.ui ? `${key}:ui` : key, c); total += price(c); }
     }
   }
   return { total, extra, parts, mainPeak, over200, starts };
@@ -137,12 +145,12 @@ const sum = (p, keys) => keys.reduce((x, k) => x + (p[k] ? p[k].cost : 0), 0);
 function groups(p) {
   const keys = Object.keys(p), pick = re => keys.filter(k => re.test(k));
   return {
-    plan: sum(p, pick(/^A(:ui)?$/)) + sum(p, pick(/^surveyor/)),
-    build: sum(p, pick(/^B$/)) + sum(p, pick(/^builder$/)),
+    plan: sum(p, pick(/^(A|A\/[\w-]+|surveyor)$/)),
+    build: sum(p, pick(/^(B|B\/[\w-]+|builder)$/)),
     ui: sum(p, pick(/:ui$/)),
-    review: sum(p, pick(/^C$/)) + sum(p, pick(/^red-team$/)),
-    close: sum(p, pick(/^close$/)),
-    other: sum(p, keys.filter(k => !/^(A|B|C|close)(:ui)?$|^(surveyor|builder|red-team)(:ui)?$|^extra$/.test(k))),
+    review: sum(p, pick(/^(C|C\/[\w-]+|red-team)$/)),
+    close: sum(p, pick(/^(close|close\/[\w-]+)$/)),
+    other: sum(p, keys.filter(k => !/^(A|B|C|close)(\/[\w-]+)?(:ui)?$|^(surveyor|builder|red-team|ui-check)(:ui)?$|^extra$/.test(k))),
   };
 }
 
@@ -167,7 +175,7 @@ function main() {
   for (const { run, total, extra, parts, mainPeak } of rows) {
     const g = groups(parts), diff = run.diff ? `${run.diff[0]}f +${run.diff[1]} −${run.diff[2]}` : '—';
     const cell = n => n ? d(n) : '—';
-    console.log(`| ${run.repo === 'InvoiceMe' ? 'IM' : run.repo === 'BabyBuddyHelper' ? 'BBH' : 'HE101'} #${run.issue} | ${run.config} | ${run.tier || '—'} | ${diff} | ${cell(g.plan)} | ${cell(g.build)} | ${cell(g.ui)} | ${cell(g.review)} | ${cell(g.close)} | ${cell(g.other)} | **${d(total)}** | ${d(run.recorded.cost)} | ${cell(extra)} | ${k(mainPeak)} | ${run.recorded.turns} |`);
+    console.log(`| ${({ InvoiceMe: 'IM', BabyBuddyHelper: 'BBH', ThisIsMatheusCastro: 'TIMC' })[run.repo] || 'HE101'} #${run.issue} | ${run.config} | ${run.tier || '—'} | ${diff} | ${cell(g.plan)} | ${cell(g.build)} | ${cell(g.ui)} | ${cell(g.review)} | ${cell(g.close)} | ${cell(g.other)} | **${d(total)}** | ${d(run.recorded.cost)} | ${cell(extra)} | ${k(mainPeak)} | ${run.recorded.turns} |`);
   }
   console.log('\n| Config | Tier | Runs | Median cost | Median plan | Median build | Median review | Median main peak | Median turns |');
   console.log('|---|---|---|---|---|---|---|---|---|');

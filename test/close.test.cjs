@@ -1,5 +1,5 @@
 'use strict';
-// S2 close: the V0 cases from OPTIMIZATION_PLAN.md §6.4 and §8.5 (F1).
+// S2 close: the V0 cases from Evidence/OPTIMIZATION_PLAN.md §6.4 and §8.5 (F1).
 
 const test = require('node:test');
 const assert = require('node:assert');
@@ -134,4 +134,21 @@ test('memory files that mention the issue are listed for condensing', () => {
   assert.strictEqual(r.code, 0, r.out);
   const report = JSON.parse(r.stdout.slice(r.stdout.indexOf('{')));
   assert.deepStrictEqual(report.memoryFiles.map(f => path.basename(f)), ['project-a.md']);
+});
+
+test('no branch and no handoff is "nothing to clean up", exit 4, and deletes nothing (D26, #26)', () => {
+  const dir = harnessRepo(CONFIG);
+  write(dir, 'app.txt', 'v1\n');
+  commitAll(dir, 'base');
+  const r = run('scripts/close.cjs', ['26'], { cwd: dir });
+  assert.strictEqual(r.code, 4, r.out);
+  assert.match(r.out, /nothing to clean up/);
+});
+
+test('another issue\'s branch is not taken for this one: exit 4, and that branch is kept (#4 G2)', () => {
+  const { dir } = setup();
+  fs.rmSync(path.join(dir, '.harness/work/42'), { recursive: true });
+  const r = run('scripts/close.cjs', ['26'], { cwd: dir });
+  assert.strictEqual(r.code, 4, r.out);
+  assert.ok(branchExists(dir, 'feat/42-thing'));
 });

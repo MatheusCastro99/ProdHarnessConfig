@@ -6,13 +6,13 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 
 | Change | What counts | Runs so far |
 |---|---|---|
-| C1 | A UI check in the builder, on throwaway data or read-only | **#140: met** for where it ran: in the builder, on throwaway data. But it cost $1.25, against D24's $0.51–0.77, and the builder passed 200k (259k). No Small UI run yet |
-| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157: met** (1 of 3) |
-| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | **#140: met** (1 of 3). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
-| C4 | Every InvoiceMe UI sub-phase names `frontend-design` | **#140: met**: "not needed, because the layout is unchanged…" |
-| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140 was Standard from the start |
-| C8 | Numbered decisions, answered in one reply | **#155, #157 and #140: met** (3 of 3). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open |
-| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far |
+| C1 | A UI check in the builder, on throwaway data or read-only | **#140: met** for where it ran: in the builder, on throwaway data. But it cost $1.25, against D24's $0.51–0.77, and the builder passed 200k (259k). **#6 (ThisIsMatheusCastro): met** for a browser check that isn't UI: a read-only service check on the preview deploy, 3 calls, $0.04. **#12: met**, and on cost too: 16 calls, $0.36, on a local dev page, read-only; the builder peaked at 182k. **#13: met**: 31 calls, $0.65, on the local dev page, read-only; the builder peaked at 194k. **#14: met**: 25 calls, $0.50, read-only; the builder peaked at 157k. **#20 (Small): met**, the first Small run with a UI check: 3 calls, $0.03, screenshots of the two icon routes. **#21: met**: 21 calls, $0.40, on the dev crash trigger; the builder peaked at 139k. **#18: doesn't apply**: no UI change, as the plan said; the builder peaked at 125k. `runs.js` tags 3 calls as UI ($0.11): a dev-server start in the main session, during the owner's Neon setup. **#11 (Small, docs): doesn't apply**. **#27: doesn't apply**: no UI change; the builder peaked at 121k. **#28 (Small): doesn't apply**: nothing renders the content until Phase 4.1; the builder peaked at 89k. **#34: met** for where it ran: 29 calls, $0.81, read-only on the dev pages. It took the builder from 157k to 222k, over 200k. **#29: doesn't apply**: no rendered UI changed; the builder peaked at 101k. **#30 (Small, docs): doesn't apply**; the builder peaked at 75k. **#31 and #26 (Small, docs): don't apply**; the builders peaked at 73k and 84k |
+| C2 | On Small, the fork ends with the plan's tier, and `review` starts without an owner turn | **#157, #9, #20, #11, #28, #30, #31 and #26: met** (8 of 9). On #20, #11, #28, #30, #31 and #26, `review` was the next call after the fork returned |
+| C3 | After "continue <n>", `build` is the first or second call, with no owner turn | **#140, #6, #12, #13, #14, #21, #18, #27, #34 and #29: met** (10 of 10). #155 doesn't count, because its build session ran on D24's files; #157 was Small |
+| C4 | Every InvoiceMe UI sub-phase names `frontend-design` | **#140: met**: "not needed, because the layout is unchanged…". On ThisIsMatheusCastro, which vendors it too, **#12: met**: sub-phase 1 used it for the five palettes and the type scale. **#13: met**: all five sub-phases named it; two used it, for the nav and for the section heading and footer. **#14: met**: it was used for each section's composition and the five `--decor` values. **#20: met**: "not needed, because the artwork is a crop of the approved sprite…". **#21: met**: used for the page fallback and Calvo's bubble, "not needed" for the other two. **#18: met**: "not needed, because nothing renders differently". **#11: met**: "not needed, because no UI changes". **#27: doesn't apply**: no UI sub-phase, and the plan names no design step. **#28: met**: "not needed, because nothing renders this content until Phase 4.1". **#34: met**: both UI sub-phases said "not needed", because the art was approved in `/scope` and no layout changes. **#29: met**: "not needed, because no sub-phase changes rendered UI (that is 4.2/4.3)". **#30: met**: "not needed, because this is Calvo's knowledge text, not rendered UI". **#31: met**: "not needed, because this is content and docs only and no UI changes". **#26: met**: "not needed, because no UI changes" |
+| C5 | `scope` raises the tier when the G1 answers add work | none yet. #155's planning ran on D24's files. On #157 the recheck ran the other way: the answers left one sub-phase, and `scope` recommended Small. #140, #6, #12, #13 and #14 were Standard from the start, and #20 Small. #21 and #18 were Standard from the start. On #11 the owner set Small in the `/scope` call itself. #27 was Standard from the start, and G1 kept its three sub-phases. On #28 `scope` asked the tier in G1's second dialog and recommended Small, which the owner chose. #34 and #29 were Standard from the start. On #30 `scope` asked the tier in G1's first dialog and recommended Small, which the owner chose, and on #31 the same. On #26 the owner set Small in the `/scope` call itself, as on #11. On #9 the plan said Standard for one sub-phase, because Small's criteria exclude a dependency change, and the owner moved it to Small at the plan |
+| C8 | Numbered decisions, answered in one reply | **#155, #157, #140, #6, #12, #13, #14, #20, #21, #18, #11, #27, #28, #34, #29, #30, #31 and #26: met; #9: not met** (18 of 19). On #140, one of 7 decisions had no recommendation, so "As recommended" left it open. On #6, the re-review found a regression in a G2 fix, so G2 took a second numbered round (3 decisions, one reply). On #9 the owner's "Mark it ready" answered decision 1 of 2, and the session asked again about the second. On #12, one reply answered all 6, including a visual sign-off with a note. On #13, one line answered all 5, two of them against the recommendation. On #14, one line answered all 5, on #20 all 4, and on #21 all 5. On #18, "1–4 fix as drafted" answered the four fixes, and the session took 5 and 6, both no change, as recommended and said so. On #11, "1 decline" answered the one decision, and on #27 "1–5 fix" answered all 5. On #28 one line answered all 7, three of them (3, 5 and 6) against the recommendation. On #34 "Keep it, mark ready" answered both. On #29 "Yes, as recommended" answered all 4; a later question came from the stop hook, not from G2. On #30 each of three rounds was answered in one reply (4, 5 and 2 decisions); rounds 2 and 3 came from the owner's own edits at G2 and the re-review. On #31 "1 fix" answered the one decision, and on #26 "1 fix, 2 decline" answered both |
+| All | Standard: median ≤ $7.49 and ≤ 7 owner turns. Small: ≤ 6 turns. Peak ≤ 200k | **#155** missed all three ($9.88, ≈ 13 turns, 254k), because of the rework after G2. On the planned path it met them: $5.12 with `/close`, 7 turns, 136k. **#157** met cost and peak ($3.99, 154k) and missed Small's turns by one (≈ 7). **#140** missed all three ($10.02, ≈ 9 turns, the builder at 259k). It is the largest diff under the harness so far. **#6** met peak (167k; the builder 99k) and missed cost ($8.33) and turns (≈ 11). The review was 58% of its cost. **#9** met cost and peak ($2.44, 131k) and missed Small's turns by one (≈ 7). **#12**, counted to the first `/close`, met turns (7) and peak (136k; the builder 182k) and missed cost ($8.46). It is the first D25 Standard run to meet the turns target. **#13** met peak (149k; the builder 194k) and missed cost ($9.69) and turns (11). G1 took four rounds of questions, two of them for one URL. The D25 Standard median is now $9.08 over 4 runs. **#14** met peak (135k; the builder 157k) and missed cost ($8.28) and turns (9). Both misses came from the owner's design change after the build (2 turns, about $1.17); without it, $7.11 and 7 turns. The D25 Standard median is now $8.46 over 5 runs. **#20 (Small)** met turns (6) and peak (184k, the highest main peak of a D25 Small run). At $5.06 it is the dearest Small so far; the review was half of it. **#21** met cost ($5.74) and peak (128k; the builder 139k), the first D25 Standard run to meet cost, and missed turns by one (8): the extra turn re-pinned the review after the owner's own commit. The D25 Standard median is now $8.40 over 6 runs. **#18** met peak (167k, in `/scope`; the builder 125k) and missed cost ($8.30) and turns (13). The owner's Neon setup after the build took 3 turns and $0.97, by the owner's choice; without it, $7.33 and 10 turns. The D25 Standard median is now $8.33 over 7 runs, at 9 turns. **#11 (Small, docs)** met turns (6) and peak (148k), at $3.43. It is the first D25 docs run, so `runs.js` keeps it apart from the code Smalls (median $3.99 over 3). **#27** met cost ($7.11) and peak (144k; the builder 121k), the second D25 Standard run under $7.49, and missed turns (9). The D25 Standard median is now $8.32 over 8 runs. **#28 (Small, docs)** met turns (6) and peak (156k; the builder 89k), at $4.28. The D25 docs Small median is now $3.86 over 2 runs. **#34** missed all three ($9.71, 13 turns, 230k in `/scope`; the builder 222k). The owner's art was drafted in `/scope`, as the issue asked. The D25 Standard median is now $8.33 over 9 runs. **#29** met cost ($6.65) and peak (146k; the builder 101k), the third D25 Standard run under $7.49, and missed turns (9). The D25 Standard median is now $8.32 over 10 runs. **#30 (Small, docs)** missed turns (8) and peak (205k, after `/close`; the builder 75k), at $6.40. The D25 docs Small median is now $4.28 over 3 runs. **#31 (Small, docs)** met peak (187k; the builder 73k) and missed turns (10), at $5.75: the owner sent the first plan back so the stories would end on a hook. **#26 (Small, docs)** met peak (164k; the builder 84k) and missed turns by one (7), at $5.37, of which the Epic 3 knowledge audit was $1.85. The D25 docs Small median is now $5.37 over 5 runs |
 
 ## Log
 
@@ -21,6 +21,22 @@ Started 2026-10-29. This is the log of the runs after D25, judged against [resea
 | #155 | BabyBuddyHelper | D24/D25 | Standard | T1; **T4 fired** on both full reviews; T5, T6 and T7 don't apply | `red-team` 3 (6, 5, 5), all fixed; the owner's live check 1 root cause, fixed as sub-phase 4, and 1 rule mismatch, now #157; `reviewOnReady` 0 | ≈ 13 (7 on the planned path) | $9.88 | Plan and build on D24's files. The PR missed the bug; the owner's live check found it. See Runs |
 | #157 | BabyBuddyHelper | D25 | Small (scoped as Standard; moved after G1) | T1; T4 skipped (a prompt-wording change); T5, T6 and T7 don't apply | `red-team` 1 (7), fixed; `reviewOnReady` 0 | ≈ 7 | $3.99 | The first full D25 run. The tier recheck moved it to Small, and the fork handed back with Small's line. See Runs |
 | #140 | InvoiceMe | D25 | Standard | T1; **T4 fired**, 1 finding; **T6 fired** in the builder ($1.25); T7 not needed, with a reason; T5 skipped | `red-team` 1 (7), fixed; `red-team T4` 1 (7), half fixed, half declined; 3 older bugs to backlog #153 | ≈ 9 | $10.02 | 22 files, +815 / −316, and it also closed #145. Auto-fix turned itself back on twice. See Runs |
+| #6 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired for the first time** ($0.37), 0 findings; a browser check in the builder ($0.04); T7 doesn't apply | `red-team` 3 (9, 9, 7), fixed; `red-team T4` 1 (5), carried into Phase 5.1; the re-review 1 regression in a fix, fixed; `security-review T5` 0 | ≈ 11 | $8.33 | The first run on this project and stack (Next.js). The owner flagged the installed `Decisions.md` at G2. See Runs |
+| #9 | ThisIsMatheusCastro | D25 | Small (planned as Standard; the owner moved it) | T1; T4 doesn't apply (no error handling), nor do T5, T6 and T7 | `red-team` 0; PR comment 0 (the Vercel bot) | ≈ 7 | $2.44 | #6's follow-up. The cheapest D25 run so far. See Runs |
+| #12 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired** ($0.39), 0 findings; **T6 fired** in the builder ($0.36); **T7 used** for the palettes | `red-team` 2 (7, 6): 1 fixed, 1 accepted as a deviation; `red-team T4` 1 (5), declined; 2 adjacent, 1 fixed and 1 carried to #13; `security-review T5` 0 | 7 (to the first `/close`) | $8.46 | Counted to the first `/close 12`, by the owner's call; the retries are left out ($0.72, 4 turns). See Runs |
+| #13 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired** (≈ $0.22, in the main session), 0 findings; **T6 fired** in the builder ($0.65); **T7 used** for the nav, the heading and the footer | `red-team` 2 (6, 4): 1 fixed, 1 accepted and recorded on the PR; `red-team T4` 1 (6), fixed; 1 adjacent, dropped; `security-review T5` 0 | 11 | $9.69 | Four G1 rounds. `package-lock.json` is +3835 / −230 of the diff. See Runs |
+| #14 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; T5 not triggered; **T6 fired** in the builder ($0.50); **T7 used** for the compositions and `--decor` | `red-team` 1 (6), fixed; `red-team T4` 1 (5), fixed; 1 adjacent, opened as an issue; 2 owner questions, declined | 9 | $8.28 | The owner removed two patterns after the build, before `/review` (2 turns, ≈ $1.17). See Runs |
+| #20 | ThisIsMatheusCastro | D25 | Small | T1; T4 no finding; T5 not triggered; **T6 fired** in the builder ($0.03); T7 "not needed" | `red-team` 1 (4), fixed; `builder` 1 (3), fixed; 1 adjacent (2), declined | 6 | $5.06 | One session. G1 amended ADR-011 for the PNG icon. See Runs |
+| #21 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; T5 not triggered; **T6 fired** in the builder ($0.40); **T7 used** for the fallback | `red-team T4` 1 (7), fixed; `red-team` 2 (8, 4): 1 fixed, 1 declined; 1 draft ADR, approved as ADR-016; 1 handoff note, declined | 8 | $5.74 | The first D25 Standard run under $7.49. The owner pushed a commit after the handoff. See Runs |
+| #18 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; **T5 fired** (≈ $0.70), 0 findings; T6 and T7 don't apply (no UI change) | `red-team` 3 (9, 8, 5), fixed; `red-team T4` 1 (7), fixed; 1 noted (3), declined; 1 handoff question, kept as recommended; the re-review 1 wording note, left; `security-review T5` 0 | 13 | $8.30 | Supabase replaced by Neon Postgres. After the build, the owner took 3 turns to set up Neon with the session. See Runs |
+| #11 | ThisIsMatheusCastro | D25 | Small (docs) | T1; T4, T5, T6 and T7 don't apply (docs only) | `red-team` 1 (5), declined; PR comment 0 (the Vercel bot) | 6 | $3.43 | Epic 2's docs pass at its close, the owner's answer to R12-6. One session. See Runs |
+| #27 | ThisIsMatheusCastro | D25 | Standard | T1; **T4 fired**, 1 finding; T5 not triggered; T6 and T7 don't apply (no UI change) | `red-team` 3 (7, 6, 5) and 1 optional test, all fixed; `red-team T4` 1 (6), fixed; the re-review 1 adjacent (older), left | 9 | $7.11 | The first Epic 3 phase. The second D25 Standard run under $7.49. See Runs |
+| #28 | ThisIsMatheusCastro | D25 | Small (docs) | T1; T4, T6 and T7 don't apply (content only); T5 not triggered | `red-team` 3 (9, 7, 4): the PDF re-exported by the owner, the privacy call taken as is, the `public/` line fixed; the session's own 1 (5), declined; 2 follow-ups at G2: a test, declined, and typos in other files, fixed here; the re-review 0 | 6 | $4.28 | The owner's WhoAmI content and résumé. One session. See Runs |
+| #34 | ThisIsMatheusCastro | D25 | Standard | T1; T4 0; T5 not triggered; **T6 fired** (UI check in the builder, $0.81); T7 "not needed" in both UI sub-phases | `red-team` 0 (nothing above 3); 1 handoff question (the invoice), kept as approved | 13 | $9.71 | Calvo's full-body section looks. The art was drafted with the owner in `/scope`, over four drafts. See Runs |
+| #29 | ThisIsMatheusCastro | D25 | Standard | T1; T4 0; T5 not triggered; T6 and T7 don't apply (no rendered UI) | `red-team` 1 (6), fixed; 1 older (4), sent to #38 at G2, then fixed here after the stop hook blocked; the plan's 2 (3, 2), fixed; the re-reviews 0 new | 9 | $6.65 | The three project write-ups, co-drafted in `/scope`. The third D25 Standard run under $7.49. See Runs |
+| #30 | ThisIsMatheusCastro | D25 | Small (docs) | T1; T4, T6 and T7 don't apply (docs only); T5 not triggered | `red-team` 3 (8, 8, 7): CI resolved by a re-run, 2 fixed; 1 handoff question, declined; 1 owner wording call, kept; 5 from the owner's own G2 edits, 3 changed; the re-review 2 (its own 6.1 line, typos), fixed without a second re-review | 8 | $6.40 | `WhoIsMatheus.md`, co-drafted in `/scope`. Three G2 rounds. One session. See Runs |
+| #31 | ThisIsMatheusCastro | D25 | Small (docs) | T1; T4, T6 and T7 don't apply (content only); T5 not triggered | `red-team` 1 (4), fixed; the re-review 0. **Escape:** the story rule the PR rewrote doesn't fit two of its own stories, found by the Epic 3 audit (#26) the same day | 10 | $5.75 | Calvo's nine stories, picked at G1 from three surveyors' candidates. The owner sent the first plan back for teaser endings. One session. See Runs |
+| #26 | ThisIsMatheusCastro | D25 | Small (docs) | T1; T4, T5, T6 and T7 don't apply (docs only) | `red-team` 2 (6, 5): 1 fixed, 1 declined; the re-review 0; **the Epic 3 knowledge audit** 5 doc drifts left by #27, #29, #30, #31 and #34, none blocking, saved for 4.2's G1, and 1 outside the Epic, for 4.3 | 7 | $5.37 | Epic 3's docs pass at its close, then `/close 26 epic` with the knowledge audit. One session. See Runs |
 
 ## Runs
 
@@ -207,14 +223,700 @@ The diff is 22 files, +815 / −316: the largest under the harness since the pil
    - A decision with no recommendation can't be answered by "as recommended". `review` could give every decision one, or mark one that has none.
 6. **T4 fired and found something:** the Generate PDF toast blamed the wrong fields when the total wasn't ready (7). The message was fixed, and the retry declined. T4's count is 6 fix-worthy findings over 7 InvoiceMe issues.
 
+### ThisIsMatheusCastro #6 Phase 1.3: Services and secrets (Standard), PR #8
+
+The first run on a third project and a third stack: a Next.js 16 site, with the harness installed from ProdHarnessConfig `79a9b7b` the same day. The owner did the console steps (Supabase, Upstash, Turnstile, Resend, the Anthropic key, Vercel's variables). The code added the 7 service SDKs, a zod schema for the 8 variables validated at server startup, one server-only getter per service, a Turnstile verifier, and the first migration (two tables, RLS on, no policies) with a test that guards it.
+
+G1 took 6 decisions in 3 rounds of questions. Two rounds came from the answers: who runs `npm install` (the owner answered in their own words), and how a sending-only Resend key could be checked (a send to Resend's test address). The plan stayed Standard: "the phase changes the schema, security and dependencies, and needed 5 decisions".
+
+The merged PR is 26 files, +1,064 / −138. That includes `dcc73d4`, the `Decisions.md` rework (8 files, +206 / −109), which was made in a ProdHarnessConfig session outside the run. Its cost isn't in this run.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | caf5dbef | Opus 5.5 | 22, plus 7 surveyor (Sonnet, $0.19) | 72k → 123k | 22 min, 3 rounds of questions | $1.95 |
+| B: "continue 6", the main session | 786a33d3 | Opus 5.5 | 7 | 69k → 75k | 9 min | $0.36 |
+| B `build`: the forked builder | 786a33d3/subagents | Sonnet 5.5 | 36, of which 3 for the check on the preview ($0.04) | → 99k | (same) | $0.77 |
+| C `/review` to ready-to-merge | b49babf7 | Opus 5.5 | 60, plus 33 red-team over two runs (Opus, $1.30) and 4 for `security-review` (T5, $0.37) | 71k → 160k | 22 min, 2 rounds of decisions | $4.87 |
+| C `/close` | b49babf7 | Opus 5.5 | 8 | → 167k | 1 min | $0.39 |
+| **Total** | | | | | ≈ 54 min | **$8.33** |
+
+**Against the targets:**
+- **Cost:** $8.33, over $7.49. The D25 Standard median is now $9.18 over 2 runs (#140 and #6).
+  - plan $1.95 (D24: $1.30–1.84; #140: $2.38);
+  - build $1.13, the cheapest Standard build under D25 (D24: $1.27–1.99);
+  - review $4.87, the most so far (D24: $1.90–2.16; #140: $3.08).
+- **Context:** met. The main sessions peaked at 167k, at `/close`; the builder at 99k.
+- **Owner turns:** ≈ 11, four over 7. They were:
+  - `/scope`, three rounds of G1 answers and the G1 accept;
+  - "continue 6";
+  - `/review`, the G2 reply, "1 a 2 a 3 a" and `/close`;
+  - "I'll do it" (the Roadmap's Status row, finding 6).
+
+  On the planned path (one G1 round, one G2 round, no Status row) it would have been 7.
+- **Quality:**
+  - The red-team found 3 issues, all fixed. The worst two (both 9) were docs that dropped `approved = true` from the guestbook insert, which would have kept the public count at 0, and an RLS guard that a later `disable row level security` slipped past.
+  - The re-review found that the review's own guard fix let a `/*` inside a `--` comment hide SQL. It was fixed at the owner's answer, with no third red-team run.
+  - A follow-up, #9 (`shadcn` into devDependencies), was opened.
+  - **Escapes** are tracked to 2026-12-03.
+
+**Findings:**
+1. **The hooks worked on a new stack.** It was the first live run of the hooks outside BabyBuddyHelper and InvoiceMe. The format and lint hooks ran on every edit. The docs gate blocked two review commits that changed `lib/migrations.test.ts` without its doc. The session updated Architecture_Design and split the change into a docs commit and a code commit. The split is noise in the history, but the gate caught a real stale line.
+2. **The review was 58% of the cost.** Three things grew it:
+   - G2 had 8 decisions, and two of the owner's answers changed scope: delete `.env.example`, and the `Decisions.md` point (finding 4).
+   - A fix round, then the re-review's regression and a second fix round.
+   - Writing #9.
+
+   The main review session went from 71k to 160k over 60 calls. The red-team's two runs cost $1.30.
+3. **Auto-fix stayed off.** In the build session, `set_monitor` succeeded this time; on #140 the classifier denied it. The app then delivered a stale Auto-fix event for the Vercel bot's comment. The session saw that it was a deploy status, changed nothing, and noted that Auto-fix was off. It stayed off through the review. That is one run where R12-5's first half wasn't needed, but the classifier isn't consistent.
+4. **The installed `Decisions.md` was the wrong kind of document.** The install moved the plan's 18 product decisions into `Decisions.md` as ADR-001 to 018 ("MSSA Work covers only…"). The red-team couldn't check code against them, and flagged owner files that still said "service-role" instead. At G2 the owner said `Decisions.md` should hold standing patterns for uniformity, as BabyBuddyHelper's and InvoiceMe's do, and called it an install fault. It was reworked into 15 patterns (secrets, env, service clients, data, routes, content, UI, tests, branches, docs), and the product decisions went back to `PortfolioPlan.md` as a record. **Candidate R12-7.**
+5. **An unreviewed commit reached the merge, and `/close` said so.** The review marked the PR ready at `8dbb065`. The `Decisions.md` commit was pushed after that, at the owner's go, and the owner merged at `dcc73d4`. `/close` compared the merged head with the reviewed one and reported that neither review covered `dcc73d4`, and that it holds only docs.
+6. **`/close` can't update the Roadmap's Status row here.** The plan left the row to `/close`, but `close` doesn't edit docs, and ThisIsMatheusCastro's `main` takes changes only through a pull request. The owner took it on ("I'll do it"): one owner turn. **Candidate R12-6.**
+7. **T5 fired for the first time.** `security-review` ran because the issue touches secrets and access to user data. It found nothing the red-team didn't; both scanned the history for the temporary route's commit. It cost $0.37, under T5's $0.50 drop line, and counts toward the auth epic's verdict.
+8. **The builder.** Its build cost $0.77 in 9 minutes. It ran the plan's temporary check route on the preview deploy in the browser pane: read-only, plus a send to Resend's test address. It saved a screenshot, then removed the route in the next commit. The handoff noted that `npm install` reported 13 audit warnings (2 low, 11 moderate), which it didn't triage.
+
+### ThisIsMatheusCastro #9 Move shadcn to devDependencies (Small), PR #10
+
+#6's follow-up. `shadcn` is a CLI, but it sat in `dependencies`, and `npm audit --omit=dev` traced all 6 of the production audit's warnings to it. The fix moves it to `devDependencies` at the same range. The lockfile change is only flags: 226 packages gained `"dev": true`, and no version changed. The PR is 2 files, +228 / −2.
+
+The issue's comment also asked to move the dependency configuration into a `project_dependencies/` folder. `scope` checked npm, Next.js, Vercel, CI's cache and the harness's per-file Prettier run, and found that each expects the files at the root. At G1 the owner kept them there.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | ca2414df | Opus 5.5 | 17 | 78k → 110k | 6 min, 1 question, 1 plan rejected for its tier | $1.07 |
+| B `build`: the main session and the forked builder | ca2414df | Opus 5.5 and Sonnet 5.5 | 3, plus 11 builder | 113k; the builder 64k | 3 min | $0.35 |
+| C `review` to ready-to-merge | ca2414df | Opus 5.5 | 13, plus 7 red-team (Opus, $0.29) | → 127k | 4 min | $0.82 |
+| C `/close` | ca2414df | Opus 5.5 | 5 | → 131k | 1 min | $0.20 |
+| **Total** | | | | | ≈ 16 min | **$2.44** |
+
+**Against the targets:**
+- **Cost:** met. $2.44 is the cheapest D25 run so far, and the second cheapest Small run, after D22's #134 ($2.23). The D25 Small median is $3.21 over 2 runs.
+- **Context:** met, 131k.
+- **Owner turns:** ≈ 7, one over Small's 6. They were:
+  - `/scope`, the G1 answer, the plan's rejection ("It has only 1 subphase, run it under Tier: Small") and the accept;
+  - "Mark it ready" and "Skip it";
+  - `/close`.
+
+  Without the tier correction and the second answer, it would have been 5.
+- **Quality:** the red-team found nothing to report. It checked again that the production audit was clean, and traced every production dependency through its dependencies to confirm that no newly flagged package is needed at run time. **Escapes** are tracked to 2026-12-03.
+
+**Findings:**
+1. **The tier rule and the plan's size disagreed, and the owner corrected it.** The plan had one sub-phase, but `scope` said Standard because Small's criteria exclude a dependency change. The owner rejected the plan for that one line, which cost a turn. The change moved no version and added or removed no package. **Candidate R12-8.**
+2. **C2 met:** the fork ended with Small's two `MAIN SESSION:` lines (turn off Auto-fix; run `review` now), and `review` started with no owner turn.
+3. **C8 not met.** G2 had 2 numbered decisions: approve with no fixes, and whether to open an issue for a CI check that fails on a production audit warning (recommended). The owner's "Mark it ready" answered the first. The session marked the PR ready and asked again about the second; the owner turned it down ("Skip it"). A reply in the owner's own words doesn't always answer by number.
+4. **Auto-fix stayed off,** as on #6: `set_monitor` succeeded in the main session. Then a stale event for the Vercel bot's comment arrived, and the session ignored it and said why.
+5. **The `/scope` session ran everything,** as Small intends: one transcript from `/scope` to `/close`, and the main session never passed 131k.
+
+### ThisIsMatheusCastro #12 Phase 2.1: Theme tokens and the Calvo component (Standard), PR #15
+
+The first UI phase on ThisIsMatheusCastro. It added a `data-section` scope per section with its palette as CSS variables, a type scale, a WCAG contrast helper and a test that checks every palette's pairs at 4.5:1. Calvo got his per-section accessories as overlays, a lighter headphone band and a redrawn bottle. A `/dev/themes` page shows every theme and every variant, behind a gate that opens only in development and on Vercel previews. The PR is 18 files, +775 / −29.
+
+G1 took 4 decisions in one round. The first question cited ADR-002 ("forbids reading process.env directly, so any gate goes through getEnv()"): the reworked `Decisions.md` at work in planning.
+
+**Counted to the first `/close 12`, by the owner's call.** That `/close` stopped because the owner's own uncommitted Roadmap edit left the tree dirty. The retries after it are priced as extra and left out: 18 calls, $0.72 and 4 owner turns (finding 1).
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | e1175aea | Opus 5.5 | 20, plus 10 surveyor (Sonnet, $0.29) | 72k → 124k | 15 min, 1 round of questions | $2.24 |
+| B: "continue 12", the main session | 42e4cb49 | Opus 5.5 | 7 | 75k → 89k | 16 min | $0.52 |
+| B `build`: the forked builder | 42e4cb49/subagents | Sonnet 5.5 | 64, of which 16 for the UI check ($0.36) | → 182k | (same) | $1.99 |
+| C `/review` to ready-to-merge | da8c427d | Opus 5.5 | 34, plus 30 red-team over two runs (Opus, $1.33) and 4 for `security-review` (T5, $0.39) | 70k → 134k | 16 min, 1 round of decisions | $3.57 |
+| C the first `/close` | da8c427d | Opus 5.5 | 4 | → 136k | 1 min | $0.15 |
+| **Total** | | | | | ≈ 48 min | **$8.46** |
+| Left out: the `/close` retries | da8c427d | Opus 5.5 | 18 | → 148k | 19 min | ($0.72) |
+
+**Against the targets:**
+- **Cost:** $8.46, over $7.49. The D25 Standard median is $8.46 over 3 runs (#140, #6 and #12).
+  - plan $2.24 (D24: $1.30–1.84);
+  - build $2.50, the UI check included (D24: $1.27–1.99, without a UI check);
+  - review $3.57 (D24: $1.90–2.16).
+- **Context:** met. The main sessions peaked at 136k. The builder reached 182k, with the UI check at the end of a long build, under 200k but near #140's pattern.
+- **Owner turns:** 7, **met**, the first D25 Standard run to meet it. They were:
+  - `/scope`, the G1 answers and the G1 accept;
+  - "continue 12";
+  - `/review`, the G2 reply and `/close`.
+- **Quality:**
+  - The red-team recommended approving with changes. The closed gate serves the 404 page with HTTP 200 (7): no content leaks, and the owner accepted it as a deviation. The sprite tweaks left the approved reference `calvo-sprite.html` stale (6): fixed, and checked pixel for pixel against `sprite.ts`.
+  - T4: strict `NODE_ENV` and `VERCEL_ENV` stop the whole site on a hand-set value (5), declined; the plan asked for unknown values to be rejected.
+  - Two adjacent notes: section scopes don't override `--secondary`, `--input`, `--popover` or `--destructive` (carried to #13), and a stale "Last updated" line (fixed).
+  - The narrow re-review approved with no findings.
+  - **Escapes** are tracked to 2026-12-04.
+
+**Findings:**
+1. **The run stopped at `/close`, on the Roadmap's Status row again.** The owner edited the Status table during the review and left it uncommitted, so `/close` aborted on a dirty tree. Then the owner committed it on the feature branch, so the branch tip no longer matched the merged head, and `/close` kept the branch rather than lose the commit. It passed on the fourth try, after the owner moved the edit to its own PR (#16) and approved resetting the branch. The script was right each time and deleted nothing. This is R12-6 a second time: the Status row has no place in the flow, so the owner updates it by hand mid-run, and it collides with `/close`. **R12-6 now has two runs.**
+2. **A stale-types trap at the Stop gate.** Between the retries, the checkout went back to an old `main`. `next dev` had written route types for `/dev/themes` into `.next/dev/types/`, so the typecheck failed on a page that `main` didn't have. The session found the cause and deleted the gitignored folder. It is a trap for ThisIsMatheusCastro's `guardrails-review`, not for the harness. It falls in the left-out part.
+3. **The reworked `Decisions.md` was used as intended.** `scope` cited ADR-002 in a G1 question, and the plan updated only the Status lines of ADR-008 and ADR-011. The builder changed no rule, and proposed two new ones in the handoff instead: name `data-section` in ADR-008, and an ADR for the dev-pages gate. G2 put them to the owner as decision 6, which was deferred.
+4. **C1 met, and on cost.** The builder ran the UI check on the local dev server, read-only: 16 calls and $0.36, against #140's $1.25 and D24's $0.51–0.77. It saved screenshots at desktop and tall widths, and checked the console for errors.
+5. **C3 met:** `build` was the first call after "continue 12". That makes 3 of 3.
+6. **C4 met on a second project:** sub-phase 1 used `frontend-design` for the five palettes and the type scale, with the issue, PortfolioPlan's section table and the UI guidelines as its brief.
+7. **C8 met:** one reply answered all 6 decisions. Decision 5, the visual sign-off, came back "yes" with a note: Calvo at 32 px is too small to read. G2 carried that to #13 as an open decision.
+8. **Auto-fix stayed off** for the third run in a row: `set_monitor` succeeded, and a stale event for the Vercel bot's comment was ignored.
+9. **T5 fired a second time** (the dev-pages gate and the env schema): 0 findings, $0.39. Two runs, no finding the red-team missed, both under the $0.50 drop line.
+
+### ThisIsMatheusCastro #13 Phase 2.2: Single-page shell (Standard), PR #17
+
+The second UI phase. It built the single-page shell at `/dev/shell`, behind the same gate as `/dev/themes`, so that Phase 4.4 can mount it at `/`. It has:
+- five hard-edged themed sections;
+- a sticky blurred nav that marks the current section and keeps the URL in step with the scroll, and scrolls sideways on a phone;
+- a `LazyMount` wrapper and the shared footer;
+- six new tokens with their contrast pairs;
+- a Lighthouse CI job for the performance budget.
+
+The PR is 25 files, +4677 / −259. `package-lock.json` is +3835 / −230 of that, from `@lhci/cli`; without it, 24 files, +842 / −29.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | e7381a91 | Opus 5.5 | 32, plus 9 surveyor (Sonnet, $0.26) | 72k → 149k | 18 min, 4 rounds of questions | $2.74 |
+| B: "continue 13", the main session | 3eaa1bb0 | Opus 5.5 | 7 | 69k → 77k | 26 min | $0.38 |
+| B `build`: the forked builder | 3eaa1bb0/subagents | Sonnet 5.5 | 104, of which 31 for the UI check ($0.65) | → 194k | (same) | $2.61 |
+| C `/review` to ready-to-merge | c204e169 | Opus 5.5 | 39, of which 4 for `security-review` (T5, ≈ $0.22), plus 25 red-team over two runs (Opus, $1.53) | 71k → 138k | 17 min, 1 round of decisions | $3.59 |
+| C `/close`, and the reply to its question | c204e169 | Opus 5.5 | 9 | → 146k | 2 min | $0.39 |
+| **Total** | | | | | ≈ 63 min | **$9.69** |
+
+**Against the targets:**
+- **Cost:** $9.69, over $7.49. The D25 Standard median is $9.08 over 4 runs (#140, #6, #12 and #13).
+  - plan $2.74 (D24: $1.30–1.84);
+  - build $2.99, the UI check included (D24: $1.27–1.99, without a UI check);
+  - review $3.59 (D24: $1.90–2.16).
+- **Context:** met. The main sessions peaked at 149k, in planning. The builder reached 194k (finding 4).
+- **Owner turns:** 11, missed. They were:
+  - `/scope`, four rounds of G1 answers and the G1 accept;
+  - "continue 13";
+  - `/review`, the G2 reply, `/close` and the answer to `/close`'s question.
+  - Without the two rounds for the URL (finding 1) and the answer to `/close` (finding 3), it would have been 8.
+- **Quality:**
+  - The red-team approved, with nothing above Low.
+  - T4: the Lighthouse job could pass while measuring the 404 page if the gate ever closed in CI (6). Fixed with a CI step that fails unless the shell renders, checked both ways locally.
+  - `@lhci/cli` brings 22 advisories, all in a dev-only chain (6). Accepted and recorded on the PR, to revisit before the repo goes public. The handoff's "0 vulnerabilities" came from `npm audit --omit=dev`, which can't see a devDependency.
+  - Four doc nits (4): fixed.
+  - One adjacent note: `--ring` is in no contrast pair. The owner dropped it.
+  - The narrow re-review approved with no findings.
+  - **Escapes** are tracked to 2026-12-05.
+
+**Findings:**
+1. **G1 took four rounds, two of them for one URL.**
+   - Round 1 had 4 questions.
+   - Round 2 followed from the owner's non-recommended answer (a translucent nav needs a tint) and added 3 more.
+   - Round 3 asked which contact links go in the footer, and asked the owner to type the LinkedIn URL in the notes. The owner picked "LinkedIn only" and typed nothing.
+   - Round 4 asked for the URL alone, and got it.
+
+   A value the owner has to type doesn't fit inside a choice (R12-9).
+2. **Auto-fix stayed on through Block B.** After the fork returned, the auto-mode classifier denied the main session's `set_monitor` call. Auto-fix stayed on, and one CI event woke the session. The session told the owner and asked what to do. `review` turned Auto-fix off as its first step, and that call went through. This is the first D25 run where the build left it on. It adds to R12-5: allowing `set_monitor` in `settings.json` would take it out of the classifier's hands.
+3. **R12-6 a third time.** `/close` worked, but the Roadmap's 2.2 row still read "Not started", and `/close` can't push to `main`. It asked the owner, who folded the row into #14's scope, and the session recorded that on the issue. Unlike #12, nothing broke, but it took an owner turn. **R12-6 now has three runs.**
+4. **The builder reached 194k,** the closest to 200k without passing it. The UI check runs at the end of a long build: 73 calls before it, 31 for it. All three D25 Standard runs with a UI check put the builder above 180k: #140 at 259k, #12 at 182k and #13 at 194k (R12-10).
+5. **The reworked `Decisions.md` was used again.** `scope` cited ADR-001, ADR-008, ADR-012 and ADR-013 in its questions and plan. The plan changed only ADR-012's status line, from planned to in place. #12's 32 px note stayed open in the plan "for whenever Calvo is placed".
+6. **C1, C3, C4 and C8 met.**
+   - C1: the UI check ran in the builder on the local dev page, read-only, for $0.65. It took screenshots of the nav at a section boundary, the phone row at 375 px and Lighthouse's final frame.
+   - C3: `build` was the first call after "continue 13", 4 of 4.
+   - C4: all five sub-phases named `frontend-design`, and two used it.
+   - C8: one line answered all 5 G2 decisions, two of them against the recommendation. The owner dropped the `--ring` note, and made Lighthouse "a guide, not a gate", never a required check.
+7. **T5 fired a third time,** for the dev-page gate and the CI job's env: 0 findings. This time it ran in the main review session rather than in its own context: 4 calls and about $0.22, by time window. Three runs, no finding the red-team missed, all under the $0.50 drop line.
+8. **A slip in the review session.** A verification command included `git checkout main`. Nothing was modified; the session switched back at once and reported it at G2. No rule forbids it, but a review has no reason to leave the reviewed SHA.
+
+### ThisIsMatheusCastro #14 Phase 2.3: Section backgrounds (Standard), PR #19
+
+Each of the five sections got a decorative background of grayed-out icons. They are lazy-loaded, one chunk per section, colored from a new `--decor` token with contrast tests, hidden from screen readers, and fewer and smaller on a phone. The first commit marked the Roadmap's 2.2 row Done, as #13's `/close` had folded it in. The PR is 17 files, +424 / −11.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 717998fb | Opus 5.5 | 19, plus 6 surveyor (Sonnet, $0.18) | 72k → 124k | 9 min, 1 round of questions (4) | $1.79 |
+| B: "continue 14", the main session, to the handoff | 5f1f8fbb | Opus 5.5 | 7 | 75k → 77k | 14 min | $0.52 |
+| B `build`: the forked builder | 5f1f8fbb/subagents | Sonnet 5.5 | 67, of which 25 for the UI check ($0.50) | → 157k | (same) | $1.52 |
+| B: the owner's change after the build, and re-pointing the handoff | 5f1f8fbb | Opus 5.5 | 27, of which 4 in the browser ($0.17) | → 127k | 9 min | $1.17 |
+| C `/review` to ready-to-merge | ebca4cc8 | Opus 5.5 | 40, plus 18 red-team over the review and the narrow re-review (Opus, $1.13) | 70k → 130k | 13 min, 1 round of decisions | $3.07 |
+| C `/close` | ebca4cc8 | Opus 5.5 | 5 | → 135k | 1 min | $0.22 |
+| **Total** | | | | | ≈ 48 min | **$8.28** |
+
+**Against the targets:**
+- **Cost:** $8.28, over $7.49. Without the owner's change after the build, about $7.11. The D25 Standard median is $8.46 over 5 runs.
+  - plan $1.79 (D24: $1.30–1.84);
+  - build $3.21, with the UI check and the owner's change (D24: $1.27–1.99, without a UI check);
+  - review $3.07 (D24: $1.90–2.16).
+- **Context:** met. The main sessions peaked at 135k and the builder at 157k.
+- **Owner turns:** 9, missed. They were:
+  - `/scope`, the G1 answers and the G1 accept;
+  - "continue 14", the change after the build, and "Yes, once it's green";
+  - `/review`, the G2 reply and `/close`.
+  - Without the change after the build, 7.
+- **Quality:**
+  - The red-team recommended approval. Three comments and a guideline line still said "figures and patterns" after the patterns were removed (6): fixed.
+  - T4: the layout and background registries took any string as a key, so a typo would pass the typecheck and crash after hydration (5). Fixed by typing them by section id; both mistakes were tried by hand and failed `tsc`.
+  - The app has no error boundary (adjacent, from before this PR): opened as issue #21, in Epic 2.
+  - Two questions from the build (BabyBuddyHelper's soft shapes, a mood line in PortfolioPlan): declined.
+  - The narrow re-review approved with no findings.
+  - **Escapes** are tracked to 2026-12-06.
+
+**Findings:** the owner reported nothing major, and the transcripts agree.
+1. **A design change after the build ran in the build session.** The owner looked at the screenshots and removed the Harnesses grid and the InvoiceMe ledger before `/review`. The Opus main session made the change itself: it commented on the issue first, removed the code, its test and the docs, checked it in the browser, and re-pointed the handoff at the new head once CI passed. 27 calls, about $1.17, 2 owner turns. It worked, but it is the R12-3 pattern one block earlier: new scope after the plan went through the main session, not a plan amendment and the forked builder.
+2. **Auto-fix: `set_monitor` was denied again** in the build session's main thread, for the second run in a row. The owner turned Auto-fix off by hand, and `review` found it off. It adds to R12-5.
+3. **R12-6, the workaround held.** #13's folded Roadmap row went in as #14's first commit, alone. `/close` left 2.3's row as "Not started" and said the next phase can do the same, with no owner turn.
+4. **The builder stayed at 157k** with a UI check of 25 calls. The build was smaller than #13's (42 calls before the UI check). Three of the four D25 Standard runs with a UI check put the builder above 180k (R12-10).
+5. **C1, C3, C4 and C8 met.** The UI check ran in the builder, read-only, for $0.50. `build` was the first call after "continue 14", 5 of 5. `frontend-design` was used for each section's composition and the `--decor` values. One line answered all 5 G2 decisions.
+6. **`Decisions.md`:** `scope` built the plan on ADR-008 (section tokens), and cited ADR-001, ADR-010 and ADR-012. No ADR changed.
+7. **T5 didn't trigger,** correctly: the change touches no auth, secrets, permissions or user data.
+
+### ThisIsMatheusCastro #20 Phase 2.5 (Extra): Calvo's head as the browser and app icons (Small), PR #22
+
+It replaced Next's "N" favicon with Calvo's head: an SVG tab icon and a 180×180 PNG Apple icon, both generated at build time from the sprite data, with five new crop tests and no image of Calvo committed. The PR is 9 files, +187 / −4.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 7b11356d | Opus 5.5 | 21 | 78k → 126k | 10 min, 2 rounds of questions (3, then 1) | $1.33 |
+| B: the main session | 7b11356d | Opus 5.5 | 3 | → 130k | 6 min | $0.12 |
+| B `build`: the forked builder | 7b11356d/subagents | Sonnet 5.5 | 20, of which 3 for the UI check ($0.03) | → 88k | (same) | $0.48 |
+| C `review` to ready-to-merge | 7b11356d | Opus 5.5 | 35, of which 6 in the browser after the fixes ($0.28), plus 20 red-team over two runs (Opus, $0.89) | → 179k | 12 min, 1 round of decisions | $2.82 |
+| C `/close` | 7b11356d | Opus 5.5 | 6 | → 184k | 1 min | $0.31 |
+| **Total** | | | | | ≈ 29 min | **$5.06** |
+
+**Against the targets:**
+- **Owner turns:** 6, met. They were `/scope`, two rounds of G1 answers, the G1 accept, the G2 reply and `/close`.
+- **Context:** met, at 184k. One session carries all four blocks, so it is the highest main peak of a D25 Small run (#157 154k, #9 131k).
+- **Cost:** $5.06, the dearest Small so far (#157 $3.99, #9 $2.44). The D25 Small median is $3.99 over 3 runs. The review was $2.82 of it: two red-team runs, the fixes, and a browser check of the fixed icons in the main session.
+- **Quality:**
+  - The red-team approved. The Apple icon's beige was typed into the component, which ADR-008 forbids, with no test against WhoAmI's background (4): fixed, the color moved to `sprite.ts` and a test now compares it with `globals.css`.
+  - The builder flagged that the crop left no margin under the chin (3): fixed, the head is centered in both icons.
+  - Adjacent: the Roadmap has no rows for the extra phases 2.4–2.6, and 2.3's row still says "Not started" (2). Declined here.
+  - The narrow re-review found nothing above priority 3.
+  - **Escapes** are tracked to 2026-12-06.
+
+**Findings:**
+1. **`Decisions.md` caught a rule conflict at G1.** ADR-011 says Calvo is "never a raster image", and the Apple icon must be a PNG. `scope` asked in a second round, and the owner amended ADR-011; the PR carries the exception word for word. The red-team then checked the change against ADR-008. This is the reworked file doing what it is for: a standing rule, checked at planning and at review, changed only by the owner.
+2. **C2 met:** `review` was the next call after the fork returned, with no owner turn. **C1 met for a Small run, the first:** the builder took screenshots of both icon routes, 3 calls, $0.03. **C4 and C8 met.**
+3. **Auto-fix:** this time `set_monitor` went through, from the same place where #13 and #14 were denied (the main session, right after the fork returned). A stale CI event arrived a few seconds later and was ignored. The classifier's answer isn't consistent, which is one more reason for R12-5.
+4. **R12-6 again, and it is drifting.** #14's `/close` said the next phase could mark 2.3 Done in its first commit, as #14 did for 2.2. #20 is an extra phase, its plan didn't include the row, and the owner declined it at G2. `/close` then noted the declined Roadmap items in the project's memory, so that they "won't be proposed again unprompted" (its own words). So the 2.3 row now has no step that will fix it.
+5. **T4 found nothing,** and T5 didn't trigger, correctly: no auth, secrets or user data.
+
+### ThisIsMatheusCastro #21 Phase 2.6 (Extra): Error boundary for the page (Standard), PR #23
+
+It added `app/error.tsx` and `app/global-error.tsx` with a shared fallback in which Calvo delivers the message, small boundaries around the shell's client pieces (each section's content, its background and the nav), and a dev-only `?crash=` trigger to check them. The PR is 12 files, +184 / −20. It came from #14's G2, where the red-team noticed that the app had no error boundary.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 2323d6f4 | Opus 5.5 | 20, no surveyor | 72k → 128k | 6 min, 1 round of questions (4) | $1.54 |
+| B: "continue 21", the main session | 49416b60 | Opus 5.5 | 7 | 75k → 90k | 11 min | $0.44 |
+| B `build`: the forked builder | 49416b60/subagents | Sonnet 5.5 | 55, of which 21 for the UI check ($0.40) | → 139k | (same) | $1.21 |
+| C `/review` to ready-to-merge | 7f3806b2 | Opus 5.5 | 38, of which 5 for the stop and re-pin ($0.35) and 3 in the browser after the fix ($0.09), plus 12 red-team over two runs (Opus, $0.67) | 70k → 118k | 12 min, 1 round of decisions | $2.30 |
+| C `/close` | 7f3806b2 | Opus 5.5 | 6 | → 124k | 1 min | $0.25 |
+| **Total** | | | | | ≈ 37 min | **$5.74** |
+
+**Against the targets:**
+- **Cost:** $5.74, **met**, the first D25 Standard run under $7.49. The D25 Standard median is $8.40 over 6 runs.
+  - plan $1.54 (D24: $1.30–1.84);
+  - build $1.65, the UI check included (D24: $1.27–1.99, without a UI check);
+  - review $2.30 (D24: $1.90–2.16).
+- **Context:** met. The main sessions peaked at 128k and the builder at 139k.
+- **Owner turns:** 8, missed by one. They were:
+  - `/scope`, the G1 answers and the G1 accept;
+  - "continue 21";
+  - `/review`, "Yes, re-pin and review", the G2 reply and `/close`.
+  - Without the re-pin (finding 1), 7.
+- **Quality:**
+  - The red-team approved with changes. The error handling itself had no finding. All three findings came from the owner's commit after the handoff, which took the name off the page fallback and with it the page's only `<h1>`.
+  - T4: the fallback had no heading at all, against the plan's criterion and invariant, and Lighthouse never renders it (7). Fixed with a visually hidden `<h1>`, as the shell does.
+  - Three places still described a visible name (8): fixed.
+  - The owner's commit message doesn't follow the convention (4): declined, since rewording it needs a force-push.
+  - The builder's draft ADR was approved and added as ADR-016. A note from the handoff (a server-render throw returned HTTP 500 in `next dev`) was declined.
+  - The narrow re-review approved with no new findings.
+  - **Escapes** are tracked to 2026-12-06.
+
+**Findings:**
+1. **The handoff check caught the owner's own commit.** The owner pushed `285246c` between the build and `/review`. `handoff-check` exited with 3 because the PR head no longer matched the handoff, so `review` stopped before any red-team ran and asked. On "Yes, re-pin and review", it waited for CI, re-pinned the handoff and reviewed the new head. It also told the red-team up front that the commit removed the `<h1>`, and the red-team confirmed that all three findings came from it. The stop cost 5 calls ($0.35) and one owner turn, and it's what the check is for.
+2. **The cheapest D25 Standard run, and the first to meet cost.** A small, well-bounded issue: `scope` used no surveyor, G1 took one round, and the builder stayed at 139k with the UI check included.
+3. **ADR-016 has no review check.** G2 added the builder's draft ADR to `Decisions.md`, but `guardrails-review`, which the red-team preloads, checks ADR-001 to ADR-015. The session said so and left it, because the checklist is a standing rule (R12-11).
+4. **Auto-fix:** `set_monitor` was denied again after the fork returned, the third time in four Standard runs. The owner turned it off by hand, and `review` found it off. It adds to R12-5.
+5. **R12-6, the owner's answer.** `/close` left 2.3 and 2.6 off the Roadmap's Status table, as the owner had decided. On 2026-11-06 the owner added a dedicated docs pass to the closing of each Epic in ThisIsMatheusCastro's flow, so the Status table and the stale "Last updated" lines are caught up there instead of per issue. That settles it for this project. R12-6 stays a candidate for the harness itself: a project without that pass still has no step for these rows.
+6. **C1, C3, C4 and C8 met.** The UI check ran in the builder on the dev crash trigger, read-only, for $0.40. `build` was the first call after "continue 21", 6 of 6. `frontend-design` was used for the page fallback and named as not needed in the other two sub-phases. One line answered all 5 G2 decisions.
+7. **`Decisions.md`:** `scope` read every ADR and built the plan on ADR-008 and ADR-011 (Calvo in the fallback). The red-team checked the diff against ADR-008.
+8. **T5 didn't trigger,** correctly: the change touches no auth, secrets or user data.
+
+### ThisIsMatheusCastro #18 Phase 2.4 (Extra): Remove Supabase (Standard), PR #24
+
+It replaced Supabase with Neon Postgres: a hand-written migration runner (`lib/db/migrate.ts`, `npm run db:migrate`) that refuses a changed file, a least-privilege `site_app` role with column-level grants in place of Supabase's row-level security, a server-only `getDb()` over `pg`, and `DATABASE_URL` in place of both Supabase variables. The runner and the grants are tested on PGlite in Vitest. ADR-004 was rewritten, and the Roadmap's 5.2–5.4 entries lost their Supabase steps. The PR is 24 files, +723 / −337.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 469771e7 | Opus 5.5 | 24, no surveyor | 78k → 167k | 30 min, 3 rounds of questions (4, 1, 4); 16 of the 30 waiting on the plan | $2.32 |
+| B: "continue 18", the main session, to the handoff | 05657c24 | Opus 5.5 | 6 | 69k → 74k | 9 min | $0.33 |
+| B `build`: the forked builder | 05657c24/subagents | Sonnet 5.5 | 34, no UI check | → 125k | (same) | $0.96 |
+| B: the owner's Neon setup, after the handoff | 05657c24 | Opus 5.5 | 20, of which 3 to start the dev server ($0.11) | → 101k | 26 min, 3 owner turns | $0.97 |
+| C `/review` to ready-to-merge | 533e8f65 | Opus 5.5 | 29, of which 3 to load `security-review` and start it ($0.20), plus 26 red-team over two runs (Opus, $1.28) and 5 in the `security-review` subagent (T5, $0.50) | 71k → 127k | 11 min, 1 round of decisions and 1 note | $3.40 |
+| C `/close` | 533e8f65 | Opus 5.5 | 7 | → 134k | 1 min | $0.32 |
+| **Total** | | | | | ≈ 78 min | **$8.30** |
+
+**Against the targets:**
+- **Cost:** $8.30, over $7.49. Without the owner's Neon setup, $7.33. The D25 Standard median is $8.33 over 7 runs.
+  - plan $2.32, with three rounds of questions (D24: $1.30–1.84);
+  - build $1.29 without the setup (D24: $1.27–1.99);
+  - review $3.40 with T5 (D24: $1.90–2.16).
+- **Context:** met. The run peaked at 167k in `/scope` and the builder at 125k.
+- **Owner turns:** 13, missed. They were:
+  - `/scope`, three rounds of G1 answers and the G1 accept;
+  - "continue 18" and three turns of Neon setup;
+  - `/review`, the G2 reply, "Leave it" and `/close`.
+  - Without the Neon setup, 10.
+- **Quality:**
+  - The red-team approved with four findings, none blocking, all fixed as drafted.
+  - ADR-002 and its `guardrails-review` check still said nothing reads `process.env` but `NEXT_RUNTIME`, and the migrate script now reads `DATABASE_OWNER_URL` (9). The exception went into both, in the owner's wording.
+  - The docs said `sslmode=require`, which `pg` 8 warns about and `pg` 9 will weaken (8): now `verify-full`.
+  - The pool had no `error` listener, so an error on an idle connection would crash the function (7, the error-handling lens, T4): fixed, one line.
+  - `.claude/CLAUDE.md` didn't list `db/migrations/`, `scripts/` or `db:migrate` (5): added with the owner's approval.
+  - A migration with its own `COMMIT` would escape the runner's transaction (3): declined, since no file does that.
+  - The handoff's question, whether `site_app` keeps INSERT on `guestbook.approved`: kept, as recommended.
+  - The narrow re-review resolved all four, with one wording note on the guardrails line; the owner said "Leave it".
+  - CI can't run `db:migrate` against Neon. The owner ran it on both branches during the setup, and the session checked dev's 13 grants before the review.
+  - **Escapes** are tracked to 2026-12-06.
+
+**Findings:**
+1. **The owner's Neon setup ran in the build session, by the owner's choice.** After the handoff, the owner asked which of three Neon URLs goes where and how to run `db:migrate`, and took three turns to learn the connection strings, roles and grants (26 min, 20 calls, $0.97). The owner says the extra time was their own. The session kept to the rules throughout: it read `.env.local` with every value masked, parsed only each URL's user, branch and pooling, tested its one-line production command, and changed nothing on either branch. When `site_app` went missing on production after the migration ran, it showed from `schema_migrations` that the migration had committed, and left the restore to the owner. It isn't new scope, as on #14: these were the plan's console steps for the owner, walked through.
+2. **T5 met its drop condition for the first time.** It triggered correctly: the change is about roles, grants and connection strings. It ran in its own subagent this time (5 calls, $0.50), plus 3 main-session calls to load it and start it ($0.20), so about $0.70, with no finding. The red-team found the TLS wording itself. Over four firings (#6 $0.37, #12 $0.39, #13 ≈ $0.22, #18 ≈ $0.70), T5 has found nothing the red-team missed. Whether to drop it is the owner's call at the meta-analysis at Epic 3's close.
+3. **The plan named an exception to ADR-002 but left ADR-002 and its check alone.** Its invariant said only `scripts/db-migrate.ts` reads `DATABASE_OWNER_URL`, while ADR-002 and `guardrails-review` still said nothing does. The red-team caught it (9), and G2 fixed both. The plan did update the check for the ADR it rewrote (ADR-004's RLS line). This adds to R12-11, widened to a change or an exception to an ADR.
+4. **G1 took three rounds.** In round 1 the owner asked to see other database options before choosing. Round 2 offered four Postgres hosts, and round 3 settled the tests, Neon's branches, where `db:migrate` runs and the Roadmap entries. `scope` checked PGlite's role support with a web search, and that choice let the builder test the grants without stopping as BLOCKED. `/scope` peaked at 167k, the run's peak.
+5. **Auto-fix:** `set_monitor` went through after the fork returned, as on #20. It was denied on #13, #14 and #21. It adds to R12-5.
+6. **C3, C4 and C8 met; C1 doesn't apply.** `build` was the first call after "continue 18", 7 of 7. The plan said "frontend-design: not needed, because nothing renders differently". "1–4 fix as drafted" answered the four fixes; the session took decisions 5 and 6, both no change, as recommended, and said so in the ready-to-merge note. No UI check, correctly: nothing on the page changed.
+7. **`Decisions.md`:** the ADR-004 rewrite was drafted in the plan and approved at G1, and ADR-003 now names `getDb()`. ADR-002's exception was added at G2, with the owner's wording.
+
+### ThisIsMatheusCastro #11 Epic 2: Visual system, the docs pass at the Epic's close (Small), PR #25
+
+The owner's docs pass at the close of Epic 2, added to the project's flow after #21. It brought the Roadmap up to date with what Epic 2 shipped: entries and Status rows for the Extra phases 2.4–2.6, 2.3 marked Done, notes on the settled 2.2 and 2.3 bullets and on the removed `.env.example`, and the phase count at 30. It also caught up three "Last updated" lines, the README's scripts and CI list, and two lines of `.claude/CLAUDE.md`, one of them a Safety rule clause the owner reworded at G1. The PR is 7 files, +27 / −14, docs only. The owner passed Small in the `/scope` call.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | f70cd86f | Opus 5.5 | 13, plus 6 surveyor (Sonnet, $0.25) | 78k → 119k | 5 min, 1 round of questions (2) | $1.34 |
+| B: the main session | f70cd86f | Opus 5.5 | 3 | → 122k | 5 min | $0.11 |
+| B `build`: the forked builder | f70cd86f/subagents | Sonnet 5.5 | 13 | → 88k | (same) | $0.40 |
+| C `review` to ready-to-merge | f70cd86f | Opus 5.5 | 12, plus 20 red-team (Opus, $0.63) | → 139k | 15 min, 12 of them waiting on 1 decision | $1.19 |
+| C `/close` | f70cd86f | Opus 5.5 | 8 | → 148k | 1 min | $0.39 |
+| **Total** | | | | | ≈ 27 min | **$3.43** |
+
+**Against the targets:**
+- **Owner turns:** 6, met. They were `/scope`, the G1 answers, the G1 accept, "1 decline", `/close` and "Leave it".
+- **Context:** met, at 148k in `/close`.
+- **Cost:** $3.43. It is the first D25 docs run, so `runs.js` keeps it apart from the D25 code Smalls ($3.99 median over 3). D22's two InvoiceMe docs Smalls cost $2.92 (#68, also an Epic close-out) and $3.93 (#120).
+- **Quality:**
+  - The red-team approved, with every acceptance criterion checked against the diff. Its one finding: the 2.3 note says the grid and ledger were "removed at review", but the owner removed them before review, as this record's #14 section says (5). The plan carried the same mistake. Declined by the owner.
+  - **Escapes** are tracked to 2026-12-06.
+
+**Findings:**
+1. **The owner's Epic-close docs pass did what R12-6 asked for.** In one Small run it fixed the stale items that #12, #13, #14, #20 and #21 had left: the 2.3 Status row, the missing 2.4–2.6 rows, the `.env.example` clause and the "Last updated" lines. `/close` then removed the project-memory notes that had tracked them, and recorded that the owner catches up the Roadmap at each Epic's close. A surveyor (6 calls, $0.25) listed what was stale and what was already right, so the plan named each line to change and each line to leave alone. For this project, R12-6 is settled. For the harness, a project needs that pass in its flow.
+2. **C2 met on a docs run:** `review` was the next call after the fork returned, with no owner turn.
+3. **Auto-fix: `set_monitor` was denied again,** right after the fork returned. Auto-fix stayed on, and a CI event about Vercel's bot comment arrived a few seconds later. `review` saw nothing to fix, pushed nothing, kept the reviewed SHA and told the owner how to turn Auto-fix off. Denied on #13, #14, #21 and #11; allowed on #20 and #18. It adds to R12-5.
+4. **`/close` didn't run the knowledge audit,** because the owner called `/close 11` without `epic`, even though #11 is the Epic's own issue. The session noticed, judged that the red-team's docs check had covered the same ground, and said so in its report, without asking. Whether to run it was the owner's call (R12-12). `/close` did offer to tick #11's phase checklist and add #21 to it; the owner said "Leave it".
+5. **C4 and C8 met; C1 doesn't apply.** The plan said "frontend-design: not needed, because no UI changes". "1 decline" answered the one decision.
+6. **T4 to T7 don't apply:** the change is docs only.
+
+### ThisIsMatheusCastro #27 Phase 3.1: Content pipeline (Standard), PR #32
+
+It added `content/`: seven placeholder Markdown files with YAML frontmatter, zod schemas and parsers in `lib/content/`, and a loader that `next.config.ts` calls, so `next build` and `next dev` (at startup) fail on bad content, naming the file and the field. `yaml` is the one new dependency. ADR-007 now records the format and the hook, and the Roadmap's Issue column lists Epic 3's issues, as the owner folded into this phase. The PR is 23 files, +1017 / −18.
+
+Before `/scope`, the owner set up Epic 3 (#26) and its five phases (#27–#31) on GitHub in a separate session (18 calls, $1.12). It is outside the run and not counted.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 526f6e8a | Opus 5.5 | 18, plus 13 surveyor (Sonnet, $0.31) | 78k → 132k | 12 min, 1 round of questions (5, in two dialogs) | $1.87 |
+| B: "continue 27", the main session | 8b58e407 | Opus 5.5 | 7 | 75k → 81k | 11 min | $0.35 |
+| B `build`: the forked builder | 8b58e407/subagents | Sonnet 5.5 | 40, no UI check | → 121k | (same) | $1.02 |
+| C `/review` to the G2 report | 9e351b49 | Opus 5.5 | 10, plus 23 red-team (Opus, $1.07) | 77k → 96k | 6 min | $1.71 |
+| C: the five G2 fixes, the re-review and the follow-up question | 9e351b49 | Opus 5.5 | 41, plus 6 red-team (Opus, $0.27) | → 143k | 10 min, 1 round of decisions | $2.09 |
+| C `/close` | 9e351b49 | Opus 5.5 | 2 | → 144k | under 1 min | $0.07 |
+| **Total** | | | | | ≈ 40 min | **$7.11** |
+
+**Against the targets:**
+- **Cost:** $7.11, **met**, the second D25 Standard run under $7.49 (after #21). The D25 Standard median is $8.32 over 8 runs.
+  - plan $1.87 (D24: $1.30–1.84);
+  - build $1.37 (D24: $1.27–1.99);
+  - review $3.80, $2.09 of it the five fixes (D24: $1.90–2.16).
+- **Context:** met. The main sessions peaked at 144k and the builder at 121k.
+- **Owner turns:** 9, missed. They were:
+  - `/scope`, the two G1 dialogs and the G1 accept;
+  - "continue 27";
+  - `/review`, "1–5 fix", "No, leave it" and `/close`.
+  - With G1's five questions in one dialog and no follow-up question, 7 (findings 2 and 3).
+- **Quality:**
+  - The red-team approved with changes and checked its claims in Next's own source.
+  - `next dev` checks content only at startup, and four places said otherwise (7): fixed.
+  - Four places said Node's own loader runs the config, when Next compiles it with SWC, and Roadmap 3.5 still said stories are per section (6): fixed.
+  - T4: an unknown YAML tag passed and printed the file's line to the terminal, against the plan's rule that errors never show file contents (6). Reproduced, and fixed: warnings now fail with the code and line only.
+  - The BOM strip used an invisible character, with no test (5): fixed with an escape and a test.
+  - An optional test that loads the real `content/` tree in `check fast`: added. The session flagged it as new scope before the owner chose.
+  - The single re-review found no problem in the fixes. It noted an older one this PR didn't cause: a YAML key written as a list or map prints that key's text as a warning. Not filed, by the owner's choice.
+  - **Escapes** are tracked to 2026-12-07. **One so far,** found by the Epic 3 knowledge audit (#26) on 2026-11-09: ADR-007 says every content file is YAML frontmatter checked by zod, but the placeholder `WhoIsMatheus.md` this PR added has none and is checked by its headings. Doc drift, not a code bug; the owner saved it for 4.2's G1.
+
+**Findings:**
+1. **The second D25 Standard run under $7.49, with the review as the largest block.** Plan and build sat in D24's ranges. The review cost $3.80: $1.71 to the G2 report, then $2.09 for five fixes in three commits and the re-review. Every finding was checked or reproduced before it reached the owner, so all five were taken.
+2. **A question after G2's decisions cost a turn, for the third run in a row.** After the ready-to-merge note, `review` asked whether to file the re-review's older YAML item; the owner said "No, leave it". On #18 the re-review's wording note took "Leave it", and on #11 `/close`'s checklist offer did. Each is a turn spent on an item the owner then left (R12-13).
+3. **G1's five questions went out as two dialogs at once,** because a dialog holds at most four questions. The owner answered them 26 seconds apart: one round, counted here as two turns.
+4. **Auto-fix:** `set_monitor` went through after the fork returned. A CI event about Vercel's bot comment arrived 12 seconds later; the session saw nothing to fix and changed nothing. Allowed on #20, #18 and #27; denied on #13, #14, #21 and #11. It adds to R12-5.
+5. **R12-6, now with an owner step.** The builder noted that 3.1's Status row still says "Not started", because the plan changed only the Issue column. Under the owner's flow, Epic 3's close pass catches it up, as #11 did for Epic 2.
+6. **C3 and C8 met; C1 and C4 don't apply.** `build` was the first call after "continue 27", 8 of 8. "1–5 fix" answered all five decisions. No UI changed.
+7. **`Decisions.md`:** `scope` built the plan on ADR-007, and the PR moved ADR-007 to present with its new rules. `guardrails-review` already had a Content (ADR-007) section, written ahead for Phase 3.1.
+8. **T5 didn't trigger,** correctly: `content/` is public text, with no auth, secrets or user data.
+
+### ThisIsMatheusCastro #28 Phase 3.2: WhoAmI content (Small), PR #35
+
+It filled `content/whoami.md` with the owner's Background paragraph, a categorized Tech Stack, the hobbies and the links, and added the owner's redacted résumé as `public/Matheus_Castro_Resume.pdf`. `Docs/PortfolioPlan.md` gained the résumé's update rule, and #29 and #30 each got a "Done when" line that keeps the Tech Stack in step. At G2 the owner re-exported the PDF, and the PR took a `public/` line in `Architecture_Design.md` and typo fixes in three other content files. The PR is 7 files, +56 / −10, content and docs only.
+
+Before `/scope`, the owner fixed their own content PR (#33) with a separate session: projects list their repos, stories are capped at 350 characters, and a new Phase 3.3 moved the later issues up by one. That session is outside the run and not counted.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | d0cca7c0 | Opus 5.5 | 20, no surveyor | 78k → 114k | 11 min, 2 rounds of questions (4, 4); 3 of the 11 waiting on the plan | $1.16 |
+| B: the main session | d0cca7c0 | Opus 5.5 | 4 | → 118k | 6 min | $0.14 |
+| B `build`: the forked builder | d0cca7c0/subagents | Sonnet 5.5 | 18, no UI check | → 89k | (same) | $0.46 |
+| C `review` to the G2 report | d0cca7c0 | Opus 5.5 | 8, plus 17 red-team (Opus, $0.62) | 118k → 133k | 4 min | $1.01 |
+| C: the G2 changes, the re-review and the ready-to-merge note | d0cca7c0 | Opus 5.5 | 20, plus 13 red-team (Opus, $0.39) | → 154k | 9 min, 5 of them the owner's, who re-exported the PDF | $1.34 |
+| C `/close` | d0cca7c0 | Opus 5.5 | 4 | → 156k | under 1 min | $0.16 |
+| **Total** | | | | | ≈ 31 min | **$4.28** |
+
+**Against the targets:**
+- **Owner turns:** 6, met. They were `/scope`, the two G1 dialogs, the G1 accept, the G2 reply and `/close`.
+- **Context:** met, at 156k in `/close`; the builder 89k.
+- **Cost:** $4.28. With #11, the D25 docs Small median is $3.86 over 2 runs; the D25 code Smalls' median is $3.99 over 3. Review was $2.35, 55% of the run.
+- **Quality:**
+  - The red-team approved with changes. It read the PDF itself, not only its text: it was made with Word's print-to-PDF, so its links didn't work, the tab showed a Word file name, and its hidden properties held more of the owner's name than the page (9). The owner re-exported it with Word's Export, and the session scanned it again before committing it.
+  - The PDF passed the plan's rule (no phone number or street address), but showed other personal details that would go public with the repo at M4 (7). The owner chose to keep them.
+  - `Architecture_Design.md`'s key files didn't list `public/` (4): fixed.
+  - The red-team also found five Tech Stack items the builder had flagged as not built are installed and wired; the session checked `package.json` and kept them.
+  - The single re-review approved the new PDF, the line and the typo fixes, with no finding.
+  - **Escapes** are tracked to 2026-12-08.
+
+**Findings:**
+1. **The builder broke the plan's privacy rule in the handoff comment, then fixed it 11 seconds later.** The plan said never to quote the résumé's personal details in the handoff, PR or comments. The builder's handoff named one, posted it to #28, then reworded the file and edited the comment. GitHub keeps the original in the comment's edit history, so the session raised it at G2 (5), with deleting that revision as the owner's step. The owner declined. A check before posting would have stopped it (R12-14).
+2. **The review earned its share.** Planning and building cost $1.76 together, about #11's $1.85; review cost $2.35, against #11's $1.20. The red-team looked at the PDF's properties and links, not just its text, which the plan's scan couldn't, and that was the finding the owner acted on.
+3. **G1 took two rounds of four questions, and the second built on the first's answers.** Round 2 asked for the LinkedIn URL as a question of its own, to be typed in "Other", as R12-9 proposes; how the redacted PDF would reach the builder without copying from a folder that holds unredacted versions; how the Tech Stack stays in step with two later phases; and the tier.
+4. **No question after G2's decisions.** The ready-to-merge note ended by naming `/close 28`, and the re-review had nothing to raise, so the item R12-13 is about didn't come up.
+5. **G2 decisions changed the plan twice, by the owner's choice.** The owner made fix 2 themselves (the re-export), and asked for the typos in other files to be fixed here, which the plan had kept for #29 and #30. The session did both and the re-review checked them. The owner declined the follow-up test that a résumé path must point at a real file.
+6. **Auto-fix:** `set_monitor` went through after the fork returned. Allowed on #20, #18, #27 and #28; denied on #13, #14, #21 and #11. It adds to R12-5.
+7. **R12-6, again.** The plan said the Roadmap's Status table is "updated at `/close`", which `/close` doesn't do. `/close` said so: 3.1 and 3.2 still read "Not started", left for the owner. Under the owner's flow, Epic 3's close pass catches them up.
+8. **C2, C4 and C8 met; C1 doesn't apply.** `review` was the next call after the fork returned. The plan said "frontend-design: not needed, because nothing renders this content until Phase 4.1". One line answered all seven decisions.
+9. **T5 didn't trigger.** The change touches no auth, secrets, permissions or code that handles user data. The privacy risk was the owner's own résumé, and the plan's scan and the red-team covered it.
+
+### ThisIsMatheusCastro #34 Phase 3.3: Calvo's new section looks (Standard), PR #36
+
+It gave Calvo a full body for the three project sections: hanging from a rope at 45° for Harnesses, standing on an invoice for InvoiceMe, and a raised forearm with a pacifier for BabyBuddyHelper. It also added an open mouth for speech bubbles, used on the error page. The busts below 128px, the app icons and the coming-soon page are unchanged. The art is sprite data in `lib/calvo/sprite.ts`, with a full-body component, a talking bust, tests, the test page and the design reference. ADR-011 and four docs were updated. The PR is 13 files, +1073 / −194.
+
+The issue said the owner and the session would make the full-body sprites together. At G1, `scope` offered three ways and recommended drafting them in `/scope`. The owner agreed, and the art took four drafts, shown as inline previews, before the plan.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope`: reading and the first two dialogs | 5e0a3592 | Opus 5.5 | 12, no surveyor | 78k → 120k | 6 min, 2 dialogs (4, 1) | $0.98 |
+| A: the four art drafts | 5e0a3592 | Opus 5.5 | 11 | → 188k | 23 min, 4 dialogs | $2.02 |
+| A: the art file, the plan and a memory note | 5e0a3592 | Opus 5.5 | 11 | → 230k | 6 min | $1.45 |
+| B: "continue 34", the main session | 4b1100dc | Opus 5.5 | 6, plus 2 after a CI event and the owner's reply ($0.06) | 75k → 83k | 21 min | $0.40 |
+| B `build`: the forked builder | 4b1100dc/subagents | Sonnet 5.5 | 64 | → 157k | (same) | $2.13 |
+| B: the builder's UI check | 4b1100dc/subagents | Sonnet 5.5 | 29 | → 222k | (same) | $0.81 |
+| C `/review` to ready-to-merge | 40650c4a | Opus 5.5 | 13, plus 19 red-team (Opus, $1.08) | 77k → 98k | 9 min, 4 of them waiting on 2 decisions | $1.78 |
+| C `/close` | 40650c4a | Opus 5.5 | 4 | → 101k | under 1 min | $0.14 |
+| **Total** | | | | | ≈ 65 min | **$9.71** |
+
+**Against the targets:**
+- **Cost:** $9.71, missed. The D25 Standard median is $8.33 over 9 runs.
+  - plan $4.45, of which the art and the plan written after it $3.47 (D24: $1.30–1.84);
+  - build $3.34 with the UI check (D24: $1.27–1.99);
+  - review $1.92 with `/close`, the cheapest D25 Standard review (D24: $1.90–2.16).
+- **Context:** missed. `/scope` peaked at 230k, past 200k for its last 8 calls, and the builder at 222k.
+- **Owner turns:** 13, missed. They were:
+  - `/scope`, the two G1 dialogs, the four art drafts and the G1 accept;
+  - "continue 34" and "I'll turn it off";
+  - `/review`, "Keep it, mark ready" and `/close`.
+  - Without the art drafts and the Auto-fix turn, 8.
+- **Quality:**
+  - The red-team approved with nothing above 3. It checked every look against the approved rows cell for cell, ran the design reference's own script against `sprite.ts` (0 differences), and confirmed the bust's data, and so the icons, unchanged.
+  - The builder's one handoff question: the approved art drew text lines on the invoice that never render, because the sheet fills those cells first. The builder ported the plain sheet the owner approved; the review checked it in the art file, and the owner kept it.
+  - No fixes, so no re-review.
+  - **Escapes** are tracked to 2026-12-08. **One so far,** found by the Epic 3 knowledge audit (#26) on 2026-11-09: ADR-011 calls the section looks "overlays", but the Harnesses jacket is a recolor of the base sprite. The intent, no second drawing, still holds. Doc drift, not a code bug; the owner saved it for 4.2's G1.
+
+**Findings:**
+1. **Drafting the art in `/scope` worked, and it cost the run its targets.** The four drafts cost $2.02 and five owner turns, and they left `/scope` at 188k. It then wrote the art file and the plan at 190k–230k, $1.45 for 11 calls. The planning alone ($4.45) cost more than most D25 review blocks. The build and the review then cost little: every look matched on the first port, and G2 had no finding. `/scope` also wrote a project memory note recommending this process for the next sprite art, on the owner's choice at G1. The third option `scope` offered, a separate design session, would have kept the drafts out of the planning context (R12-15).
+2. **The UI check took the builder past 200k.** The builder was at 157k when it started the dev server; the check's 29 calls, with screenshots and page scripts, took it to 222k for $0.81. This adds to R12-10.
+3. **Auto-fix: `set_monitor` was denied again,** and a CI event about Vercel's bot comment arrived 17 seconds later. The session changed nothing. The owner turned Auto-fix off themselves and said so, which cost a turn. Allowed on #20, #18, #27 and #28; denied on #13, #14, #21, #11 and #34. It adds to R12-5.
+4. **The review was the cheapest of any D25 Standard run,** at $1.78. With the art fixed in a file, the red-team had exact rows to check, and nothing to fix meant no re-review.
+5. **Decision 2 at G2 was "mark the PR ready".** With nothing to fix, it was a go-ahead rather than a choice, and the owner answered both in one line.
+6. **C1, C3, C4 and C8 met.** `build` was the first call after "continue 34", 9 of 9. Both UI sub-phases named `frontend-design` as not needed. "Keep it, mark ready" answered both decisions.
+7. **T5 didn't trigger,** correctly: the change is sprite data and components.
+
+### ThisIsMatheusCastro #29 Phase 3.4: Project content (Standard), PR #37
+
+It wrote the three project write-ups (Harnesses, InvoiceMe and BabyBuddyHelper) and the Other Work items in `content/`, added five items to WhoAmI's Tech Stack, and replaced the drafts in `Docs/PortfolioPlan.md` with a pointer. At G1 the owner took screenshots out of the portfolio, so the PR also removed `screenshots` from the project schema, with a test, and from the docs. The Harnesses write-up quotes this repository's figures and links to its README's Results and research/11. After G2 the PR also fixed an older slow test in `lib/db/migrate.test.ts` and closed #38. The PR is 13 files, +105 / −97.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope`: reading | b8285095 | Opus 5.5 | 9, plus 9 surveyor (Sonnet, $0.25) | 78k → 104k | 3 min | $0.98 |
+| A: G1's two dialogs, then the co-drafted text and the plan | b8285095 | Opus 5.5 | 16 | → 146k | 17 min, 2 rounds of questions (4, 4) | $1.20 |
+| B: "continue 29", the main session | e8f22e8c | Opus 5.5 | 7 | 75k → 81k | 12 min | $0.36 |
+| B `build`: the forked builder | e8f22e8c/subagents | Sonnet 5.5 | 29, no UI check | → 101k | (same) | $0.63 |
+| C `/review` to the G2 report | 89942beb | Opus 5.5 | 8, plus 12 red-team (Opus, $0.52) | 77k → 94k | 6 min | $1.09 |
+| C: the G2 fixes and the first re-review | 89942beb | Opus 5.5 | 13, plus 3 red-team ($0.33) | → 125k | 5 min | $0.79 |
+| C: the stop hook's blocks, waiting on CI and the owner | 89942beb | Opus 5.5 | 5 | → 125k | 4 min | $0.16 |
+| C: the migrate test fix and its re-review | 89942beb | Opus 5.5 | 18, plus 7 red-team ($0.45) | → 125k | 10 min | $1.12 |
+| C `/close` | 89942beb | Opus 5.5 | 7 | → 133k | 1 min | $0.32 |
+| **Total** | | | | | ≈ 58 min | **$6.65** |
+
+**Against the targets:**
+- **Cost:** $6.65, **met**, the third D25 Standard run under $7.49 (after #21 and #27). The D25 Standard median is $8.32 over 10 runs.
+  - plan $2.18 (D24: $1.30–1.84);
+  - build $0.99, the cheapest D25 Standard build (D24: $1.27–1.99);
+  - review $3.16, of which $1.28 after the stop hook's block (D24: $1.90–2.16).
+- **Context:** met. `/scope` peaked at 146k and the builder at 101k.
+- **Owner turns:** 9, missed. They were:
+  - `/scope`, the two G1 dialogs and the G1 accept;
+  - "continue 29";
+  - `/review`, "Yes, as recommended", "Fix it in this PR" and `/close`.
+  - Without the stop hook's question, 8.
+- **Quality:**
+  - The red-team approved. It checked the write-ups against the plan's text word for word with a script, opened all 10 source links, and checked the figures against their source.
+  - A code comment still gave a screenshot path as its example (6): fixed.
+  - `migrate.test.ts`'s first test took about 7 s locally, over Vitest's 5 s, since #18 (4): sent to follow-up #38 at G2, then fixed here: `beforeEach` waits for PGlite under its own 30 s limit, with no global timeout raised. Three local runs passed.
+  - From the plan, left for the owner: ADR-012 still promised lazy-loaded screenshots (3), reworded with the owner's approval; the Roadmap's 3.1 row (2), marked Done.
+  - Both re-reviews approved, with nothing new.
+  - **Escapes** are tracked to 2026-12-08. **One so far,** found by the Epic 3 knowledge audit (#26) on 2026-11-09: no doc records the decision made here that a project's Markdown body is Calvo's context and isn't shown, so 4.2 would have to make it again. Doc drift, not a code bug; the owner saved it for 4.2's G1.
+
+**Findings:**
+1. **The third D25 Standard run under $7.49,** with the cheapest D25 Standard build ($0.99). `scope` co-drafted the final text in the plan at the owner's choice, so the builder pasted it and the red-team could check it word for word. The plan was 11,993 characters, just under the 12,000 cap.
+2. **`check-gate` blocked the review session on a test the PR didn't cause.** After the G2 fixes, the Stop hook ran the fast checks, and the migrate test failed on local timing (attempts 1 and 2 of 3). The owner had just sent that test to #38. The session did the right thing: it changed neither the hook nor the test, kept the PR a draft, and asked. The owner chose "Fix it in this PR": a turn, and $1.28 for the fix and a third red-team pass. The builder's own `check full` had passed, so the failure depends on the machine's timing. A hook that blocks on a known, filed failure turns a G2 decision into a forced question (R12-16).
+3. **G1 took two rounds of four questions,** the second built on the first's answers: once the owner took screenshots out, how far the removal went, and where the measured figures and their sources go.
+4. **Auto-fix: `set_monitor` was denied again,** and a CI event about Vercel's bot comment arrived 12 seconds after the denial. The session changed nothing, and the owner turned Auto-fix off before `/review` without a turn. Allowed on #20, #18, #27 and #28; denied on #13, #14, #21, #11, #34 and #29. It adds to R12-5.
+5. **R12-6:** G2 fixed the 3.1 Status row, as decision 4. The rows for 3.2–3.4 still say "Not started"; `/close` noted the owner catches them up at the Epic's close.
+6. **R12-13, done the right way:** the first re-review noticed the 3.3 row and the session reported it as a note, with no question.
+7. **ThisIsMatheusCastro now quotes this repository's figures.** The Harnesses write-up gives the baseline and D25 Standard cost, and the peak range, linked to the README's Results and research/11. When the Epic 3 meta-analysis changes those numbers, the write-up goes stale; the README test here doesn't reach it.
+8. **C3, C4 and C8 met; C1 doesn't apply.** `build` was the first call after "continue 29", 10 of 10. The plan said "frontend-design: not needed", since no sub-phase changes rendered UI. "Yes, as recommended" answered all four decisions.
+9. **T5 didn't trigger,** correctly, and the G2 report said why: no auth, sessions, secrets or user data.
+
+### ThisIsMatheusCastro #30 Phase 3.5: `WhoIsMatheus.md` (Small), PR #39
+
+It replaced `content/WhoIsMatheus.md`, the file Calvo's chat will read, with the text co-drafted and approved at G1: a third-person Bio, Experience, Skills levels and tables that match WhoAmI's Tech Stack one to one, what the owner is looking for, and ten FAQ answers. At G2 the owner rewrote parts of it in their own commit, and the PR also took five skills into `whoami.md` and a Roadmap 6.1 line. The PR is 3 files, +182 / −13. The owner passed Small at G1.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` | 0270cf6b | Opus 5.5 | 25, no surveyor | 78k → 140k | 12 min, 2 rounds of questions | $1.86 |
+| B: the main session | 0270cf6b | Opus 5.5 | 4 | → 143k | 6 min | $0.16 |
+| B `build`: the forked builder | 0270cf6b/subagents | Sonnet 5.5 | 12 | → 75k | (same) | $0.30 |
+| C `review` to the G2 report | 0270cf6b | Opus 5.5 | 14, plus 18 red-team (Opus, $0.70) | → 161k | 8 min | $1.41 |
+| C: the G2 fixes and the owner's own edits (round 2) | 0270cf6b | Opus 5.5 | 7 | → 171k | 2 min, after 10 min of the owner's edits | $0.41 |
+| C: the round-2 changes and the re-review (round 3) | 0270cf6b | Opus 5.5 | 15, plus 15 red-team (Opus, $0.47) | → 191k | 6 min | $1.35 |
+| C: the round-3 fixes, CI, and the owner's merge | 0270cf6b | Opus 5.5 | 11 | → 198k | 4 min | $0.52 |
+| C `/close` | 0270cf6b | Opus 5.5 | 5 | → 204k | 1 min | $0.30 |
+| C: the Lighthouse re-run's result, 2 min after `/close` | 0270cf6b | Opus 5.5 | 2 | → 205k | under 1 min | $0.09 |
+| **Total** | | | | | ≈ 53 min | **$6.40** |
+
+**Against the targets:**
+- **Owner turns:** 8, missed. They were `/scope`, the two G1 dialogs, the G1 accept, the three G2 replies, and the owner's merge with `/close`. Without rounds 2 and 3, 6.
+- **Context:** missed, past 200k for the last 5 calls, in `/close` and the reply after it to the Lighthouse re-run. One Small session carried planning, the build and three G2 rounds. The builder peaked at 75k.
+- **Cost:** $6.40, the most of any D25 Small. Review was $3.69, 58% of it, and rounds 2 and 3 cost $2.28. The D25 docs Small median is $4.28 over 3 runs.
+- **Quality:**
+  - The red-team approved with changes.
+  - CI never ran Lint on the handed-off commit, and the run was marked failed, while the handoff said "CI: pass" (8). The session re-ran it; all five jobs passed (R12-17).
+  - G1 accepted copying facts from `whoami.md` and `other-work.md`, with the real fix "recorded as a follow-up". Nothing recorded it (8): fixed at G2 with a Roadmap 6.1 line (R12-18).
+  - A FAQ answer, the session's own G1 wording, overstated the projects (7): reworded.
+  - The owner's own edits at G2 added skills the Tech Stack didn't list, typos, and a location more precise than G1 had agreed. The session held the push and raised five decisions before the re-review: the skills went into `techStack` and the tables, the typos were fixed without touching a fact, and the location was recorded as the owner's G2 decision.
+  - The single re-review found the session's own Roadmap 6.1 line went too far (it would have dropped the skill levels and evidence) and some typos. Both were fixed in round 3, with no second re-review.
+  - **Escapes** are tracked to 2026-12-09. **One so far,** found by the Epic 3 knowledge audit (#26) on 2026-11-09: ADR-007 still says content is "written once". The copying G1 accepted here is recorded only in Roadmap 6.1, not as known debt in the ADR. Doc drift, not a code bug; the owner saved it for 4.2's G1.
+
+**Findings:**
+1. **G2 took three rounds, and two of them came from the owner's own edits.** After the G2 report, the owner answered "As recommended" and pushed their own rewrite of parts of the file. The session read it before pushing anything, held its fixes, and raised five items, one of them a reversal of the G1 location decision. Round 3 fixed what the re-review found. That cost $2.28 and two turns, and it took the session past 200k by `/close`. The owner's edits were their choice; the session handled them well.
+2. **The handoff said "CI: pass" with a required job missing.** The builder ran `gh pr checks --watch`, which lists only the jobs that ran; Lint hadn't run on that commit, so every line it showed passed. The red-team noticed (8). Checking the required jobs by name would have caught it (R12-17).
+3. **A follow-up promised at G1 wasn't recorded anywhere.** The plan's Rejected approaches said "recorded as a follow-up", but no sub-phase did it, so the builder didn't. The red-team caught it (8), and G2 added the Roadmap line (R12-18).
+4. **The last commit merged without a re-review, by the owner's choice.** The harness allows one narrow re-review, so the round-3 wording and typo fixes went to merge on CI alone, as the session said beforehand. The owner marked the PR ready and merged it on the required checks, while a re-run of Lighthouse, which isn't required, was still going.
+5. **Auto-fix:** `set_monitor` went through after the fork returned, and a CI event about Vercel's bot comment arrived 36 seconds later; the session changed nothing. Allowed on #20, #18, #27, #28 and #30; denied on #13, #14, #21, #11, #34 and #29. It adds to R12-5.
+6. **The co-drafted text went in a separate file,** `approved-text.md`, saved from the plan's appendix at approval, as #34's memory note suggested for art. The builder pasted it and checked it byte for byte.
+7. **R12-6:** the Roadmap Status rows for 3.2–3.5 still say "Not started", left for the Epic's close pass.
+8. **C2, C5 and C8 met; C1 and C4 don't apply.** `review` was the next call after the fork returned. The plan said "frontend-design: not needed". Each G2 round was answered in one reply.
+9. **T5 didn't trigger.** The file holds the owner's own details; the builder and the red-team both checked it for an email, phone number, city, state or salary.
+
+### ThisIsMatheusCastro #31 Phase 3.6: Calvo's stories (Small), PR #40
+
+It filled `content/calvo-stories.md` with nine stories, three each for Harnesses, InvoiceMe and BabyBuddyHelper, with a source for each in the body, and reworded the story rule in `Docs/PortfolioPlan.md`. Three surveyors, one per source repo, drafted candidates with their sources; the owner picked at G1, and the approved text went in `approved-text.md`, as on #30. The PR is 2 files, +29 / −8. The owner passed Small at G1.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope`: reading, the candidates, G1's three dialogs and the first plan | aee66d53 | Opus 5.5 | 20, plus 26 surveyor in three (Sonnet, $0.68) | 78k → 137k | 13 min | $2.39 |
+| A: the plan sent back, the teaser redrafts, two dialogs, the accept | aee66d53 | Opus 5.5 | 10 | → 156k | 19 min, 8 of them the owner reading the first plan | $0.71 |
+| B: the main session | aee66d53 | Opus 5.5 | 4 | → 159k | 5 min | $0.16 |
+| B `build`: the forked builder | aee66d53/subagents | Sonnet 5.5 | 9, no UI check | → 73k | (same) | $0.27 |
+| C `review` to the G2 report | aee66d53 | Opus 5.5 | 7, plus 26 red-team (Opus, $0.82) | → 174k | 8 min, 4 of them waiting on 1 decision | $1.27 |
+| C: the fix, the re-review and the ready-to-merge note | aee66d53 | Opus 5.5 | 11, plus 4 red-team ($0.16) | → 183k | 7 min, 3 of them waiting on the merge | $0.71 |
+| C `/close` | aee66d53 | Opus 5.5 | 5 | → 187k | under 1 min | $0.25 |
+| **Total** | | | | | ≈ 52 min | **$5.75** |
+
+**Against the targets:**
+- **Owner turns:** 10, missed. They were `/scope`, G1's three dialogs, the plan sent back, the message on how stories end, the dialog after it, the G1 accept, "1 fix" and `/close`. Without the plan sent back, 7.
+- **Context:** met, at 187k in `/close`; the builder 73k.
+- **Cost:** $5.75. Planning was $3.10, 54% of it, with the three surveyors at $0.68; build $0.43; review $1.98. The D25 docs Small median is $5.37 over 5 runs.
+- **Quality:**
+  - The red-team approved. It checked the file against `approved-text.md` byte for byte, each story's length, every source link and short SHA, and that no story names a child.
+  - H2's source didn't back "some parts have already been cut or trimmed" (4): fixed by adding D23 of this repository's optimization plan. The narrow re-review approved.
+  - **Escape:** the rule G1 reworded, "Every story shows the fix", doesn't fit two of the nine approved stories, the Harnesses origin story and the BabyBuddyHelper cascade-delete one. The Epic 3 knowledge audit found it 25 minutes after the merge. The wording was `scope`'s own proposal, accepted as recommended in the same dialog that approved the stories, and the plan's criterion checked only that one line changed.
+  - **Escapes** are tracked to 2026-12-09.
+
+**Findings:**
+1. **The owner sent the first plan back,** after reading it for 8 minutes, so the stories would end on a hook instead of the full fix. `scope` asked how, with the Cub story in each style; the owner answered in a message ("Teaser + Bubble CTA", and only where a story invites a conversation), and one more dialog settled the link, the five redrafts and the rule's wording. Three turns and $0.71, by the owner's choice on content.
+2. **A rule written at G1 wasn't checked against the content approved with it** (R12-20). The new rule and the stories it governs were approved in one dialog, and neither the plan's criteria nor the red-team checked the stories against the rule. The Epic audit, which reads the specs across the Epic, did.
+3. **Three surveyors drafted the candidates** (26 calls, $0.68), twelve and two spares, each with its source. Checking them against the sources, `scope` corrected six of the owner's seeds: a cause, a SQL rule, a mechanism, a bug that was never recorded, a claim with no source, and an ending that would repeat the bubble's own link. One of the owner's picks was a write-in, a story to find in the commit history; `scope` drafted it and asked one wording question.
+4. **The co-drafted text went in `approved-text.md` again,** as on #30, and the build cost $0.43.
+5. **Calvo's stories now link to this repository's `Evidence/`:** research/11, research/05 and OPTIMIZATION_PLAN D23, and two stories quote its figures. With the Harnesses write-up from #29, a refactor that moves those files, or a meta-analysis that changes those figures, reaches ThisIsMatheusCastro.
+6. **Auto-fix:** `set_monitor` went through after the fork returned, and a CI event about Vercel's bot comment came 34 seconds later; the session changed nothing. It adds to R12-5.
+7. **C2, C4 and C8 met; C1 doesn't apply.** `review` was the next call after `set_monitor`, with no owner turn. The plan said "frontend-design: not needed, because this is content and docs only". "1 fix" answered the one decision.
+8. **T5 didn't trigger,** correctly: content and one docs line.
+
+### ThisIsMatheusCastro #26 Epic 3: Content, the docs pass and the knowledge audit at the Epic's close (Small), PR #41
+
+The Epic 3 close, in one session. It started with the owner's `/close 26 Epic-3`, which stopped at the script: #26 had no branch or PR yet. The owner then ran `/scope 26 small`. The docs pass marked the Roadmap rows 3.2–3.6 Done, set the phase count, aligned PortfolioPlan's role wording with `WhoIsMatheus.md`, and fixed the Architecture_Design tree, the `content/` entries and two lines of `.claude/CLAUDE.md`. The PR is 6 files, +17 / −14, docs only. After the merge, `/close 26 epic` ran the knowledge audit.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| The first `/close 26`, stopped by the script (exit 2) | 6ab71739 | Opus 5.5 | 8 | 77k → 88k | 2 min | $0.46 |
+| A `/scope` | 6ab71739 | Opus 5.5 | 14, plus 14 surveyor (Sonnet, $0.36) | → 123k | 5 min, 1 round of questions (2) | $1.15 |
+| B: the main session | 6ab71739 | Opus 5.5 | 5 | → 128k | 5 min | $0.18 |
+| B `build`: the forked builder | 6ab71739/subagents | Sonnet 5.5 | 11, no UI check | → 84k | (same) | $0.35 |
+| C `review` to the G2 report | 6ab71739 | Opus 5.5 | 9, plus 10 red-team (Opus, $0.37) | → 140k | 3 min | $0.79 |
+| C: the fix, the re-review and the ready-to-merge note | 6ab71739 | Opus 5.5 | 7, plus 3 red-team ($0.09) | → 147k | 4 min | $0.40 |
+| `/close 26 epic` with the knowledge audit | 6ab71739 | Opus 5.5 | 10, plus 31 red-team (Opus, $1.30) | → 161k | 6 min | $1.85 |
+| "Fold into 4.2 scoping" | 6ab71739 | Opus 5.5 | 4 | → 164k | under 1 min | $0.20 |
+| **Total** | | | | | ≈ 25 min | **$5.37** |
+
+`runs.js` gets the total right but not the split. Phases only move forward, so after the first `/close` it puts every main-session call under close ($2.90), and the audit's red-team under review. The table above is split by the session's own markers.
+
+**Against the targets:**
+- **Owner turns:** 7, one over. They were the first `/close`, `/scope`, the G1 dialog, the G1 accept, "1 fix, 2 decline", `/close 26 epic` and "Fold into 4.2 scoping". Without the first `/close`, 6.
+- **Context:** met, at 164k; the builder 84k.
+- **Cost:** $5.37, against #11's $3.43 for Epic 2's close. The difference is the knowledge audit ($1.85), which #11 didn't run, and the first `/close` ($0.46). The docs pass alone, from `/scope` to ready-to-merge, was $2.87. The D25 docs Small median is $5.37 over 5 runs.
+- **Quality:**
+  - The red-team approved: 2 findings, both low. `Architecture_Design.md` said every content file has frontmatter, while `WhoIsMatheus.md` has none (6): fixed, "each" to "most". The `lib/shell/` tree line described its tests loosely (5): declined.
+  - The narrow re-review approved the fix.
+  - **Escapes** are tracked to 2026-12-09.
+
+**Findings:**
+1. **The knowledge audit found five doc drifts that five phase reviews had passed,** one each from #27, #29, #30, #31 and #34. They are the first escapes recorded in this log. None is a code bug: each is an ADR or a spec that describes the code or content inaccurately, or a decision that was never written down. Each phase's red-team reviewed its own diff; the audit read the Epic's ADRs and specs against the code together, 31 calls for $1.30. The owner saved all five for 4.2's G1, and an outside-the-Epic note (hard-coded footer URLs) for 4.3.
+2. **The audit ran after the docs pass, so its findings missed the pass** (R12-19). Two of them are ADR text, which the pass's plan left out of scope, and one is the same frontmatter drift the pass had just fixed in CLAUDE.md and Architecture_Design, still in ADR-007. When the first `/close` stopped, the session offered the audit first as its second option; the owner chose the docs pass first, as on Epic 2. The audit first would have put the five in PR 41; now Epic 3 closes with them open.
+3. **The owner started with `/close`, not `/scope`.** The script exited 2 (no branch), and the session stopped, worked around nothing, explained, and gave the two orders. It cost a turn and $0.46. On #11 the owner had started with `/scope`. The order of an Epic's close lives only in project memory, not in the harness (R12-19).
+4. **R12-12, done this way:** the owner passed `epic`, and the audit ran, against #11 where it didn't.
+5. **R12-6, settled again:** the Status rows for 3.2–3.6, left open by five phases, are Done.
+6. **G1 took one dialog of two questions,** both answered as recommended: the surveyor (14 calls, $0.36) had found PortfolioPlan's "full-time and contract roles" contradicting `WhoIsMatheus.md`, and older drift beyond the 3.x rows; the owner had all of it fixed.
+7. **Auto-fix:** `set_monitor` went through after the fork returned, and a CI event about Vercel's bot comment came 36 seconds later; the session changed nothing. Allowed on #20, #18, #27, #28, #30, #31 and #26; denied on #13, #14, #21, #11, #34 and #29. It adds to R12-5.
+8. **C2, C4 and C8 met; C1 doesn't apply.** `review` was the next call after `set_monitor`. The plan said "frontend-design: not needed, because no UI changes". "1 fix, 2 decline" answered both decisions.
+9. **T4 to T7 don't apply:** the change is docs only.
+
 ## Candidates for the next pass
 
-Recorded here; not decided. They go to the mid-Epic-2 meta-analysis with the rest of the D25 runs.
+Recorded here and triaged in [research/13](13-d25-meta-analysis.md) §8–10 (2026-11-10), where they become D26's E1–E13. They went to the meta-analysis at the close of ThisIsMatheusCastro's Epic 3, moved there on 2026-11-08 from mid-Epic 2.
 
 | # | From | Candidate |
 |---|---|---|
 | R12-1 | #155 finding 1 | The session-state hook (or `scope` step 1) says so when the checkout isn't on an up-to-date default branch |
 | R12-2 | #155 finding 2 | For a bug that only the owner can reproduce, plan a "reproduce first" step before Block B |
-| R12-3 | #155 finding 3 | New scope found at G2 goes through a plan amendment and a forked `build`, not the review session |
+| R12-3 | #155 finding 3, #14 finding 1 | New scope found at G2 goes through a plan amendment and a forked `build`, not the review session |
 | R12-4 | #157 finding 2 | A tier recheck that confirms or lowers the tier goes in the plan for the G1 accept, not in a separate question |
-| R12-5 | #140 finding 1 | Allow `mcp__ccd_pr__set_monitor` in `settings.json`, and have `review` turn Auto-fix off again after each push and before the ready-to-merge note |
+| R12-5 | #140 finding 1, #13 finding 2, #14 finding 2, #20 finding 3, #21 finding 4, #18 finding 5 (allowed, as on #20), #11 finding 3, #27 finding 4 (allowed), #28 finding 6 (allowed), #34 finding 3, #29 finding 4, #30 finding 5 (allowed), #31 finding 6 and #26 finding 7 (allowed) | Allow `mcp__ccd_pr__set_monitor` in `settings.json`, and have `review` turn Auto-fix off again after each push and before the ready-to-merge note |
+| R12-6 | #6 finding 6, #12 finding 1, #13 finding 3, #20 finding 4, #21 finding 5 (ThisIsMatheusCastro settled it with a docs pass at each Epic's close; #11 finding 1 is that pass; #28 finding 7; #29 finding 5; #30 finding 7; #26 finding 5 is Epic 3's pass) | A doc change the plan needs after the merge, like the Roadmap's Status row, goes in the PR. `/close` commits nothing, and a protected default branch takes changes only through a pull request |
+| R12-7 | #6 finding 4 | The install (Get Started and the project's docs step) says what `Decisions.md` holds: standing patterns a review can check code against, each with its reason, rules and status. Product decisions stay in the project's plan |
+| R12-8 | #9 finding 1 | When Small's criteria and the plan's size disagree, such as one sub-phase that only moves a dependency, `scope` recommends a tier with both reasons and lets the G1 accept settle it, or Small allows a dependency change that adds, removes and upgrades nothing |
+| R12-9 | #13 finding 1, #28 finding 3 (done this way) | `scope` asks for a value the owner has to type (a URL, an address) as a question of its own, answered in "Other", never in the notes of a choice |
+| R12-10 | #140, #12 and #13 finding 4; #14 finding 4; #34 finding 2 | Run the UI check outside the builder's context, for example in a fresh read-only subagent with the plan's UI criteria, so the builder's peak stays clear of 200k |
+| R12-11 | #21 finding 3, #18 finding 3 | When a PR adds or changes an ADR, or makes an exception to one, the PR also drafts the matching `guardrails-review` check for the owner to approve at G2, so the red-team can check the new rule from the next issue on |
+| R12-12 | #11 finding 4; #26 finding 4 (done this way) | When the issue being closed is an Epic's own issue, `/close` asks whether to run the knowledge audit, rather than skipping it because `epic` wasn't passed |
+| R12-13 | #27 finding 2, with #18 and #11; #29 finding 6 (done this way) | An item found after G2's decisions (by the re-review or `/close`) that needs no change goes into the report as a note with a recommendation, not as a question, so the owner's next command moves on and the owner raises it only if they want it |
+| R12-14 | #28 finding 1 | When the plan lists details that must not be quoted, the builder checks the handoff for them before posting it, and never posts and then edits: GitHub keeps the edit history. A comment with such a detail is deleted and posted again, not edited |
+| R12-15 | #34 finding 1 | Art or design drafted with the owner happens before `/scope`, in its own session, and ends in an approved file in the repo or `.harness/work/<n>/`. `/scope` then plans from that file at its usual size. The owner keeps the drafting rounds; the planning context doesn't carry them |
+| R12-16 | #29 finding 2 | `check-gate` reports, rather than blocks on, a failing check that the owner has filed as a known issue (for example, a test named in an open issue that the G2 decisions sent there), so a stop doesn't reopen a G2 decision. A new failure still blocks |
+| R12-17 | #30 finding 2 | The handoff's CI line checks the required jobs by name (from the repo's branch rules or `harness.json`), and a required job that didn't run counts as not passing |
+| R12-18 | #30 finding 3 | When G1 defers work as a follow-up, the plan makes recording it a step of a sub-phase (a Roadmap line or an issue), with its own acceptance criterion |
+| R12-19 | #26 findings 2 and 3 | An Epic's close is one sequence the harness states: the knowledge audit first, then a docs pass scoped with the audit's findings, then `/close <n> epic` to clean up. `/close` on an Epic issue with no branch runs the audit and names the docs pass as next, rather than exiting 2 |
+| R12-20 | #31 finding 2 | When G1 adds or rewords a rule that the PR's own content must follow, the plan's acceptance criteria check every item against the new rule, and so does the red-team |

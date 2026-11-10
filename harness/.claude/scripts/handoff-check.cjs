@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
-// S3: validates a handoff (OPTIMIZATION_PLAN.md §5.5) or, with --plan, a plan (§5.4).
+// S3: validates a handoff (Evidence/OPTIMIZATION_PLAN.md §5.5) or, with --plan, a plan (§5.4).
 // Usage: node .claude/scripts/handoff-check.cjs <file> [--plan] [--verify-head]
+// --verify-head also checks that the PR head is the handed-off SHA and that every requiredCiChecks job passed on it.
 // Exit 0 valid · 1 invalid (problems listed) · 3 refused (BLOCKED, or the PR head moved; F3, F5) · 2 error.
 // It fails closed: anything it can't confirm is a problem, not a pass.
 
@@ -46,6 +47,24 @@ function gh(root, ...args) {
   catch (e) { throw new HarnessError(`gh ${args.join(' ')} failed: ${String(e.stderr || e.message).trim()}`); }
 }
 
+// The PR's checks on its head, by name. `gh pr checks` exits non-zero while a check is pending or failing,
+// but still prints the JSON, so that output is read rather than treated as an error.
+function prChecks(root, pr) {
+  const fake = process.env.HARNESS_GH;
+  const args = ['pr', 'checks', pr, '--json', 'name,state,bucket'];
+  const [cmd, argv] = fake ? [process.execPath, [fake, ...args]] : ['gh', args];
+  let out;
+  try { out = execFileSync(cmd, argv, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
+  catch (e) { out = String(e.stdout || ''); if (!out.trim()) throw new HarnessError(`gh ${args.join(' ')} failed: ${String(e.stderr || e.message).trim()}`); }
+  try { return JSON.parse(out); } catch (e) { throw new HarnessError(`unreadable gh pr checks output: ${e.message}`); }
+}
+
+// D26 (E5): a required job that didn't run isn't a pass. #30's handoff said "CI: pass" with Lint never run.
+function missingRequired(required, checks) {
+  const passed = new Set(checks.filter(c => c.bucket === 'pass' || c.state === 'SUCCESS').map(c => c.name));
+  return required.filter(name => !passed.has(name));
+}
+
 function checkHandoff(root, cfg, text, { verifyHead }) {
   const problems = [];
   const field = re => (text.match(re) || [])[1];
@@ -85,6 +104,9 @@ function checkHandoff(root, cfg, text, { verifyHead }) {
     if (!current || !current.startsWith(head) && !head.startsWith(current))
       throw new Refuse(`the PR head moved: handoff says ${head}, the PR is now at ${current}. ` +
         'CI and the review must run on the new head (F3)');
+    const required = cfg.requiredCiChecks || [];
+    const missing = required.length ? missingRequired(required, prChecks(root, pr)) : [];
+    if (missing.length) problems.push(`READY needs every required CI job to pass on the head; not passing or not run: ${missing.join(', ')} (D26)`);
   }
   return problems;
 }
@@ -105,8 +127,10 @@ function checkPlan(cfg, text, { frontendDesign = false } = {}) {
   const body = s.get('Sub-phases') || '';
   const phases = body.split(/^###\s+/m).slice(1);
   if (s.has('Sub-phases') && phases.length === 0) problems.push('Sub-phases needs at least one "### 1. <name>"');
-  if (header && header[2] === 'Small' && phases.length > 1)
-    problems.push(`a Small-tier plan has exactly one sub-phase; this one has ${phases.length} (D18)`);
+  // A sub-phase review appends after G2 (D26) doesn't count toward Small's one.
+  const planned = phases.filter(p => !/^\d+\.\s*G2 fixes\b/i.test(p));
+  if (header && header[2] === 'Small' && planned.length > 1)
+    problems.push(`a Small-tier plan has exactly one sub-phase; this one has ${planned.length} (D18)`);
   phases.forEach((p, i) => {
     const name = `sub-phase ${i + 1}`;
     for (const key of ['Files', 'Change', 'Check']) if (!new RegExp(`^- ${key}:\\s*\\S`, 'm').test(p)) problems.push(`${name} needs "- ${key}: …"`);

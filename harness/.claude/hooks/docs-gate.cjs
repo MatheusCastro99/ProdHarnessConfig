@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// H4: PreToolUse on Bash, `if: Bash(git commit *)` (OPTIMIZATION_PLAN.md §6.2, D2, D10).
+// H4: PreToolUse on Bash, `if: Bash(git commit *)` (Evidence/OPTIMIZATION_PLAN.md §6.2, D2, D10).
 // Denies a commit while its code changes flag candidate docs that are neither in the commit nor
 // acknowledged with an "ack: <doc> — <why>" line. The `if` filter is best-effort, so the command is
 // re-checked here (F7): only an actual `git commit` is gated.

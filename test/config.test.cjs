@@ -65,10 +65,15 @@ test('reviewOnReady is validated (A6)', () => {
   assert.doesNotThrow(() => validateConfig({ ...base, reviewOnReady: { workflow: 'claude-code-review.yml', timeoutMin: 15 } }));
   assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: '../evil.sh' } }), /reviewOnReady/);
   assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: 'r.yml', timeoutMin: 0 } }), /timeoutMin/);
-  const bbh = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8'));
-  assert.strictEqual(bbh.reviewOnReady.workflow, 'claude-code-review.yml');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper', '.github', 'workflows', bbh.reviewOnReady.workflow)) ||
-    !fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper')), 'the workflow exists in the local clone, when there is one');
+  // C11 (D26): BabyBuddyHelper's CI reviewer commented on none of 5 runs, so no project uses it now; the review
+  // skill keeps the support. Any project that sets it must name a workflow its local clone has.
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
+    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8'));
+    if (!cfg.reviewOnReady) continue;
+    const clone = path.join(__dirname, '..', '..', p);
+    assert.ok(!fs.existsSync(clone) || fs.existsSync(path.join(clone, '.github', 'workflows', cfg.reviewOnReady.workflow)), `${p}: the workflow exists in the local clone`);
+  }
+  assert.strictEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8')).reviewOnReady, undefined);
 });
 
 test('CLAUDE.md template is within the 3k-token budget (§5.2)', () => {
@@ -146,19 +151,19 @@ test('Block B runs forked on the Sonnet builder, gated on SubagentStop (D12, res
   assert.match(body, /QUESTION: <the question>/);
 });
 
-test('Auto-fix is off from the handoff to the merge, though the fork has no PR tools (research/06, check 8)', () => {
+test('Auto-fix is off from the handoff to the merge, though the fork has no PR tools (Evidence/research/06, check 8)', () => {
   // In #135 Auto-fix was switched on during Block B and stayed on until Block C, because the fork has no app tools.
   assert.ok(read('skills/build/SKILL.md').includes('MAIN SESSION: turn off Auto-fix for <PR url> if it is on.'));
   const review = read('skills/review/SKILL.md');
   const step1 = review.slice(review.indexOf('## 1.'), review.indexOf('## 2.'));
   const first = step1.split(/\r?\n/).find(l => l.startsWith('- '));
   assert.ok(first.includes('Auto-fix) is on for the PR, turn it off'), 'it comes first in step 1');
-  // Only the fork reads the build skill; in #72 the main session got the line and left Auto-fix on (research/08).
+  // Only the fork reads the build skill; in #72 the main session got the line and left Auto-fix on (Evidence/research/08).
   const workflow = read('CLAUDE.md').split('## Workflow')[1].split('\n## ')[0];
   assert.ok(workflow.includes('`MAIN SESSION:` line, do what it says'), 'the main session is told to act on the line');
 });
 
-test('a local edit to a project\'s installed harness.json is ported back here, when the clone is local (research/08)', () => {
+test('a local edit to a project\'s installed harness.json is ported back here, when the clone is local (Evidence/research/08)', () => {
   // A plan may change a project's checks (#72 added api-test). The change must come back here, or the next install
   // refuses the local edit, and the source silently describes checks the project no longer has. A file still as the
   // last install wrote it is fine even when the source has moved on: that is an install not yet run, not drift.
@@ -228,8 +233,9 @@ test('only the scope skill briefs the surveyor, and only with a Survey (D23, Pro
     assert.doesNotMatch(read(`skills/${skill}/SKILL.md`), /surveyor/, `${skill} briefs the surveyor`);
   }
   const scope = read('skills/scope/SKILL.md');
-  assert.match(scope, /Brief the `surveyor` with a \*\*Survey\*\*/);
-  assert.ok(scope.includes('read them yourself instead, on either tier (D23)'), 'a few named files are read directly');
+  assert.match(scope, /brief the `surveyor` with a \*\*Survey\*\*/);
+  // C6 (D26): two analyses found no saving from a survey when the issue names its files.
+  assert.ok(scope.includes('When the issue names its files, read them yourself, narrowly, on either tier (D23, D26).'));
   const surveyor = read('agents/surveyor.md');
   assert.match(frontmatter(surveyor).description, /only by the scope skill/);
   assert.doesNotMatch(surveyor, /\*\*Read\*\*|Change summary|Block B|Block C/);
@@ -237,18 +243,57 @@ test('only the scope skill briefs the surveyor, and only with a Survey (D23, Pro
 
 test('the D24 trials are wired into scope, build and review (research/10)', () => {
   const scope = read('skills/scope/SKILL.md');
-  assert.ok(scope.includes('**The smallest complete change (T1, D24):**'));
+  assert.ok(scope.includes('**The smallest complete change:**'), 'T1 is a standing rule (D26)');
   assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
-  assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
+  assert.match(scope, /changes the UI:\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
   const build = read('skills/build/SKILL.md');
-  assert.match(build, /`frontend-design` skill if it has one \(T7\)/);
-  assert.match(build, /\*\*A UI check \(T6\):\*\*[\s\S]*Save its screenshots under `\.harness\/work\/<n>\/ui\/`/);
+  assert.match(build, /`frontend-design` skill if it has one\./);
+  assert.doesNotMatch(build + scope, /\(T[1-7]\b|T[1-7], /, 'no trial labels left (D26)');
   const review = read('skills/review/SKILL.md');
   const brief = review.slice(review.indexOf('## 2.'), review.indexOf('## 3.'));
-  assert.ok(brief.includes('**Error-handling lens (T4, D24),**'), 'T4 is part of the red-team brief');
-  assert.ok(brief.includes('**Security pass (T5),**') && brief.includes('git rev-parse HEAD') && brief.includes('built-in `security-review`'));
-  assert.ok(review.includes('`red-team`, `red-team T4`, `security-review T5`, `PR comment` or `reviewOnReady`'), 'each finding names its source');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '10-trials.md')), 'the trial register exists');
+  // D26: T4 is a standing part of the brief; T5 is dropped (0 findings the red-team missed, in 4 runs; research/13).
+  assert.ok(brief.includes('**Error-handling lens,**'), 'the error-handling lens is part of the red-team brief');
+  assert.doesNotMatch(review, /security-review|T5|T4/);
+  assert.ok(review.includes('`red-team`, `red-team (error lens)`'), 'each finding names its source');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '13-d25-meta-analysis.md')), 'the analysis it points at exists');
+});
+
+test('D26: scope plans what G1 adds, asks less, and drafts before planning (research/13)', () => {
+  const scope = read('skills/scope/SKILL.md');
+  assert.ok(scope.includes('`git fetch` and `git status -sb`'), 'E11: a stale checkout is named before planning (#155)');
+  assert.ok(scope.includes('moving one between dependency groups is fine'), 'E10 (#9)');
+  assert.ok(scope.includes('ending in an approved file'), 'E4 (#34)');
+  assert.ok(read('CLAUDE.md').includes('drafted before `/scope`'), 'E4 in the template');
+  assert.ok(scope.includes('is a question of its own') && scope.includes('confirming or lowering it goes in the plan'), 'E8 (#13, #157)');
+  assert.ok(scope.includes('"reproduce first"'), 'E11 (#155)');
+  for (const s of ['deferred as a follow-up is a step', 'every item it governs is checked against it', 'drafts the matching check in the project\'s red-team skill'])
+    assert.ok(scope.includes(s), `E6: ${s}`);
+});
+
+test('D26: an Epic close is one sequence, audit first (research/13, #11, #26)', () => {
+  const close = read('skills/close/SKILL.md');
+  assert.ok(close.includes('**4 (nothing to clean up):**') && close.includes('run the audit now'));
+  assert.ok(close.includes('`audit.md` existed before the script ran') && close.includes('ask the owner whether to run the audit'));
+  assert.ok(read('CLAUDE.md').includes('`/close <n> epic` first runs the knowledge audit'));
+});
+
+test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a known failure is noted (research/13)', () => {
+  const review = read('skills/review/SKILL.md');
+  const step5 = review.slice(review.indexOf('## 5.'), review.indexOf('## Never'));
+  // E1: on D25 the review session made its fixes on Opus at 120–200k (#27 $2.09, #155 $4.75).
+  assert.ok(step5.includes('Append `### <k>. G2 fixes`') && step5.includes('invoke the `build` skill with `<n> amend`'));
+  assert.ok(step5.includes('Rename `handoff.md` to `handoff-<k>.md`'), 'the finish guard waits for a new handoff');
+  const build = read('skills/build/SKILL.md');
+  assert.ok(build.includes('MAIN SESSION: run the narrow re-review for #<n> (review step 5).'));
+  // E2: set_monitor was denied on 6 of 13 runs, so Auto-fix stayed on.
+  assert.ok(JSON.parse(read('settings.json')).permissions.allow.includes('mcp__ccd_pr__set_monitor'));
+  assert.ok(review.includes('Turn it off again after each push of yours and before the ready-to-merge note'));
+  // E5: #30 handed off "CI: pass" with Lint never run; #28 posted a detail the plan forbade, then edited it.
+  assert.ok(build.includes('`handoff-check --verify-head` checks them by name'));
+  assert.ok(build.includes('**Before posting anything**') && build.includes('never edited: GitHub keeps the edit history'));
+  // E9 and E8.
+  assert.ok(step5.includes('.harness/work/<n>/known-failures.md'));
+  assert.ok(step5.includes('as a note with a recommendation, not as a question'));
 });
 
 test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {
@@ -268,15 +313,23 @@ test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {
   }
 });
 
-test('D25: the UI check stays in the builder on safe data, the tier comes from the plan, and the owner answers by number (research/11)', () => {
+test('D25 and D26: the UI check runs on its own agent on safe data, the tier comes from the plan, and the owner answers by number (research/11)', () => {
   const claude = read('CLAUDE.md'), workflow = claude.split('## Workflow')[1].split('\n## ')[0];
   // C1: #149 and #151 ran the UI check in the Opus main session ($1.42 and $2.73), and #151 wrote to the owner's data.
-  assert.ok(workflow.includes("the fork can't reach the app's PR tools. It drives the browser pane and runs the UI check itself."));
+  // D26 (E7) then moved it out of the builder too: it took #140's builder to 259k and #34's to 222k.
+  assert.ok(workflow.includes("the fork can't reach the app's PR tools. The UI check runs in `review`, on the `ui-check` agent."));
   const scope = read('skills/scope/SKILL.md');
-  assert.ok(scope.includes('The builder runs it, on either tier; never route it to the main session (D25).'));
+  assert.ok(scope.includes('The `ui-check` agent runs it in Block C, at the handed-off SHA, on either tier (D26); not the builder, and never the main session.'));
   assert.ok(scope.includes('Never plan a write to the owner\'s data, even one undone afterwards.'));
   const build = read('skills/build/SKILL.md');
-  assert.ok(build.includes("**A UI check (T6):** run it yourself, on either tier") && build.includes("Don't hand it to the main session (D25)."));
+  assert.ok(build.includes('**A UI check isn\'t yours:** `review` runs it on the `ui-check` agent'));
+  const ui = frontmatter(read('agents/ui-check.md'));
+  assert.deepStrictEqual([ui.name, ui.model, ui.effort], ['ui-check', 'sonnet', 'high']);
+  assert.match(ui.disallowedTools, /Edit/);
+  assert.match(ui.disallowedTools, /Write/);
+  const review = read('skills/review/SKILL.md');
+  assert.ok(review.slice(review.indexOf('## 2.'), review.indexOf('## 3.')).includes('brief the `ui-check` agent in the background too'));
+  assert.ok(read('agents/ui-check.md').includes("**Never write to the owner's data,**"));
   // C2: on all 3 Small runs the fork ended with Standard's line; the plan's tier now decides on both sides.
   const step6 = build.slice(build.indexOf('6. **Then stop.'), build.indexOf('## Never'));
   assert.ok(step6.includes("Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25)."));
@@ -288,6 +341,5 @@ test('D25: the UI check stays in the builder on safe data, the tier comes from t
   assert.ok(scope.includes('`frontend-design: used for <what>` or `frontend-design: not needed, because <why>`'));
   assert.ok(scope.includes('**Then check the tier again (D25),**'));
   // C8: on #139 a follow-up question went unanswered and had to be asked again.
-  const review = read('skills/review/SKILL.md');
   assert.ok(review.includes('### Decisions for you') && review.includes('**Number every open decision under "Decisions for you" (D25)**'));
 });

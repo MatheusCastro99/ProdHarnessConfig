@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 'use strict';
-// S2: the script half of /close (OPTIMIZATION_PLAN.md §6.4, D4, F1).
+// S2: the script half of /close (Evidence/OPTIMIZATION_PLAN.md §6.4, D4, F1).
 // Usage: node .claude/scripts/close.cjs <issue> [--branch <name>] [--dry-run]
 // Deletes nothing it can't prove is safe: the PR must be MERGED, the local branch tip must be the
-// PR's head, and the working tree must be clean. Exit 0 done, 3 aborted for safety, 2 error.
+// PR's head, and the working tree must be clean. Exit 0 done, 3 aborted for safety, 2 error, 4 nothing to clean
+// up: no branch and no handoff for the issue, as for an Epic's own issue before its docs pass (D26).
 
 const fs = require('fs');
 const os = require('os');
@@ -12,6 +13,7 @@ const { execFileSync } = require('child_process');
 const { HarnessError, tag, repoRoot, workDir, loadConfig, log } = require('../lib/harness.cjs');
 
 class Abort extends Error {}
+class Nothing extends Error {}
 
 const say = msg => process.stdout.write(tag('close', msg) + '\n');
 
@@ -42,8 +44,10 @@ function resolveBranch(root, issue, flag, defaultBranch) {
     if (m) return m[1];
   }
   const current = git(root, 'branch', '--show-current');
-  if (current && current !== defaultBranch) return current;
-  throw new HarnessError('no branch: pass --branch, or run from the issue branch');
+  // Only the issue's own branch (<type>/<n>-<name>): a merged child branch must not stand in for an Epic's (#4 G2).
+  if (current && current !== defaultBranch && new RegExp(`(^|/)${issue}-`).test(current)) return current;
+  throw new Nothing(`#${issue} has no branch and no handoff here, so there is nothing to clean up. ` +
+    'If it has a merged PR, pass --branch or run from the issue branch (<type>/<n>-<name>)');
 }
 
 // Memory lives in ~/.claude/projects/<project path with separators turned into "-">/memory.
@@ -128,6 +132,11 @@ if (require.main === module) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.exit(0);
   } catch (e) {
+    if (e instanceof Nothing) {
+      if (root) log(root, { tool: 'close', issue, result: 'nothing' });
+      say(e.message);
+      process.exit(4);
+    }
     const aborted = e instanceof Abort;
     if (root) log(root, { tool: 'close', issue, result: aborted ? 'aborted' : 'error', message: e.message });
     console.error(tag('close', aborted ? `ABORTED: ${e.message}` : (e instanceof HarnessError ? e.message : `unexpected error: ${e.stack || e}`)));
