@@ -245,10 +245,27 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   assert.match(build, /\*\*A UI check \(T6\):\*\*[\s\S]*Save its screenshots under `\.harness\/work\/<n>\/ui\/`/);
   const review = read('skills/review/SKILL.md');
   const brief = review.slice(review.indexOf('## 2.'), review.indexOf('## 3.'));
-  assert.ok(brief.includes('**Error-handling lens (T4, D24),**'), 'T4 is part of the red-team brief');
-  assert.ok(brief.includes('**Security pass (T5),**') && brief.includes('git rev-parse HEAD') && brief.includes('built-in `security-review`'));
-  assert.ok(review.includes('`red-team`, `red-team T4`, `security-review T5`, `PR comment` or `reviewOnReady`'), 'each finding names its source');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '10-trials.md')), 'the trial register exists');
+  // D26: T4 is a standing part of the brief; T5 is dropped (0 findings the red-team missed, in 4 runs; research/13).
+  assert.ok(brief.includes('**Error-handling lens,**'), 'the error-handling lens is part of the red-team brief');
+  assert.doesNotMatch(review, /security-review|T5|T4/);
+  assert.ok(review.includes('`red-team`, `red-team (error lens)`'), 'each finding names its source');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '13-d25-meta-analysis.md')), 'the analysis it points at exists');
+});
+
+test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a known failure is noted (research/13)', () => {
+  const review = read('skills/review/SKILL.md');
+  const step5 = review.slice(review.indexOf('## 5.'), review.indexOf('## Never'));
+  // E1: on D25 the review session made its fixes on Opus at 120–200k (#27 $2.09, #155 $4.75).
+  assert.ok(step5.includes('Append `### <k>. G2 fixes`') && step5.includes('invoke the `build` skill with `<n> amend`'));
+  assert.ok(step5.includes('Rename `handoff.md` to `handoff-<k>.md`'), 'the finish guard waits for a new handoff');
+  const build = read('skills/build/SKILL.md');
+  assert.ok(build.includes('MAIN SESSION: run the narrow re-review for #<n> (review step 5).'));
+  // E2: set_monitor was denied on 6 of 13 runs, so Auto-fix stayed on.
+  assert.ok(JSON.parse(read('settings.json')).permissions.allow.includes('mcp__ccd_pr__set_monitor'));
+  assert.ok(review.includes('Turn it off again after each push of yours and before the ready-to-merge note'));
+  // E9 and E8.
+  assert.ok(step5.includes('.harness/work/<n>/known-failures.md'));
+  assert.ok(step5.includes('as a note with a recommendation, not as a question'));
 });
 
 test('vendored skills are pinned, licensed and kept out of docs (D24)', () => {

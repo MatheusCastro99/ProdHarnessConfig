@@ -105,8 +105,10 @@ function checkPlan(cfg, text, { frontendDesign = false } = {}) {
   const body = s.get('Sub-phases') || '';
   const phases = body.split(/^###\s+/m).slice(1);
   if (s.has('Sub-phases') && phases.length === 0) problems.push('Sub-phases needs at least one "### 1. <name>"');
-  if (header && header[2] === 'Small' && phases.length > 1)
-    problems.push(`a Small-tier plan has exactly one sub-phase; this one has ${phases.length} (D18)`);
+  // A sub-phase review appends after G2 (D26) doesn't count toward Small's one.
+  const planned = phases.filter(p => !/^\d+\.\s*G2 fixes\b/i.test(p));
+  if (header && header[2] === 'Small' && planned.length > 1)
+    problems.push(`a Small-tier plan has exactly one sub-phase; this one has ${planned.length} (D18)`);
   phases.forEach((p, i) => {
     const name = `sub-phase ${i + 1}`;
     for (const key of ['Files', 'Change', 'Check']) if (!new RegExp(`^- ${key}:\\s*\\S`, 'm').test(p)) problems.push(`${name} needs "- ${key}: …"`);

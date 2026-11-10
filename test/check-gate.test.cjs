@@ -133,3 +133,25 @@ test('malformed hook input doesn\'t stop the gate from working', () => {
   const r = run('hooks/check-gate.cjs', [], { cwd: dir, input: 'not json' });
   assert.strictEqual(JSON.parse(r.stdout).decision, 'block');
 });
+
+test('a failure the owner sent to an open issue is reported, not blocked (D26, #29)', () => {
+  const { dir } = repo();
+  write(dir, 'FAIL', '');
+  write(dir, '.harness/work/42/known-failures.md', '- `test X failed` — #38\n');
+  const r = stop(dir);
+  assert.strictEqual(r.code, 0);
+  assert.strictEqual(r.json.decision, undefined, 'not blocked');
+  assert.match(r.json.systemMessage, /known failure the owner sent to #38/);
+  assert.ok(!fs.existsSync(path.join(dir, '.harness/work/42/BLOCKED')));
+});
+
+test('a known failure next to a new one still blocks (D26)', () => {
+  const { onlyKnown, knownFailures } = require('../harness/.claude/hooks/check-gate.cjs');
+  const known = [{ text: 'migrate.test.ts > first test', issue: '38' }];
+  assert.deepStrictEqual(onlyKnown(' FAIL  migrate.test.ts > first test\nTest Files  1 failed', known), known);
+  assert.strictEqual(onlyKnown(' FAIL  migrate.test.ts > first test\n FAIL  page.test.tsx > renders', known), null);
+  assert.strictEqual(onlyKnown(' FAIL  page.test.tsx > renders', known), null, 'nothing known in it');
+  const dir = tempDir();
+  write(dir, '.harness/work/7/known-failures.md', 'migrate.test.ts > first test — #38\nnot an entry\n');
+  assert.deepStrictEqual(knownFailures(dir, '7'), known);
+});

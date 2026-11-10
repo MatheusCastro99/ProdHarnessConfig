@@ -144,6 +144,9 @@ test('a Small-tier plan has exactly one sub-phase (D18)', () => {
   assert.strictEqual(r.code, 1);
   assert.match(r.out, /exactly one sub-phase/);
   assert.strictEqual(check(plan({ tier: 'Standard', phases: two }), ['--plan']).code, 0);
+  // A G2 fixes sub-phase that review appends (D26) doesn't count toward Small's one.
+  const fixes = [two[0], '### 2. G2 fixes\n- Files: a\n- Change: fix 1\n- Check: check fast'];
+  assert.strictEqual(check(plan({ tier: 'Small', phases: fixes }), ['--plan']).code, 0);
 });
 
 test('with frontend-design installed, a UI sub-phase must say whether it used it (T7, D25)', () => {
