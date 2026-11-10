@@ -850,7 +850,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 
 ## 10. Implementation status
 
-**As of 2026-11-10: D25 is installed in BabyBuddyHelper, InvoiceMe and ThisIsMatheusCastro, and validated in [research/12](research/12-d25-validation.md) and [research/13](research/13-d25-meta-analysis.md). D26 is built here (ProdHarnessConfig#4) and waits on one reinstall PR per repo. Runs after those reinstalls go into `runs.json` as config `D26`.** First built and tested here on 2026-10-22.
+**As of 2026-11-10: D25 is installed in BabyBuddyHelper, InvoiceMe and ThisIsMatheusCastro, and validated in [research/12](research/12-d25-validation.md) and [research/13](research/13-d25-meta-analysis.md). D26 is built here (ProdHarnessConfig#4, PR #7) and installed from `9d6087f` in all three, by BabyBuddyHelper#165, InvoiceMe#161 and ThisIsMatheusCastro#43 (merged 2026-11-10). Runs from then on go into `runs.json` as config `D26`.** First built and tested here on 2026-10-22.
 
 | Built | Where | Tests |
 |---|---|---|
@@ -884,7 +884,8 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 3. The open items: escape tracking to 2026-11-25 (research/11 §2). ~~The cost check on the next 3 Standard issues (D19).~~ Met: 5 Standard issues under D24, median $6.03 (research/11). The first Small-tier issue ran 2026-10-26 (#134, [research/09](research/09-small-tier.md)). Its findings on the finish guard and on where the Small G2 runs are fixed by D22, verified on InvoiceMe #68.
 4. Discussion issues: ~~ProdHarnessConfig #1~~ (closed by D23) and #2 (third-party skills; open until the trials end). #3 (the public README) waits until after D25's rollout.
 5. ~~D25's rollout: a reinstall PR in each repo, with InvoiceMe's `ux-design` note on the browser check (research/11, C9).~~ Done.
-6. D26 ([research/13](research/13-d25-meta-analysis.md)): built in ProdHarnessConfig#4 with the refactor. Next: one reinstall PR per repo; each says which lines of the project's own `CLAUDE.md` to update, since the installer never writes it; BabyBuddyHelper's also removes `reviewOnReady`.
+6. ~~D26 ([research/13](research/13-d25-meta-analysis.md)): built in ProdHarnessConfig#4 with the refactor, then one reinstall PR per repo.~~ Done 2026-11-10; BabyBuddyHelper's also removed `reviewOnReady` and its CI reviewer workflow.
+7. D26's validation: record each run as config `D26`, and judge E1 and E4 against the targets (research/13 §9). Follow-up: ProdHarnessConfig#8 (the Stop gate's known-failure gap).
 
 ## 11. Open questions
 
