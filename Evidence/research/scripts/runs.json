@@ -13,7 +13,8 @@
     "D22": "Small tier after D22: one session, G2 on Opus in the main session (research/09)",
     "D24": "D23 and D24: surveyor in Block A only, five trials on (research/10)",
     "D25": "D25: the meta-analysis fixes (research/11 §12)",
-    "D24/D25": "Plan and build on D24's files (the checkout was on a branch from before D25), review and close on D25's (research/12)"
+    "D24/D25": "Plan and build on D24's files (the checkout was on a branch from before D25), review and close on D25's (research/12)",
+    "D26": "D26: the D25 meta-analysis fixes (research/13 §9–10, ProdHarnessConfig#4)"
   },
   "runs": [
     { "issue": 38, "repo": "BabyBuddyHelper", "config": "baseline", "kind": "code", "pr": 70, "diff": [14, 233, 55], "diffNote": "PR also closed #39", "recorded": { "cost": 7.59, "turns": 13 }, "source": "research/02", "sessions": [{ "id": "928728bf" }] },

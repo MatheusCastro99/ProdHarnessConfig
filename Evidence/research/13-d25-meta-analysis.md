@@ -4,7 +4,7 @@ Date: 2026-11-10, at the close of ThisIsMatheusCastro's Epic 3. Data: [scripts/r
 
 **How to read the numbers:** as in [research/11](11-meta-analysis.md). Costs are list-price equivalents, phases come from the transcripts' markers, and the samples are small. Two things are new:
 - **D25 ran mostly on a new project.** 16 of its 18 runs are on ThisIsMatheusCastro, a new Next.js site whose issues added about three times the lines of D24's (median +795 against +243 on Standard). Several were content the owner co-wrote with `scope`. D24 ran on two older repos.
-- **`runs.js` mis-splits one run.** #26 opened with `/close`, and phases only move forward, so its plan, build and review land under close; the Epic audit's red-team lands under review. Its total is right. Research/12 splits it by hand, and the medians below use `runs.js`'s split, which moves about $1 between phases of one docs Small.
+- **`runs.js` mis-split one run, and now doesn't.** #26 opened with `/close`, and phases only moved forward, so its plan, build and review landed under close, and the Epic audit's red-team under review. ProdHarnessConfig#4 fixed that (E13): `/scope` starts the phases again, and a subagent counts in the phase that launched it. The figures below are from the fixed script; the totals didn't change.
 
 ## 1. The runs
 
@@ -30,9 +30,9 @@ The D25 runs, from `node Evidence/research/scripts/runs.js`. #155 ran its plan a
 | TIMC #28 | Small (docs) | 7f +56 −10 | $1.16 | $0.60 | — | $2.35 | $0.16 | **$4.28** | 156k | 6 |
 | TIMC #30 | Small (docs) | 3f +182 −13 | $1.86 | $0.46 | — | $3.69 | $0.39 | **$6.40** | **205k** | 8 |
 | TIMC #31 | Small (docs) | 2f +29 −8 | $3.10 | $0.43 | — | $1.97 | $0.25 | **$5.75** | 187k | 10 |
-| TIMC #26 | Small (docs) | 6f +17 −14 | $0.36* | $0.35* | — | $1.76* | $2.90* | **$5.37** | 164k | 7 |
+| TIMC #26 | Small (docs) | 6f +17 −14 | $1.18 | $0.50 | — | $1.20 | $2.49 | **$5.37** | 164k | 7 |
 
-\* `runs.js`'s split; by hand: the first `/close` $0.46, plan $1.15, build $0.53, review $1.19, `/close` with the Epic audit $1.85, after it $0.20.
+#26's close is the first, stopped `/close` ($0.46), the Epic audit ($1.85) and the reply after it ($0.20).
 
 | Config | Tier | Runs | Median cost | Plan | Build | Review | Main peak | Turns | Median diff (+) |
 |---|---|---|---|---|---|---|---|---|---|
@@ -42,7 +42,7 @@ The D25 runs, from `node Evidence/research/scripts/runs.js`. #155 ran its plan a
 | D24 | Small (code) | 3 | $4.88 | $1.20 | $0.85 | $1.67 | 189k | 6 | 34 |
 | **D25** | **Small (code)** | **3** | **$3.99** | $1.33 | $0.56 | $1.55 | 154k | 7 | 187 |
 | D22 | Small (docs) | 3 | $2.92 | $1.05 | $0.61 | $1.22 | 134k | 5 | |
-| **D25** | **Small (docs)** | **5** | **$5.37** | $1.34 | $0.46 | $1.97 | 164k | 7 | 29 |
+| **D25** | **Small (docs)** | **5** | **$5.37** | $1.34 | $0.50 | $1.97 | 164k | 7 | 29 |
 
 ## 2. Did D25 hold?
 
@@ -174,7 +174,7 @@ The R12 candidates, grouped by cause. "Runs" are the runs that showed it.
 | E10 | **Small's criteria allow a dependency move** that adds, removes and upgrades nothing | A tier correction at the plan | Weak: 1 run | Tiny |
 | E11 | **Session start warns when the checkout is behind the default branch;** a bug only the owner can reproduce gets a "reproduce first" step | Rework like #155's | Weak: 1 run | Tiny |
 | E12 | **Get Started says what `Decisions.md` holds** | A G2 question | Weak: 1 run | Docs only |
-| E13 | **`runs.js`:** a `/scope` after `/close` restarts the phases, and a subagent counts in the phase that launched it | Correct medians | 1 run | Small, with a test |
+| E13 | **`runs.js`:** a `/scope` after `/close` restarts the phases, and a subagent counts in the phase that launched it. Done in ProdHarnessConfig#4 | Correct medians | 1 run | Small, with a test |
 
 **Trials and open items:**
 - **T1, T4, T6 and T7 become standing rules;** they stop being labelled as trials in `scope` and `review`.

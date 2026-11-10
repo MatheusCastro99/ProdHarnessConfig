@@ -71,6 +71,8 @@ The installer never writes `CLAUDE.md`, because it's yours.
 
 Keep the Workflow, Working agreements and Branches sections as they are; the skills rely on them. Keep the file under about 3k tokens. Rules that only apply to one area of the code go in `.claude/rules/<area>.md`, with a `paths:` frontmatter, so they load only when that area is touched.
 
+
+**If the project keeps a `Decisions.md` (or ADRs),** say in `CLAUDE.md` what it holds: standing patterns that a review can check code against, each with its reason, its rules and its status. The red-team reads it as rules. Product decisions (what to build, for whom) belong in the project's plan or roadmap, not there; mixed in, they read as rules the code must follow.
 ## 6. Install
 
 On a fresh branch in your project, with a clean working tree:

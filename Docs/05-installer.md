@@ -85,4 +85,4 @@ An optional `projects/<project>/install.json` holds what the installer adds per 
 ## Design record
 
 - [ADOPTION_PLAN.md](../Evidence/ADOPTION_PLAN.md) §3 (how it gets installed) and §4 (the steps per repo).
-- [research/10](../Evidence/research/10-trials.md) (D24's vendored skills).
+- [research/10](../Evidence/research/10-trials.md) (D24's vendored skills) and [research/13](../Evidence/research/13-d25-meta-analysis.md) §6 (T7, `frontend-design`, now standing).

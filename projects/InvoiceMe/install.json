@@ -5,7 +5,7 @@
       "source": "https://github.com/anthropics/claude-plugins-official/tree/41f619d61b999adec1a1c8deb97d1a5b6ac35bb6/plugins/frontend-design/skills/frontend-design",
       "commit": "41f619d61b999adec1a1c8deb97d1a5b6ac35bb6",
       "license": "Apache-2.0",
-      "trial": "T7 (D24)"
+      "trial": "T7 (D24); standing since D26"
     }
   }
 }

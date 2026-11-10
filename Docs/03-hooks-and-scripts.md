@@ -11,7 +11,7 @@ The hooks are wired in [`settings.json`](../harness/.claude/settings.json).
 | Hook | Event | What it does | When it blocks |
 |---|---|---|---|
 | **H1** [`file-check`](../harness/.claude/hooks/file-check.cjs) | `PostToolUse` on `Edit\|Write` | Formats, then lints, the one file just edited, with the first `fileTools` entry whose glob matches | A lint error exits 2, so Claude sees it and fixes the file |
-| **H2** [`check-gate`](../harness/.claude/hooks/check-gate.cjs) | `Stop`, and `SubagentStop` for the `builder` | Runs the `fast` check. Skips it when nothing changed since the last pass (a fingerprint of every non-ignored file, the config and the check scripts) | Blocks the stop while `fast` fails. After 3 failures in a row, writes `BLOCKED` and lets the session stop so the owner decides |
+| **H2** [`check-gate`](../harness/.claude/hooks/check-gate.cjs) | `Stop`, and `SubagentStop` for the `builder` | Runs the `fast` check. Skips it when nothing changed since the last pass (a fingerprint of every non-ignored file, the config and the check scripts) | Blocks the stop while `fast` fails. After 3 failures in a row, writes `BLOCKED` and lets the session stop so the owner decides. When every failing line names a failure listed in `.harness/work/<n>/known-failures.md` (one the owner sent to an open issue at G2), it reports instead of blocking |
 | **H3** [`quiet`](../harness/.claude/hooks/quiet.cjs) | `PreToolUse` on `Bash` | A fallback: if Claude types a configured check command by hand, it reroutes it through `check.cjs`. Anything else passes untouched | Never |
 | **H4** [`docs-gate`](../harness/.claude/hooks/docs-gate.cjs) | `PreToolUse` on `Bash`, for `git commit` | Works out what the commit will contain, including `-a` and a `git add` earlier in the same command, and asks `stale-docs` which docs it may make wrong | Denies the commit while a flagged doc is neither in it nor acknowledged with `ack: <doc> — <why>`. It also denies when it can't check |
 | **H5** [`session-state`](../harness/.claude/hooks/session-state.cjs) | `SessionStart` on `startup\|clear` | Adds one line per active issue (up to 3): plan in progress, handoff ready, or `BLOCKED`. After `/clear` with an approved plan, it says the next step is the build | Never |
@@ -57,10 +57,10 @@ node .claude/scripts/handoff-check.cjs <file> [--plan] [--verify-head]
   - the first line with the issue and the tier;
   - every required section;
   - a check on every sub-phase;
-  - exactly one sub-phase on Small;
+  - exactly one sub-phase on Small, not counting a `G2 fixes` sub-phase;
   - the `frontend-design` line on a UI sub-phase, when the project has that skill.
 - **Without it:** validates a handoff. It needs every section and a status. A READY handoff also needs CI to pass on the handed-off head; "none" is accepted only when the project has no `requiredCiChecks`.
-- **`--verify-head`:** also checks that the PR's head is still the handed-off SHA.
+- **`--verify-head`:** also checks that the PR's head is still the handed-off SHA, and that every `requiredCiChecks` job ran and passed on it, by name (`gh pr checks`). A required job that didn't run is not a pass.
 - **It fails closed:** anything it can't confirm is a problem.
 - **Exit codes:** 0 valid, 1 invalid (problems listed), 3 refused (`BLOCKED`, or the head moved), 2 error.
 
@@ -77,7 +77,7 @@ It deletes nothing it can't prove is safe. The PR must be `MERGED`, the working 
 4. removes `.harness/work/<n>/`;
 5. lists the Claude Code memory files that mention the issue, for the `close` skill to condense.
 
-It prints a JSON report. Exit 0 done, 3 aborted for safety, 2 error.
+It prints a JSON report. Exit 0 done, 3 aborted for safety, 2 error, 4 nothing to clean up (no branch and no handoff for the issue, as on an Epic's issue before its docs pass).
 
 ## Permissions
 

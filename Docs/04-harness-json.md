@@ -24,7 +24,7 @@ Every command in the file has the same shape:
 |---|---|---|---|
 | `defaultBranch` | yes | `main`, `master`, … | `close.cjs`, the branch rules in the skills |
 | `checks` | yes | Named lists of commands. `fast` and `full` are required; add any others a plan can name (`check api-test`) | `check.cjs`, the check gate, `quiet`, plans |
-| `requiredCiChecks` | no | The CI check names a merge needs, matching the default branch's ruleset. With it, a READY handoff must say CI passed | `handoff-check.cjs`, `build` |
+| `requiredCiChecks` | no | The CI check names a merge needs, matching the default branch's ruleset. With it, a READY handoff must say CI passed, and `--verify-head` checks that each named job ran and passed on the head | `handoff-check.cjs`, `build` |
 | `fileTools` | no | `{ "<glob>": { "format"?: <command>, "lint"?: <command> } }`. Each command contains `{file}`, which becomes the edited file's path. The first matching glob wins | the file-check hook (H1) |
 | `docs` | no | Globs for every file that counts as documentation | `stale-docs.cjs`, the docs gate |
 | `docmap` | no | `{ "<code glob>": ["<doc>", …] }`: links a doc to code that it describes without naming a path | `stale-docs.cjs` |

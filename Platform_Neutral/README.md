@@ -39,6 +39,6 @@ The full list, with how each was verified, is in [OPTIMIZATION_PLAN.md](../Evide
 
 ## What didn't pay off, or isn't settled
 
-- **A survey subagent** before planning showed no saving on issues that name their files (research/11 §5). It may still help in unfamiliar code.
+- **A survey subagent** before planning showed no saving on issues that name their files (research/11 §5, research/13 §5). It may still help in unfamiliar code, or when the survey is the work.
 - **A small tier** saves money only when nothing heavy follows the plan. One small run that grew after G1 became the dearest of the batch (research/11 §4).
-- **The trials** (the smallest change, an error-handling lens, a security pass, a UI check, a design skill) are still being measured. Copy them as ideas, not as results.
+- **The former trials:** the smallest change, an error-handling lens, a UI check and a design skill held up over two analyses and are standing rules now; a separate security pass found nothing the reviewer missed in 4 runs and was dropped (research/13 §6). The samples are small, so copy them as ideas.

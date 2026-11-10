@@ -65,10 +65,15 @@ test('reviewOnReady is validated (A6)', () => {
   assert.doesNotThrow(() => validateConfig({ ...base, reviewOnReady: { workflow: 'claude-code-review.yml', timeoutMin: 15 } }));
   assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: '../evil.sh' } }), /reviewOnReady/);
   assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: 'r.yml', timeoutMin: 0 } }), /timeoutMin/);
-  const bbh = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8'));
-  assert.strictEqual(bbh.reviewOnReady.workflow, 'claude-code-review.yml');
-  assert.ok(fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper', '.github', 'workflows', bbh.reviewOnReady.workflow)) ||
-    !fs.existsSync(path.join(__dirname, '..', '..', 'BabyBuddyHelper')), 'the workflow exists in the local clone, when there is one');
+  // C11 (D26): BabyBuddyHelper's CI reviewer commented on none of 5 runs, so no project uses it now; the review
+  // skill keeps the support. Any project that sets it must name a workflow its local clone has.
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
+    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8'));
+    if (!cfg.reviewOnReady) continue;
+    const clone = path.join(__dirname, '..', '..', p);
+    assert.ok(!fs.existsSync(clone) || fs.existsSync(path.join(clone, '.github', 'workflows', cfg.reviewOnReady.workflow)), `${p}: the workflow exists in the local clone`);
+  }
+  assert.strictEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8')).reviewOnReady, undefined);
 });
 
 test('CLAUDE.md template is within the 3k-token budget (§5.2)', () => {
