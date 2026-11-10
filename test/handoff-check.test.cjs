@@ -63,7 +63,11 @@ Everything else.
 `;
 };
 
-const fakeGh = (dir, head) => ({ HARNESS_GH: write(dir, 'fake-gh.cjs', `process.stdout.write(${JSON.stringify(JSON.stringify({ headRefOid: head }))})`) });
+// The fake answers `pr view` with the head and `pr checks` with the given jobs (exit 8 if any isn't passing, as gh does).
+const fakeGh = (dir, head, checks = [{ name: 'build', state: 'SUCCESS', bucket: 'pass' }]) => ({ HARNESS_GH: write(dir, 'fake-gh.cjs', `
+  const checks = ${JSON.stringify(checks)};
+  if (process.argv[3] === 'checks') { process.stdout.write(JSON.stringify(checks)); if (checks.some(c => c.bucket !== 'pass')) process.exit(8); }
+  else process.stdout.write(${JSON.stringify(JSON.stringify({ headRefOid: head }))});`) });
 
 function check(text, args = [], env = {}, setup = () => {}) {
   const dir = harnessRepo(CONFIG);
@@ -119,6 +123,15 @@ test('--verify-head refuses when the PR head moved (F3)', () => {
   assert.strictEqual(r.code, 3);
   assert.match(r.out, /PR head moved/);
   assert.ok(r.out.includes(moved));
+});
+
+test('--verify-head fails when a required CI job didn\'t run or didn\'t pass on the head (D26, #30)', () => {
+  const lintOnly = [{ name: 'lint', state: 'SUCCESS', bucket: 'pass' }];
+  const r = check(handoff(), ['--verify-head'], d => fakeGh(d, HEAD, lintOnly));
+  assert.strictEqual(r.code, 1, r.out);
+  assert.match(r.out, /not passing or not run: build/);
+  const failing = [{ name: 'build', state: 'FAILURE', bucket: 'fail' }];
+  assert.match(check(handoff(), ['--verify-head'], d => fakeGh(d, HEAD, failing)).out, /not passing or not run: build/);
 });
 
 test('a handoff over the 2k-token budget is invalid', () => {

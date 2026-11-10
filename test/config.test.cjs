@@ -276,6 +276,9 @@ test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a k
   // E2: set_monitor was denied on 6 of 13 runs, so Auto-fix stayed on.
   assert.ok(JSON.parse(read('settings.json')).permissions.allow.includes('mcp__ccd_pr__set_monitor'));
   assert.ok(review.includes('Turn it off again after each push of yours and before the ready-to-merge note'));
+  // E5: #30 handed off "CI: pass" with Lint never run; #28 posted a detail the plan forbade, then edited it.
+  assert.ok(build.includes('`handoff-check --verify-head` checks them by name'));
+  assert.ok(build.includes('**Before posting anything**') && build.includes('never edited: GitHub keeps the edit history'));
   // E9 and E8.
   assert.ok(step5.includes('.harness/work/<n>/known-failures.md'));
   assert.ok(step5.includes('as a note with a recommendation, not as a question'));

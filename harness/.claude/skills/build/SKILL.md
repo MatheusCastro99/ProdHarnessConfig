@@ -61,7 +61,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 3. **Bind the handoff to one commit:**
    - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
    - If a check fails, fix it, run `full` again, push, and wait again.
-   - When CI passes, record `gh pr view <pr> --json headRefOid`.
+   - When CI passes, record `gh pr view <pr> --json headRefOid`. Every job in `requiredCiChecks` must have run and passed; `--watch` lists only the jobs that ran, so `handoff-check --verify-head` checks them by name (D26).
 4. **PR monitoring (Auto-fix) stays off from the handoff until the merge,** so nothing pushes after the handoff. You can't reach the app's PR tools from the fork, so end your reply with this line, which the main session acts on: `MAIN SESSION: turn off Auto-fix for <PR url> if it is on.`
 5. **Handoff, on both tiers:**
    - Write `.harness/work/<n>/handoff.md` in exactly this shape. Every section is filled in or says "none":
@@ -85,6 +85,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 
    - Validate it with `node .claude/scripts/handoff-check.cjs .harness/work/<n>/handoff.md --verify-head`, and fix it until it passes.
    - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
+   - **Before posting anything** (the handoff, a PR body, a comment), search it for each detail the plan says never to quote, and take out any you find (D26). A posted comment that carries one is deleted (`gh api -X DELETE repos/{owner}/{repo}/issues/comments/<id>`) and posted again, never edited: GitHub keeps the edit history.
 6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22). Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25).
    - **Standard:** tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`.
    - **Small:** end your reply with `MAIN SESSION: run the review skill for #<n> now (Small tier, this session).`
