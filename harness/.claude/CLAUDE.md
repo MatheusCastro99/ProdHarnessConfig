@@ -1,4 +1,4 @@
-<!-- Template from ProdHarnessConfig. Fill every <placeholder>, then delete this comment. Budget: ≤ 3k tokens (OPTIMIZATION_PLAN.md §5.2). Area-specific rules go in .claude/rules/<area>.md with paths: frontmatter, not here. -->
+<!-- Template from ProdHarnessConfig. Fill every <placeholder>, then delete this comment. Budget: ≤ 3k tokens (Evidence/OPTIMIZATION_PLAN.md §5.2). Area-specific rules go in .claude/rules/<area>.md with paths: frontmatter, not here. -->
 # <Project>
 
 <One or two sentences: what the project is and who it is for.>

@@ -101,3 +101,15 @@ test('ackedDocs reads "ack:" lines from the issue files', () => {
   assert.strictEqual(acks.get('Docs/API.md'), 'only a variable was renamed');
   assert.ok(acks.has('README.md'));
 });
+
+test('--fail exits 1 while a candidate doc is unresolved, and 0 once it is acknowledged (#4)', () => {
+  const dir = repo();
+  write(dir, 'NODEAPI/routes/invoices.js', 'v2');
+  git(dir, 'add', '-A');
+  assert.strictEqual(run('scripts/stale-docs.cjs', ['--staged'], { cwd: dir }).code, 0, 'without --fail it only lists');
+  const r = run('scripts/stale-docs.cjs', ['--staged', '--fail'], { cwd: dir });
+  assert.strictEqual(r.code, 1, r.out);
+  assert.match(r.out, /unresolved/);
+  write(dir, '.harness/work/7/stale-docs.md', 'ack: Docs/API.md — the routes are unchanged\n');
+  assert.strictEqual(run('scripts/stale-docs.cjs', ['--staged', '--fail'], { cwd: dir }).code, 0);
+});

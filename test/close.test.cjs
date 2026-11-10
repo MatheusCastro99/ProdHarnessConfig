@@ -1,5 +1,5 @@
 'use strict';
-// S2 close: the V0 cases from OPTIMIZATION_PLAN.md §6.4 and §8.5 (F1).
+// S2 close: the V0 cases from Evidence/OPTIMIZATION_PLAN.md §6.4 and §8.5 (F1).
 
 const test = require('node:test');
 const assert = require('node:assert');

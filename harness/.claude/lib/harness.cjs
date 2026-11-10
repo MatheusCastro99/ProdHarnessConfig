@@ -1,5 +1,5 @@
 'use strict';
-// Shared helpers for the harness hooks and scripts (OPTIMIZATION_PLAN.md §6).
+// Shared helpers for the harness hooks and scripts (Evidence/OPTIMIZATION_PLAN.md §6).
 // CommonJS with a .cjs extension, so a repo whose package.json sets "type": "module" can't break it.
 
 const fs = require('fs');
@@ -82,6 +82,8 @@ function loadConfig(root) {
 // --- logging (§8.3: one line per hook or script event) -------------------------
 
 function log(root, record) {
+  // Trying a project's checks before an install (HARNESS_CONFIG) must leave nothing in that project (#4).
+  if (process.env.HARNESS_CONFIG) return;
   try {
     fs.mkdirSync(workDir(root), { recursive: true });
     fs.appendFileSync(path.join(workDir(root), 'hooks.log'), JSON.stringify({ ts: new Date().toISOString(), ...record }) + '\n');

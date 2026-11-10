@@ -75,7 +75,7 @@ From [Evidence/research/11](Evidence/research/11-meta-analysis.md): 30 issue run
 **[Onboard/GET_STARTED.md](Onboard/GET_STARTED.md)** covers:
 - prerequisites;
 - describing your project in a `harness.json`;
-- installing with `scripts/install.cjs`, a dry run first;
+- installing with `Onboard/install.cjs`, a dry run first;
 - writing your `CLAUDE.md`;
 - a first issue, end to end.
 
@@ -95,11 +95,10 @@ Not on Claude Code? **[Platform_Neutral/](Platform_Neutral/README.md)** separate
 ```
 README.md                  this page
 Docs/                      reference: workflow, skills and agents, hooks and scripts, harness.json, installer
-Onboard/                   Get Started (the installer moves here in #4)
+Onboard/                   Get Started and the installer, install.cjs
 Platform_Neutral/          the ideas without Claude Code, and a setup prompt for any agent
 harness/.claude/           what gets installed: CLAUDE.md template, settings, skills, agents, hooks, scripts, lib
 projects/<Project>/        each project's harness.json, install.json and vendored skills
-scripts/install.cjs        installs and upgrades the harness in a project
 test/                      node --test suites for the hooks, scripts, installer and configs
 Evidence/
   OPTIMIZATION_PLAN.md     the design record: decisions D1–D25, with § numbers the code cites

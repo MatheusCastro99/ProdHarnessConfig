@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// H2: the Stop gate (OPTIMIZATION_PLAN.md §6.2, P4, F5).
+// H2: the Stop gate (Evidence/OPTIMIZATION_PLAN.md §6.2, P4, F5).
 // While an issue is active, Claude can't stop with failing fast checks. After 3 consecutive failures it
 // writes .harness/work/<issue>/BLOCKED and lets Claude stop, so the owner decides (never a silent handoff).
 

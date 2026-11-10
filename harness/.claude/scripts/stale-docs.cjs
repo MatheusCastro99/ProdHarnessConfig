@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 'use strict';
-// S1: maps changed files to *candidate* docs that may now be wrong (OPTIMIZATION_PLAN.md §6.4, D2, F11).
-// Usage: node .claude/scripts/stale-docs.cjs (--staged | --range <base>..<head>) [--record <issue>]
+// S1: maps changed files to *candidate* docs that may now be wrong (Evidence/OPTIMIZATION_PLAN.md §6.4, D2, F11).
+// Usage: node .claude/scripts/stale-docs.cjs (--staged | --range <base>..<head>) [--record <issue>] [--fail]
+// --fail exits 1 while a candidate doc is neither part of the change nor acknowledged, so the script
+// can stand alone as a git pre-commit hook. Without it, it exits 0 and only lists.
 // The output is a list to review, not a complete inventory: drift that names no path is invisible here.
 
 const fs = require('fs');
@@ -124,6 +126,13 @@ if (require.main === module) {
     if (!cands.length) console.log(tag('stale-docs', 'no candidate docs for these changes'));
     else console.log(tag('stale-docs', `${cands.length} candidate doc reference(s) to review:\n` +
       cands.map(c => `- ${c.doc} ← ${c.file} (${c.rule})`).join('\n')));
+    if (args.includes('--fail')) {
+      const open = unresolved(root, cfg, changes);
+      if (open.length) {
+        console.log(tag('stale-docs', `${open.length} unresolved: update each doc or add "ack: <doc> — <why>"`));
+        process.exit(1);
+      }
+    }
     process.exit(0);
   } catch (e) {
     console.error(tag('stale-docs', e instanceof HarnessError ? e.message : `unexpected error: ${e.stack || e}`));

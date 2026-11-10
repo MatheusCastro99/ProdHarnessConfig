@@ -1,5 +1,5 @@
 'use strict';
-// S5 check runner: the V0 cases from OPTIMIZATION_PLAN.md §6.4.
+// S5 check runner: the V0 cases from Evidence/OPTIMIZATION_PLAN.md §6.4.
 
 const test = require('node:test');
 const assert = require('node:assert');
@@ -111,4 +111,12 @@ test('each run is logged with its exit code', () => {
   run('scripts/check.cjs', ['fast'], { cwd: dir });
   const lines = fs.readFileSync(path.join(dir, '.harness/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
   assert.deepStrictEqual(lines.map(l => [l.tool, l.id, l.code]), [['check', 'fast', 0]]);
+});
+
+test('trying the checks with HARNESS_CONFIG leaves no log in the project (#4)', () => {
+  const dir = repoWith(d => ({ fast: [{ run: nodeScript(d, 'ok3', '') }] }));
+  const outside = path.join(dir, '.claude', 'harness.json');
+  const r = run('scripts/check.cjs', ['fast'], { cwd: dir, env: { HARNESS_CONFIG: outside } });
+  assert.strictEqual(r.code, 0, r.out);
+  assert.ok(!fs.existsSync(path.join(dir, '.harness/work/hooks.log')));
 });

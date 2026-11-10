@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 'use strict';
-// H3: PreToolUse on Bash — a fallback only (OPTIMIZATION_PLAN.md §6.2, F7).
+// H3: PreToolUse on Bash — a fallback only (Evidence/OPTIMIZATION_PLAN.md §6.2, F7).
 // The skills run checks through S5. If Claude types a configured check command directly, this rewrites it
 // to run through S5, which trims the output and keeps the exit code. The `if` filter is best-effort, so the
 // command is re-checked here: anything that isn't exactly a configured command passes through untouched.
 
 const path = require('path');
-const { tag, repoRoot, loadConfig, readHookInput } = require('../lib/harness.cjs');
+const { tag, repoRoot, loadConfig, readHookInput, log } = require('../lib/harness.cjs');
 
 const norm = s => s.trim().replace(/\s+/g, ' ');
 
@@ -33,6 +33,7 @@ function main() {
   const hit = findCommand(cfg, command);
   if (!hit) return;
   const runner = path.join(repoRoot(), '.claude', 'scripts', 'check.cjs');
+  log(repoRoot(), { tool: 'quiet', check: `${hit.id}[${hit.index}]` });
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'PreToolUse',

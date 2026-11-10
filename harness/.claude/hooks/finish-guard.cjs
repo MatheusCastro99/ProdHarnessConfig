@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// H6: SubagentStop for the builder (research/06, check 9). A forked build may only return when it is
+// H6: SubagentStop for the builder (Evidence/research/06, check 9). A forked build may only return when it is
 // done: a handoff exists, BLOCKED exists, or its last message asks a QUESTION. Otherwise it is told to keep
 // going. After 3 blocks in a row it lets the fork return, with a visible message, so it can't loop forever.
 

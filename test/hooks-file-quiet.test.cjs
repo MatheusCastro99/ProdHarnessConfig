@@ -84,3 +84,10 @@ test('S5 --index runs only that command', () => {
   assert.strictEqual(r.code, 0, r.out);
   assert.strictEqual(run('scripts/check.cjs', ['fast', '--index', '5'], { cwd: dir }).code, 2);
 });
+
+test('H3: a rewrite is logged like the other hooks (#4)', () => {
+  const dir = repo();
+  bash(dir, 'cd FRONTEND && npm test');
+  const lines = require('fs').readFileSync(require('path').join(dir, '.harness/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
+  assert.deepStrictEqual(lines.map(l => [l.tool, l.check]), [['quiet', 'unit[0]']]);
+});

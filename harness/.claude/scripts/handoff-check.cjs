@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// S3: validates a handoff (OPTIMIZATION_PLAN.md §5.5) or, with --plan, a plan (§5.4).
+// S3: validates a handoff (Evidence/OPTIMIZATION_PLAN.md §5.5) or, with --plan, a plan (§5.4).
 // Usage: node .claude/scripts/handoff-check.cjs <file> [--plan] [--verify-head]
 // Exit 0 valid · 1 invalid (problems listed) · 3 refused (BLOCKED, or the PR head moved; F3, F5) · 2 error.
 // It fails closed: anything it can't confirm is a problem, not a pass.

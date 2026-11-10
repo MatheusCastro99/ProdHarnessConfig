@@ -1,6 +1,6 @@
 # 03. Hooks and scripts
 
-The skills ask; the hooks and scripts enforce. Everything here is plain Node (CommonJS `.cjs`, no dependencies), reads the project's `.claude/harness.json`, and prints messages tagged `[harness <name>]`. The hooks that act (lint, the docs gate, the check gate, the finish guard) and the scripts log one line per event to `.harness/work/hooks.log`.
+The skills ask; the hooks and scripts enforce. Everything here is plain Node (CommonJS `.cjs`, no dependencies), reads the project's `.claude/harness.json`, and prints messages tagged `[harness <name>]`. Every hook and script logs one line per event to `.harness/work/hooks.log`, except while `HARNESS_CONFIG` is set (trying the checks before an install).
 
 The hooks are wired in [`settings.json`](../harness/.claude/settings.json).
 - **Always on:** the lint-on-edit, the docs gate and the check reroute run in every session.
@@ -36,7 +36,7 @@ Runs a named check's commands from `harness.json` in order and stops at the firs
 ### `stale-docs` (S1)
 
 ```
-node .claude/scripts/stale-docs.cjs (--staged | --range <base>..<head>) [--record <issue>]
+node .claude/scripts/stale-docs.cjs (--staged | --range <base>..<head>) [--record <issue>] [--fail]
 ```
 
 Maps each changed code file to the docs that may now be wrong. A doc is any file matching `harness.json`'s `docs` globs. It is flagged when:
@@ -45,7 +45,7 @@ Maps each changed code file to the docs that may now be wrong. A doc is any file
 - it mentions the file's name, unless the name is generic or under 4 characters;
 - it mentions the file's directory.
 
-Renames and deletions are flagged too. `--record <n>` appends the candidates to `.harness/work/<n>/stale-docs.md`, where `ack:` lines clear them. It is a list to review, not proof: drift that names no path is invisible to it. Exit 0, or 2 on an error.
+Renames and deletions are flagged too. `--record <n>` appends the candidates to `.harness/work/<n>/stale-docs.md`, where `ack:` lines clear them. It is a list to review, not proof: drift that names no path is invisible to it. Exit 0, or 2 on an error. With `--fail` it exits 1 while a flagged doc is neither in the change nor acknowledged, so it can serve as a plain git pre-commit hook.
 
 ### `handoff-check` (S3)
 

@@ -1,9 +1,9 @@
 # 05. The installer
 
-[`scripts/install.cjs`](../scripts/install.cjs) installs the harness into a project, and upgrades it later. It changes nothing unless you ask it to, and it never overwrites a file it can't account for.
+[`Onboard/install.cjs`](../Onboard/install.cjs) installs the harness into a project, and upgrades it later. It changes nothing unless you ask it to, and it never overwrites a file it can't account for.
 
 ```
-node scripts/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
+node Onboard/install.cjs <target-repo> <project> [--apply] [--replace <path>]... [--force]
 ```
 
 - `<target-repo>`: the path to the project's git checkout.

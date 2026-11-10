@@ -146,19 +146,19 @@ test('Block B runs forked on the Sonnet builder, gated on SubagentStop (D12, res
   assert.match(body, /QUESTION: <the question>/);
 });
 
-test('Auto-fix is off from the handoff to the merge, though the fork has no PR tools (research/06, check 8)', () => {
+test('Auto-fix is off from the handoff to the merge, though the fork has no PR tools (Evidence/research/06, check 8)', () => {
   // In #135 Auto-fix was switched on during Block B and stayed on until Block C, because the fork has no app tools.
   assert.ok(read('skills/build/SKILL.md').includes('MAIN SESSION: turn off Auto-fix for <PR url> if it is on.'));
   const review = read('skills/review/SKILL.md');
   const step1 = review.slice(review.indexOf('## 1.'), review.indexOf('## 2.'));
   const first = step1.split(/\r?\n/).find(l => l.startsWith('- '));
   assert.ok(first.includes('Auto-fix) is on for the PR, turn it off'), 'it comes first in step 1');
-  // Only the fork reads the build skill; in #72 the main session got the line and left Auto-fix on (research/08).
+  // Only the fork reads the build skill; in #72 the main session got the line and left Auto-fix on (Evidence/research/08).
   const workflow = read('CLAUDE.md').split('## Workflow')[1].split('\n## ')[0];
   assert.ok(workflow.includes('`MAIN SESSION:` line, do what it says'), 'the main session is told to act on the line');
 });
 
-test('a local edit to a project\'s installed harness.json is ported back here, when the clone is local (research/08)', () => {
+test('a local edit to a project\'s installed harness.json is ported back here, when the clone is local (Evidence/research/08)', () => {
   // A plan may change a project's checks (#72 added api-test). The change must come back here, or the next install
   // refuses the local edit, and the source silently describes checks the project no longer has. A file still as the
   // last install wrote it is fine even when the source has moved on: that is an install not yet run, not drift.

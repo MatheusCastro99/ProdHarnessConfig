@@ -1,6 +1,6 @@
 {
   "notes": [
-    "InvoiceMe (MERN). See OPTIMIZATION_PLAN.md §6.1. NODEAPI has a Jest + Supertest suite on an in-memory MongoDB (`npm test`, check api-test).",
+    "InvoiceMe (MERN). See Evidence/OPTIMIZATION_PLAN.md §6.1. NODEAPI has a Jest + Supertest suite on an in-memory MongoDB (`npm test`, check api-test).",
     "fast mirrors CI's quick steps: FRONTEND lint, NODEAPI syntax check, and CI's 'Load API app' step (app.js must load all routes, controllers and models without opening a DB connection).",
     "full adds the FRONTEND build, and the NODEAPI tests, matching CI's 'Frontend build' and 'API smoke test' jobs.",
     "api-load and api-test are named checks a plan can use as automated observables (F14).",

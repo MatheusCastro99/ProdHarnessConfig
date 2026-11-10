@@ -116,3 +116,11 @@ test('H5: at startup it reports the plan and never tells the session to build; a
   const r = run('hooks/session-state.cjs', [], { cwd: dir, input: '' });
   assert.doesNotMatch(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /invoke/, 'no input counts as startup');
 });
+
+test('H5: a state report is logged like the other hooks (#4)', () => {
+  const dir = repo();
+  write(dir, '.harness/work/42/plan.md', '# Plan');
+  session(dir, 'clear');
+  const lines = require('fs').readFileSync(require('path').join(dir, '.harness/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
+  assert.deepStrictEqual(lines.map(l => [l.tool, l.source, l.lines]), [['session-state', 'clear', 1]]);
+});

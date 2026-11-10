@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// S2: the script half of /close (OPTIMIZATION_PLAN.md §6.4, D4, F1).
+// S2: the script half of /close (Evidence/OPTIMIZATION_PLAN.md §6.4, D4, F1).
 // Usage: node .claude/scripts/close.cjs <issue> [--branch <name>] [--dry-run]
 // Deletes nothing it can't prove is safe: the PR must be MERGED, the local branch tip must be the
 // PR's head, and the working tree must be clean. Exit 0 done, 3 aborted for safety, 2 error.

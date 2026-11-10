@@ -53,7 +53,7 @@ Try the checks before installing anything. From your project's root, point the r
 HARNESS_CONFIG=../ProdHarnessConfig/projects/YourProject/harness.json node ../ProdHarnessConfig/harness/.claude/scripts/check.cjs fast
 ```
 
-Fix the config until `fast` and `full` pass on a clean checkout. The runner logs to `.harness/work/hooks.log`, so this creates a `.harness/` folder in your project. Delete it, or ignore it with the gitignore lines in step 6.
+Fix the config until `fast` and `full` pass on a clean checkout. With `HARNESS_CONFIG` set, the runner writes no log, so this leaves nothing in your project.
 
 Optionally, add `projects/<YourProject>/install.json`. It can preload your own review rules into the red-team (`redTeamSkills`), or vendor a third-party skill (see [Docs/05](../Docs/05-installer.md#installjson)).
 
@@ -76,7 +76,7 @@ Keep the Workflow, Working agreements and Branches sections as they are; the ski
 On a fresh branch in your project, with a clean working tree:
 
 ```bash
-node ../ProdHarnessConfig/scripts/install.cjs . YourProject
+node ../ProdHarnessConfig/Onboard/install.cjs . YourProject
 ```
 
 1. **Read the dry run.** It lists every file it would add and any conflicts: files that exist but weren't installed by the harness, such as an old `.claude/agents/red-team.md`. Each conflict needs a decision: `--replace <path>` to replace it, or move your file aside.
@@ -85,7 +85,7 @@ node ../ProdHarnessConfig/scripts/install.cjs . YourProject
 4. **Apply:**
 
    ```bash
-   node ../ProdHarnessConfig/scripts/install.cjs . YourProject --apply
+   node ../ProdHarnessConfig/Onboard/install.cjs . YourProject --apply
    ```
 
 5. **If your linter or formatter covers the whole tree,** make it skip `.claude/`. The installed hooks and scripts are CommonJS and follow this repo's style, not yours. Editing them to pass your linter would count as a local edit and block the next upgrade. For example, ThisIsMatheusCastro adds `.claude/**` to ESLint's ignores and `.claude/` to `.prettierignore`. Run `node .claude/scripts/check.cjs full` again.
@@ -98,7 +98,7 @@ What the installer does in each case is in [Docs/05](../Docs/05-installer.md).
 Before the first real issue:
 - [ ] `node .claude/scripts/check.cjs full` passes.
 - [ ] In a fresh Claude Code session, `/context` shows the starting context. The harness was tuned to start under about 85k tokens; a long `CLAUDE.md` or many enabled plugins push it up. `settings.json` turns off a few plugins that weren't needed; adjust `enabledPlugins` for yours.
-- [ ] The hooks fire. The lint hook is silent when a file is clean, so make a throwaway edit that breaks a `fileTools` linter's rule and watch Claude get the error, then revert it. With no `fileTools`, have Claude make a throwaway commit on a scratch branch and look for a `docs-gate` line in `.harness/work/hooks.log`, where the lint hook, the docs gate, the check gate and the finish guard log what they did.
+- [ ] The hooks fire. The lint hook is silent when a file is clean, so make a throwaway edit that breaks a `fileTools` linter's rule and watch Claude get the error, then revert it. With no `fileTools`, have Claude make a throwaway commit on a scratch branch and look for a `docs-gate` line in `.harness/work/hooks.log`, where every hook logs what it did.
 
 ## 8. Your first issue
 

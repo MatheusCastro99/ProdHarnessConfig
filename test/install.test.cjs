@@ -1,5 +1,5 @@
 'use strict';
-// install.cjs: dry run, apply, re-install, upgrade, local edits, conflicts, removals, gitignore, CLAUDE.md (ADOPTION_PLAN.md §3).
+// install.cjs: dry run, apply, re-install, upgrade, local edits, conflicts, removals, gitignore, CLAUDE.md (Evidence/ADOPTION_PLAN.md §3).
 
 const test = require('node:test');
 const assert = require('node:assert');
@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { tempDir, initRepo, write, commitAll, git } = require('./helpers.cjs');
 
-const INSTALL = path.join(__dirname, '..', 'scripts', 'install.cjs');
+const INSTALL = path.join(__dirname, '..', 'Onboard', 'install.cjs');
 const CONFIG = { defaultBranch: 'main', checks: { fast: [], full: [] } };
 
 function projects(extra = {}) {
