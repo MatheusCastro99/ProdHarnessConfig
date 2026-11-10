@@ -31,6 +31,8 @@ Every issue goes through the harness skills, in order. Each block ends where its
   4. the owner merges, then `/close <n>`
 - **Small:** `/scope <n> small` — the same gates, in one session. When the forked build returns, run `review` here: the approved plan's tier decides, not the fork's reply.
 
+Content, art or design drafted with the owner is drafted before `/scope`, in its own session, and ends in an approved file; `/scope` plans from it.
+
 Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.harness/work/<n>/BLOCKED` exists, stop and tell the owner.
 
 When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's PR tools. It drives the browser pane and runs the UI check itself.

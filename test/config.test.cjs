@@ -228,8 +228,9 @@ test('only the scope skill briefs the surveyor, and only with a Survey (D23, Pro
     assert.doesNotMatch(read(`skills/${skill}/SKILL.md`), /surveyor/, `${skill} briefs the surveyor`);
   }
   const scope = read('skills/scope/SKILL.md');
-  assert.match(scope, /Brief the `surveyor` with a \*\*Survey\*\*/);
-  assert.ok(scope.includes('read them yourself instead, on either tier (D23)'), 'a few named files are read directly');
+  assert.match(scope, /brief the `surveyor` with a \*\*Survey\*\*/);
+  // C6 (D26): two analyses found no saving from a survey when the issue names its files.
+  assert.ok(scope.includes('When the issue names its files, read them yourself, narrowly, on either tier (D23, D26).'));
   const surveyor = read('agents/surveyor.md');
   assert.match(frontmatter(surveyor).description, /only by the scope skill/);
   assert.doesNotMatch(surveyor, /\*\*Read\*\*|Change summary|Block B|Block C/);
@@ -237,7 +238,7 @@ test('only the scope skill briefs the surveyor, and only with a Survey (D23, Pro
 
 test('the D24 trials are wired into scope, build and review (research/10)', () => {
   const scope = read('skills/scope/SKILL.md');
-  assert.ok(scope.includes('**The smallest complete change (T1, D24):**'));
+  assert.ok(scope.includes('**The smallest complete change:**'), 'T1 is a standing rule (D26)');
   assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
   assert.match(scope, /UI \(T6, T7\):\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
   const build = read('skills/build/SKILL.md');
@@ -250,6 +251,18 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   assert.doesNotMatch(review, /security-review|T5|T4/);
   assert.ok(review.includes('`red-team`, `red-team (error lens)`'), 'each finding names its source');
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'Evidence', 'research', '13-d25-meta-analysis.md')), 'the analysis it points at exists');
+});
+
+test('D26: scope plans what G1 adds, asks less, and drafts before planning (research/13)', () => {
+  const scope = read('skills/scope/SKILL.md');
+  assert.ok(scope.includes('`git fetch` and `git status -sb`'), 'E11: a stale checkout is named before planning (#155)');
+  assert.ok(scope.includes('moving one between dependency groups is fine'), 'E10 (#9)');
+  assert.ok(scope.includes('ending in an approved file'), 'E4 (#34)');
+  assert.ok(read('CLAUDE.md').includes('drafted before `/scope`'), 'E4 in the template');
+  assert.ok(scope.includes('is a question of its own') && scope.includes('confirming or lowering it goes in the plan'), 'E8 (#13, #157)');
+  assert.ok(scope.includes('"reproduce first"'), 'E11 (#155)');
+  for (const s of ['deferred as a follow-up is a step', 'every item it governs is checked against it', 'drafts the matching check in the project\'s red-team skill'])
+    assert.ok(scope.includes(s), `E6: ${s}`);
 });
 
 test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a known failure is noted (research/13)', () => {
