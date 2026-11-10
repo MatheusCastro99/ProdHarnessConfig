@@ -896,7 +896,7 @@ The Epic 3 close, in one session. It started with the owner's `/close 26 Epic-3`
 
 ## Candidates for the next pass
 
-Recorded here; not decided. They go to the meta-analysis and harness update at the close of ThisIsMatheusCastro's Epic 3, with the rest of the D25 runs. The owner moved it there on 2026-11-08 from mid-Epic 2, because the runs since have given enough data.
+Recorded here and triaged in [research/13](13-d25-meta-analysis.md) §8–10 (2026-11-10), where they become D26's E1–E13. They went to the meta-analysis at the close of ThisIsMatheusCastro's Epic 3, moved there on 2026-11-08 from mid-Epic 2.
 
 | # | From | Candidate |
 |---|---|---|
