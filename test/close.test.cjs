@@ -135,3 +135,12 @@ test('memory files that mention the issue are listed for condensing', () => {
   const report = JSON.parse(r.stdout.slice(r.stdout.indexOf('{')));
   assert.deepStrictEqual(report.memoryFiles.map(f => path.basename(f)), ['project-a.md']);
 });
+
+test('no branch and no handoff is "nothing to clean up", exit 4, and deletes nothing (D26, #26)', () => {
+  const dir = harnessRepo(CONFIG);
+  write(dir, 'app.txt', 'v1\n');
+  commitAll(dir, 'base');
+  const r = run('scripts/close.cjs', ['26'], { cwd: dir });
+  assert.strictEqual(r.code, 4, r.out);
+  assert.match(r.out, /nothing to clean up/);
+});

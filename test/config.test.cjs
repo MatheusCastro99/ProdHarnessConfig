@@ -265,6 +265,13 @@ test('D26: scope plans what G1 adds, asks less, and drafts before planning (rese
     assert.ok(scope.includes(s), `E6: ${s}`);
 });
 
+test('D26: an Epic close is one sequence, audit first (research/13, #11, #26)', () => {
+  const close = read('skills/close/SKILL.md');
+  assert.ok(close.includes('**4 (nothing to clean up):**') && close.includes('run the audit now'));
+  assert.ok(close.includes('`audit.md` existed before the script ran') && close.includes('ask the owner whether to run the audit'));
+  assert.ok(read('CLAUDE.md').includes('`/close <n> epic` first runs the knowledge audit'));
+});
+
 test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a known failure is noted (research/13)', () => {
   const review = read('skills/review/SKILL.md');
   const step5 = review.slice(review.indexOf('## 5.'), review.indexOf('## Never'));
