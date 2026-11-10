@@ -44,9 +44,10 @@ function resolveBranch(root, issue, flag, defaultBranch) {
     if (m) return m[1];
   }
   const current = git(root, 'branch', '--show-current');
-  if (current && current !== defaultBranch) return current;
+  // Only the issue's own branch (<type>/<n>-<name>): a merged child branch must not stand in for an Epic's (#4 G2).
+  if (current && current !== defaultBranch && new RegExp(`(^|/)${issue}-`).test(current)) return current;
   throw new Nothing(`#${issue} has no branch and no handoff here, so there is nothing to clean up. ` +
-    'If it has a merged PR, pass --branch or run from the issue branch');
+    'If it has a merged PR, pass --branch or run from the issue branch (<type>/<n>-<name>)');
 }
 
 // Memory lives in ~/.claude/projects/<project path with separators turned into "-">/memory.

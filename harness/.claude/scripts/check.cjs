@@ -31,7 +31,7 @@ async function runCheck(root, id, { print = s => process.stdout.write(s + '\n'),
       print(tag('check', `${id} FAILED at ${label}: ${why}`));
       const out = tail(r.output);
       print(out ? out : '(the command printed nothing)');
-      return { code: r.code, failed: { index: i, label, timedOut: r.timedOut, output: out } };
+      return { code: r.code, failed: { index: i, label, timedOut: r.timedOut, output: out, fullOutput: r.output } };
     }
   }
   print(tag('check', `${id} passed (${cmds.length} command${cmds.length > 1 ? 's' : ''})`));

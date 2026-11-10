@@ -30,7 +30,7 @@ Every issue goes through the harness skills, in order. Each block ends where its
   3. a fresh Opus session: `/review <n>` — red-team, gate G2
   4. the owner merges, then `/close <n>`
 - **An Epic's close:** `/close <n> epic` first runs the knowledge audit, then `/scope <n> small` for a docs pass with its findings, then `/close <n> epic` cleans up.
-- **Small:** `/scope <n> small` — the same gates, in one session. When the forked build returns, run `review` here: the approved plan's tier decides, not the fork's reply.
+- **Small:** `/scope <n> small` — the same gates, in one session. When the forked build returns, run `review` here: the approved plan's tier decides, not the fork's reply. After a G2 fixes round (`build <n> amend`), review's narrow re-review follows instead.
 
 Content, art or design drafted with the owner is drafted before `/scope`, in its own session, and ends in an approved file; `/scope` plans from it.
 

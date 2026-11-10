@@ -144,3 +144,11 @@ test('no branch and no handoff is "nothing to clean up", exit 4, and deletes not
   assert.strictEqual(r.code, 4, r.out);
   assert.match(r.out, /nothing to clean up/);
 });
+
+test('another issue\'s branch is not taken for this one: exit 4, and that branch is kept (#4 G2)', () => {
+  const { dir } = setup();
+  fs.rmSync(path.join(dir, '.harness/work/42'), { recursive: true });
+  const r = run('scripts/close.cjs', ['26'], { cwd: dir });
+  assert.strictEqual(r.code, 4, r.out);
+  assert.ok(branchExists(dir, 'feat/42-thing'));
+});

@@ -134,15 +134,41 @@ test('malformed hook input doesn\'t stop the gate from working', () => {
   assert.strictEqual(JSON.parse(r.stdout).decision, 'block');
 });
 
-test('a failure the owner sent to an open issue is reported, not blocked (D26, #29)', () => {
-  const { dir } = repo();
-  write(dir, 'FAIL', '');
-  write(dir, '.harness/work/42/known-failures.md', '- `test X failed` — #38\n');
+// A repo whose fast check prints dotnet-test-shaped failures, each given as a line, and counts its runs.
+function dotnetRepo(lines) {
+  const counter = path.join(tempDir('harness counter '), 'runs');
+  const dir = harnessRepo({ defaultBranch: 'main', checks: { fast: [], full: [] } });
+  const script = write(tempDir('harness scripts '), 'fast.cjs', `
+    require('fs').appendFileSync(${JSON.stringify(counter)}, 'x');
+    console.log(${JSON.stringify(lines.join('\n'))});
+    process.exit(1);`);
+  write(dir, '.claude/harness.json', JSON.stringify({ defaultBranch: 'main', checks: { fast: [{ run: [process.execPath, script] }], full: [] } }));
+  write(dir, 'src/a.txt', 'v1');
+  commitAll(dir, 'base');
+  write(dir, '.harness/work/42/plan.md', '# Plan: #42 · Tier: Standard\n');
+  write(dir, '.harness/work/42/known-failures.md', '- `MigrateTests.First` — #38\n');
+  return { dir, runs: () => fs.readFileSync(counter, 'utf8').length };
+}
+
+test('a failure the owner sent to an open issue is reported, not blocked, and not rerun while nothing changes (D26, #29)', () => {
+  const { dir, runs } = dotnetRepo(['  Failed MigrateTests.First [5 ms]', 'Failed!  - Failed: 1, Passed: 20']);
   const r = stop(dir);
   assert.strictEqual(r.code, 0);
   assert.strictEqual(r.json.decision, undefined, 'not blocked');
   assert.match(r.json.systemMessage, /known failure the owner sent to #38/);
   assert.ok(!fs.existsSync(path.join(dir, '.harness/work/42/BLOCKED')));
+  stop(dir);
+  assert.strictEqual(runs(), 1, 'the no-change skip holds for a known failure');
+});
+
+test('a dotnet failure next to the known one still blocks (D26)', () => {
+  const { dir } = dotnetRepo(['  Failed MigrateTests.First [5 ms]', '  Failed AuthTests.NewBreak [3 ms]', 'Failed!  - Failed: 2, Passed: 19']);
+  assert.strictEqual(stop(dir).json.decision, 'block');
+});
+
+test('an output whose failures the gate can\'t recognise blocks, even when it names a known one (D26)', () => {
+  const { dir } = dotnetRepo(['MigrateTests.First broke', 'something else broke too']);
+  assert.strictEqual(stop(dir).json.decision, 'block');
 });
 
 test('a known failure next to a new one still blocks (D26)', () => {
@@ -151,6 +177,8 @@ test('a known failure next to a new one still blocks (D26)', () => {
   assert.deepStrictEqual(onlyKnown(' FAIL  migrate.test.ts > first test\nTest Files  1 failed', known), known);
   assert.strictEqual(onlyKnown(' FAIL  migrate.test.ts > first test\n FAIL  page.test.tsx > renders', known), null);
   assert.strictEqual(onlyKnown(' FAIL  page.test.tsx > renders', known), null, 'nothing known in it');
+  assert.strictEqual(onlyKnown('FAILED tests/test_a.py::test_new\nmigrate.test.ts > first test', known), null, 'pytest\'s FAILED counts');
+  assert.strictEqual(onlyKnown('migrate.test.ts > first test failed', known), null, 'no recognisable failure line: fail closed');
   const dir = tempDir();
   write(dir, '.harness/work/7/known-failures.md', 'migrate.test.ts > first test — #38\nnot an entry\n');
   assert.deepStrictEqual(knownFailures(dir, '7'), known);

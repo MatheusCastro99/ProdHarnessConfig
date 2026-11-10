@@ -18,7 +18,7 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
 - **Run every command in the foreground and wait for it.** Don't background a command or end your turn while one runs: ending your turn returns you to the main session. A finish guard sends you back unless there's a handoff, `BLOCKED`, or a `QUESTION:` line.
 - **You can't ask the owner.** If rule 4 below stops you, commit nothing past the gap and end your reply with one line: `QUESTION: <the question>`. The main session relays it.
 - **Resuming:** started again with an answer after the issue number in the arguments, treat each sub-phase already committed (one `(#<n>)` commit each, in plan order) as done and continue with the next.
-- **Amending (`<n> amend`, from `review` after G2, D26):** the plan now ends with a `G2 fixes` sub-phase; the ones before it are done. Skip Start steps 2–3 (the plan is posted and you're on the PR branch); post just the new sub-phase to the issue instead. Build it, then exit as below: the handoff is for the new head, with the fixes under Commits. End with `MAIN SESSION: run the narrow re-review for #<n> (review step 5).` on either tier, in place of step 6's lines.
+- **Amending (`<n> amend`, from `review` after G2, D26):** the plan now ends with a `G2 fixes` sub-phase; the ones before it are done. Skip Start steps 2–3 (the plan is posted and you're on the PR branch) and the PR in Exit step 2 (it exists: just push); post just the new sub-phase to the issue instead. Build it, then exit as below: the handoff is for the new head, with the fixes under Commits. End with `MAIN SESSION: run the narrow re-review for #<n> (review step 5).` on either tier, in place of step 6's lines.
 
 ## Start
 

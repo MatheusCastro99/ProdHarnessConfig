@@ -13,8 +13,9 @@ const { tag, repoRoot, workDir, log, activeIssue, fingerprint, readHookInput } =
 const { runCheck } = require('../scripts/check.cjs');
 
 const MAX_FAILURES = 3; // below Claude Code's own cap of 8: each forced continuation is a full-context call
-// Lines test runners use to mark a failure (Vitest and Jest FAIL, TAP "not ok", ✗ ✖ ×). Case-sensitive on purpose.
-const FAIL_LINE = /\bFAIL\b|\bnot ok\b|[✗✖×]/;
+// Lines test runners use to mark one failure: Vitest and Jest "FAIL", pytest and cargo "FAILED", dotnet test
+// "  Failed <test>", TAP "not ok", and ✗ ✖ ×. Case-sensitive on purpose: summary counts ("1 failed") don't match.
+const FAIL_LINE = /\bFAIL(ED)?\b|^\s*Failed\s|\bnot ok\b|[✗✖×]/;
 
 function knownFailures(root, issue) {
   let text = '';
@@ -22,12 +23,12 @@ function knownFailures(root, issue) {
   return [...text.matchAll(/^\s*[-*]?\s*`?(.+?)`?\s+[—-]+\s+#(\d+)\s*$/gm)].map(m => ({ text: m[1].trim(), issue: m[2] }));
 }
 
-// The known entries the output names, when nothing else in it is marked as failing; otherwise null.
+// The known entries behind a failure, or null. It fails closed: there must be failure lines, every one must name
+// a known entry, and an output whose failures it can't recognise blocks as before.
 function onlyKnown(output, known) {
-  const hits = known.filter(k => output.includes(k.text));
-  if (!hits.length) return null;
-  const other = output.split(/\r?\n/).filter(l => FAIL_LINE.test(l) && !known.some(k => l.includes(k.text)));
-  return other.length ? null : hits;
+  const lines = output.split(/\r?\n/).filter(l => FAIL_LINE.test(l));
+  if (!lines.length || !lines.every(l => known.some(k => l.includes(k.text)))) return null;
+  return known.filter(k => lines.some(l => l.includes(k.text)));
 }
 
 const readJson = (f, dflt) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return dflt; } };
@@ -49,6 +50,7 @@ async function main() {
 
   const state = readJson(stateFile, { failures: 0 });
   if (fp && fs.existsSync(blockedFile) && state.blockedFp === fp) return; // still blocked; nothing changed since
+  if (fp && state.knownFp === fp) return; // only the known failure, and nothing changed since
 
   const printed = [];
   const result = await runCheck(root, 'fast', { print: s => printed.push(s) });
@@ -63,8 +65,9 @@ async function main() {
   }
 
   const f = result.failed;
-  const hits = onlyKnown(String(f.output || ''), knownFailures(root, issue));
+  const hits = onlyKnown(String(f.fullOutput || f.output || ''), knownFailures(root, issue));
   if (hits) {
+    fs.writeFileSync(stateFile, JSON.stringify({ failures: state.failures, knownFp: fp }));
     log(root, { tool: 'check-gate', issue, result: 'known', code: result.code, known: hits.map(k => `#${k.issue}`) });
     emit({ systemMessage: tag('check-gate', `fast checks fail, but only on a known failure the owner sent to ` +
       `${hits.map(k => `#${k.issue} (${k.text})`).join(', ')}. Not blocking. Mention it in your report.`) });

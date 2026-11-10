@@ -64,7 +64,7 @@ Every command in the file has the same shape:
 }
 ```
 
-**BabyBuddyHelper** (.NET MAUI) has no per-file linter, so `fileTools` is `{}`. Its `fast` check runs the xUnit tests, which need no MAUI workload, and it uses `reviewOnReady` for a CI reviewer. See [`projects/BabyBuddyHelper/harness.json`](../projects/BabyBuddyHelper/harness.json).
+**BabyBuddyHelper** (.NET MAUI) has no per-file linter, so `fileTools` is `{}`. Its `fast` check runs the xUnit tests, which need no MAUI workload. It used `reviewOnReady` for a CI reviewer until D26, which removed it after 5 runs without a comment. See [`projects/BabyBuddyHelper/harness.json`](../projects/BabyBuddyHelper/harness.json).
 
 ## Design record
 
