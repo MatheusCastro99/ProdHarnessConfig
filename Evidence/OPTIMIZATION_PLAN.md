@@ -885,7 +885,7 @@ The 2026-10-22 changes come from the meta-review of four independent assessments
 4. Discussion issues: ~~ProdHarnessConfig #1~~ (closed by D23) and #2 (third-party skills; open until the trials end). #3 (the public README) waits until after D25's rollout.
 5. ~~D25's rollout: a reinstall PR in each repo, with InvoiceMe's `ux-design` note on the browser check (research/11, C9).~~ Done.
 6. ~~D26 ([research/13](research/13-d25-meta-analysis.md)): built in ProdHarnessConfig#4 with the refactor, then one reinstall PR per repo.~~ Done 2026-11-10; BabyBuddyHelper's also removed `reviewOnReady` and its CI reviewer workflow.
-7. D26's validation: record each run as config `D26`, and judge E1 and E4 against the targets (research/13 §9). Follow-up: ProdHarnessConfig#8 (the Stop gate's known-failure gap).
+7. D26's validation: record each run as config `D26`, and judge E1 and E4 against the targets (research/13 §9). Follow-ups, built together with one reinstall: ProdHarnessConfig#8 (the Stop gate's known-failure gap) and ProdHarnessConfig#9 (the owner's D26 observations, starting with a `/draft <n>` skill).
 
 ## 11. Open questions
 
