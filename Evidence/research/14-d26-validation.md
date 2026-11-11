@@ -8,17 +8,17 @@ The targets stay as research/13 §10 set them: Standard median ≤ $7.49 and ≤
 
 | Change | What counts | Runs so far |
 |---|---|---|
-| E1 | G2 fixes, and new scope after the build, go through `build <n> amend` on the forked builder; typos and one-line doc fixes stay in the session | **#45: met, twice.** The owner's layout changes after the build went in as sub-phase 5 ($0.76 builder), and the G2 fixes as sub-phase 6 ($0.47 builder), each followed by the narrow re-review. The review session still cost $1.91, against D25 Standard's median of $1.85 (finding 3). **#46: met for G2, missed for the owner's tweak.** The owner's G2 finding went in as sub-phase 6 ($0.35 builder); the doc line and the re-review's one-character bug stayed in the session. The owner's tweak after the build went in the main session, which left the handoff behind the head (#46 finding 1) |
-| E2 | Auto-fix off after each push and before the ready-to-merge note | **#45: met.** It was already off at each check; `set_monitor` wasn't needed. **#46: met.** The main session turned it off after the build; one Vercel bot event still arrived just after, and needed no change |
-| E4 | Content, art or design drafted before `/scope`, ending in an approved file | **#45: met, in a side session that `/scope` proposed.** `/scope` peaked at 162k, against #34's 230k. Drafting was 25 calls and $2.32, and 7 owner turns (finding 1). **#46: doesn't apply.** Calvo's sprite was approved in #34, and `/scope` went straight to G1 |
-| E5 | The handoff checks the required CI jobs by name | **#45: met.** Lighthouse failed on one head and isn't required; the handoff passed on the four required jobs, and G2 said Lighthouse failed. **#46: met.** Lighthouse failed on the first two heads; G2 reported it, and the owner declined it (#46 finding 5) |
-| E6 | The plan covers what G1 adds | **#45: doesn't apply.** No item deferred at G1, no new rule, and ADR-010 only changed status. **#46: met.** The story rule G1 reworded was checked against all 9 stories, and the four doc items landed as worded |
-| E7 | The UI check runs on `ui-check` in `review`, not in the builder | **#45: met.** 42 calls, $0.83, 13 of 13 checks passed, at a 112k peak. The builder ran no UI check and peaked at 158k. **#46: met, with a look in the builder.** `ui-check` ran twice (77 calls, $1.75, a 168k peak) and caught the builder's bug with the red-team. The builder still looked at the page in the browser pane (6 calls, $0.08) (#46 finding 4) |
-| E8 | Fewer questions | **#45: met for the tier recheck,** which went in the plan ("confirmed Standard"). G1 still took three dialogs, the third after the draft (finding 2). **#46: met.** No tier question; G1 took two dialogs (7 decisions) |
-| E9 | `check-gate` reports a known failure, blocks on anything else | **#45: doesn't apply.** **#46: doesn't apply** |
-| E11 | `scope` warns when the checkout is stale | **#45: met.** `git fetch` and `git status -sb` ran first; the checkout was current. **#46: met,** the same |
-| C6 | The surveyor is off when the issue names its files | **#45: ran** ($0.24). The issue named its content files but not the code; the section's components were new. **#46: ran** ($0.34), for the same reason |
-| Targets | See above | **#45** missed cost ($14.30) and turns (23), and met peak (162k; the builder 158k). On the planned path, without the drafting session ($2.32, 7 turns) and the owner's changes after the build ($2.82, 5 turns), $9.15 and 11 turns. **#46** missed cost ($10.61) and turns (11), and met peak (157k; `ui-check` 168k). On the planned path, without the owner's tweak and the stale handoff it left ($1.91, 2 turns), $8.70 and 9 turns |
+| E1 | G2 fixes, and new scope after the build, go through `build <n> amend` on the forked builder; typos and one-line doc fixes stay in the session | **#45: met, twice.** The owner's layout changes after the build went in as sub-phase 5 ($0.76 builder), and the G2 fixes as sub-phase 6 ($0.47 builder), each followed by the narrow re-review. The review session still cost $1.91, against D25 Standard's median of $1.85 (finding 3). **#46: met for G2, missed for the owner's tweak.** The owner's G2 finding went in as sub-phase 6 ($0.35 builder); the doc line and the re-review's one-character bug stayed in the session. The owner's tweak after the build went in the main session, which left the handoff behind the head (#46 finding 1). **#47: met.** Seven G2 decisions, five of them doc and rule fixes, went in as one sub-phase through `build 47 amend` ($0.35 builder), with one narrow re-review. The review session's main thread was $1.32 before `/close`, the first D26 run under D25's median of $1.85 |
+| E2 | Auto-fix off after each push and before the ready-to-merge note | **#45: met.** It was already off at each check; `set_monitor` wasn't needed. **#46: met.** The main session turned it off after the build; one Vercel bot event still arrived just after, and needed no change. **#47: met.** Auto-fix was already off after the build; the Vercel bot's comment still woke the main session ($0.13), as in #45 and #46 |
+| E4 | Content, art or design drafted before `/scope`, ending in an approved file | **#45: met, in a side session that `/scope` proposed.** `/scope` peaked at 162k, against #34's 230k. Drafting was 25 calls and $2.32, and 7 owner turns (finding 1). **#46: doesn't apply.** Calvo's sprite was approved in #34, and `/scope` went straight to G1. **#47: doesn't apply.** Nothing to draft |
+| E5 | The handoff checks the required CI jobs by name | **#45: met.** Lighthouse failed on one head and isn't required; the handoff passed on the four required jobs, and G2 said Lighthouse failed. **#46: met.** Lighthouse failed on the first two heads; G2 reported it, and the owner declined it (#46 finding 5). **#47: met.** Lighthouse failed its first run and passed on a re-run; every job passed on both heads |
+| E6 | The plan covers what G1 adds | **#45: doesn't apply.** No item deferred at G1, no new rule, and ADR-010 only changed status. **#46: met.** The story rule G1 reworded was checked against all 9 stories, and the four doc items landed as worded. **#47: met.** G1 amended ADR-011, and the plan drafted the matching guardrails check, which the owner approved, reworded, at G2 |
+| E7 | The UI check runs on `ui-check` in `review`, not in the builder | **#45: met.** 42 calls, $0.83, 13 of 13 checks passed, at a 112k peak. The builder ran no UI check and peaked at 158k. **#46: met, with a look in the builder.** `ui-check` ran twice (77 calls, $1.75, a 168k peak) and caught the builder's bug with the red-team. The builder still looked at the page in the browser pane (6 calls, $0.08) (#46 finding 4). **#47: met.** The builder made no browser calls. `ui-check` ran once (45 calls, $0.76, a 104k peak) and saved its screenshots under `.harness/work/47/ui/` |
+| E8 | Fewer questions | **#45: met for the tier recheck,** which went in the plan ("confirmed Standard"). G1 still took three dialogs, the third after the draft (finding 2). **#46: met.** No tier question; G1 took two dialogs (7 decisions). **#47: met at G2.** The report put seven decisions, each with a recommendation, to one question, and the owner answered "All as recommended". G1 took three dialogs, two of them after the owner added scope (#47 finding 1) |
+| E9 | `check-gate` reports a known failure, blocks on anything else | **#45: doesn't apply.** **#46: doesn't apply.** **#47: doesn't apply** |
+| E11 | `scope` warns when the checkout is stale | **#45: met.** `git fetch` and `git status -sb` ran first; the checkout was current. **#46: met,** the same. **#47: met,** the same |
+| C6 | The surveyor is off when the issue names its files | **#45: ran** ($0.24). The issue named its content files but not the code; the section's components were new. **#46: ran** ($0.34), for the same reason. **#47: ran** ($0.28), though the issue named both files it changes; the section component was new |
+| Targets | See above | **#45** missed cost ($14.30) and turns (23), and met peak (162k; the builder 158k). On the planned path, without the drafting session ($2.32, 7 turns) and the owner's changes after the build ($2.82, 5 turns), $9.15 and 11 turns. **#46** missed cost ($10.61) and turns (11), and met peak (157k; `ui-check` 168k). On the planned path, without the owner's tweak and the stale handoff it left ($1.91, 2 turns), $8.70 and 9 turns. **#47** missed cost ($8.48) and turns (10), and met peak (162k). Nothing was off the planned path: the owner's additions came at G1 |
 
 ## Log
 
@@ -26,6 +26,7 @@ The targets stay as research/13 §10 set them: Standard median ≤ $7.49 and ≤
 |---|---|---|---|---|---|---|---|
 | #45 | ThisIsMatheusCastro | D26 | Standard | `red-team` 2 (8, 7), fixed through `build 45 amend`; 1 adjacent (3), a correcting comment on the issue; `ui-check` 13 of 13 pass; the re-review 1 (stale doc lines left by fix 1), noted on Epic #44 for its close | 23 (11 on the planned path) | $14.30 | The first D26 run. The silhouette was drafted in a side session; the owner's layout changes after the build went through `build amend`. See Runs |
 | #46 | ThisIsMatheusCastro | D26 | Standard | `red-team` 2 (8, 8): blocking time, declined by the owner; a stale doc line, fixed in the session. `ui-check` 1 (2), declined. The owner's own 1, through `build 46 amend`. The re-review 2 (12, 4), both fixed in the session | 11 (9 on the planned path) | $10.61 | Nothing to draft. The owner's tweak after the build went in the main session and left the handoff stale. See Runs |
+| #47 | ThisIsMatheusCastro | D26 | Standard | `red-team` 2 (8, 6): docs and rule files still giving ADR-011's old rule, and the drafted guardrails check's wording, both fixed through `build 47 amend`; 2 low, declined. `ui-check` all pass. The re-review 0. Follow-up #52 opened at G2 | 10 | $8.48 | Nothing to draft. The plan waited 1 h 43 min at G1, then the owner added scope to it. See Runs |
 
 ## Runs
 
@@ -139,6 +140,56 @@ The diff is 14 files, +353 / −49, in 8 commits.
 7. **C6:** the surveyor ran for $0.34. The issue named its content files and docs, but the section components were new code.
 8. **`docs-gate` blocked an acknowledgement written in the same command as the commit, twice** (R14-5). The builder and the main session each wrote the `stale-docs.md` line with `echo … >>` in the same Bash call as `git commit`. The hook checks the command before it runs, so the line didn't exist yet, and the commit was blocked; each retried with the acknowledgement already written. One call each, but the hook's message could say so.
 9. **The close was clean.** `close.cjs` fast-forwarded `main` and deleted the branch, and the session updated its own project memory (4.2 done, 4.3 #47 next).
+
+### ThisIsMatheusCastro #47 Phase 4.3: Other Work and the page close (Standard), PR #51
+
+The Other Work section, one line, a repository link and stat chips for each entry in `other-work.md`, and the page close: Calvo's bust saying a closing line, a way back to the top, and the footer reading its links from `whoami.md`.
+- Nothing needed drafting. `/scope` asked one dialog and presented a 12k-character plan, which waited unanswered for 1 h 43 min.
+- The owner came back with additions to the plan: a measurement for each Other Work entry. That took two more dialogs, one about amending ADR-011 so Calvo can say a fixed page line, before G1.
+- The build ran clean. At G2 the owner took all seven recommendations in one reply; the doc and rule fixes went through `build 47 amend`, and the narrow re-review confirmed them.
+
+The diff is 16 files, +168 / −34, in 5 commits.
+
+| Block | Transcript | Model | Calls | Context: first → peak | Time | Cost |
+|---|---|---|---|---|---|---|
+| A `/scope` to the first plan | 3cac3ffb | Opus 5.5 | 21, plus 9 surveyor (Sonnet, $0.28) | 79k → 128k | 7 min, 1 dialog (4 decisions) | $1.74 |
+| The plan waits unanswered | 3cac3ffb | Opus 5.5 | 1 | 128k | 1 h 43 min | $0.04 |
+| A resumed with the owner's additions: G1 | 3cac3ffb | Opus 5.5 | 23, 9 in the browser pane | 129k → 162k | 15 min, 2 dialogs (5 decisions) and the accept | $1.93 |
+| B: "continue 47", the main session | 7a5b2e9c | Opus 5.5 | 4 | 75k → 79k | 16 min | $0.28 |
+| B `build`: the forked builder, sub-phases 1–4 | 7a5b2e9c/subagents | Sonnet 5.5 | 43, no browser calls | 58k → 115k | (same) | $0.89 |
+| The Vercel bot's comment wakes the main session | 7a5b2e9c | Opus 5.5 | 4 | → 83k | under 1 min | $0.13 |
+| C `review` to the G2 report | 885379db | Opus 5.5 | 11, plus 11 red-team (Opus, $0.56) and 45 `ui-check` (Sonnet, $0.76) | 78k → 103k | 4 min | $2.07 |
+| C: the G2 fixes through `build 47 amend` (sub-phase 5) | 885379db | Opus 5.5 and Sonnet 5.5 | 7, plus 14 builder ($0.35) | → 110k | 5 min | $0.61 |
+| C: the narrow re-review and the ready-to-merge note | 885379db | Opus 5.5 | 8, plus 3 red-team (Opus, $0.16) | → 118k | 1 min | $0.47 |
+| `/close 47` | 885379db | Opus 5.5 | 7 | → 127k | under 1 min | $0.32 |
+| **Total** | | | | | ≈ 2 h 35 min, 50 min of it working | **$8.48** |
+
+`runs.js` gets the total, and again puts the amend builder ($0.35) under build (R14-4).
+
+**Against the targets:**
+- **Owner turns:** 10: `/scope`, three G1 dialogs, the additions to the plan, the G1 accept, "continue 47", `/review`, "All as recommended" and `/close`. All of them on the planned path; four were G1's.
+- **Context:** met. The main peak was 162k, at G1 after the owner's additions.
+- **Cost:** $8.48, against D25 Standard's median of $8.32 (a median of +795 lines, against #47's +168). By block:
+  - plan $3.71 (median $2.21), $1.97 of it after the owner's additions;
+  - build $1.17 (median $2.14);
+  - review to G2 $2.07 (the red-team $0.56 and `ui-check` $0.76);
+  - the G2 fixes, the re-review and ready $1.08;
+  - close $0.32, and the bot's wake $0.13.
+- **Quality:**
+  - The red-team found 2: five doc and rule lines still said Calvo speaks on his own only through section stories, after G1 amended ADR-011 (8), and the drafted guardrails check could be read two ways (6). Both were fixed through `build 47 amend`, the rule files with the owner's approval of each wording. Two low items were declined: duplicate keys, and the footer outside an `ErrorBoundary`.
+  - `ui-check` passed every check, at 375px and the pane's width, with keyboard and target sizes.
+  - The narrow re-review confirmed both fixes.
+  - **Escapes** are tracked to 2026-12-11.
+
+**Findings:**
+1. **The owner added scope at G1, and planning cost $3.71 and 4 turns.** The first plan waited 1 h 43 min; its approval prompt timed out, and the owner answered with additions in a message. They brought two more dialogs. Between them, the session tried to find one of the new figures in the browser pane (9 calls), couldn't read it, and asked. On resuming after the gap, 84k of context had to be cached again ($0.68). This is G1 doing its job, not a harness miss.
+2. **R14-2, a third time, again without a question.** The G2 fixes sub-phase took `plan.md` to 12,739 characters, and the review session trimmed it in four tries (5 calls) to get under 12,000. The first plan, at G1, was also 13,248 and was trimmed in three tries, as the budget intends. #9 §2 would spare the second.
+3. **E1 ran as designed, and the review session came in under D25's median for the first time on D26.** All five fixes went in one sub-phase through `build 47 amend` ($0.35) and one narrow re-review ($0.16). The review session's main thread was $1.32 to the ready note, against #45's $1.91, #46's $2.60 and the median of $1.85.
+4. **G2 took one turn.** The report gave seven decisions, each with a recommendation, including two rule files' rewordings for the owner's approval and a follow-up issue, and the owner answered "All as recommended". #52 (a shared speech bubble and link class before 6.3) was opened by the review session.
+5. **E6 and E7 held.** ADR-011's amendment came with a drafted guardrails check, approved at G2 after the red-team reworded it. The builder made no browser calls; `ui-check` ran once and saved its screenshots this time.
+6. **The Vercel bot's comment woke the main session after the build, for the third run in a row.** Auto-fix was already off. It cost $0.13 and no owner turn.
+7. **C6:** the surveyor ran for $0.28, though the issue named `other-work.md` and `site-footer.tsx`. The section component was new.
+8. **The close was clean,** and the session recorded 4.3 as done and 4.4 #48 as next in its project memory.
 
 ## Candidates for the next pass
 
