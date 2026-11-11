@@ -1,6 +1,6 @@
 # Docs
 
-Reference for the harness as it is now, written from the code in [`harness/`](../harness/) and [`scripts/`](../scripts/). For how it was designed and measured, see [`Evidence/`](../Evidence/).
+Reference for the harness as it is now, written from the code in [`harness/`](../harness/) and [`Onboard/`](../Onboard/). For how it was designed and measured, see [`Evidence/`](../Evidence/).
 
 1. [The workflow](01-workflow.md): blocks, gates, tiers and working state
 2. [Skills and agents](02-skills-and-agents.md): `scope`, `build`, `review`, `close`; the builder, red-team, surveyor and ui-check; the former trials
