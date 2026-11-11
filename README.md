@@ -69,7 +69,7 @@ From [Evidence/research/13](Evidence/research/13-d25-meta-analysis.md): 49 issue
   - The samples are small, with one owner, so the medians show direction, not effect size.
   - The columns come from different repositories and issue sizes: the baseline is BabyBuddyHelper only, D24 is mostly InvoiceMe, and D25 is mostly ThisIsMatheusCastro, a new site.
   - The Small tier is cheaper when nothing heavy follows the plan: a median of $3.99 on code issues and $5.37 on docs issues under D25.
-  - D26 is under validation.
+  - D26 is under validation, in [Evidence/research/14](Evidence/research/14-d26-validation.md).
 
 ## Get started
 
