@@ -92,6 +92,6 @@ The diff is 28 files, +827 / −24, in 9 commits.
 | # | From | Candidate |
 |---|---|---|
 | R14-1 | #45 finding 1 | Drafting gets its own skill, which every issue starts with: `/draft <n>`. Taken by the owner, in ProdHarnessConfig#9 |
-| R14-2 | #45 finding 4 | When a plan amendment (`build <n> amend`) takes `plan.md` over its budget, condense the done sub-phases to their commits and the issue comment, without a question. The budget is for G1's plan |
-| R14-3 | #45 finding 5 | After a commit in the main session at the owner's request, the session waits for CI on that head and updates the handoff, as `build` does, rather than ending its turn with CI pending |
-| R14-4 | #45, the Runs note | `runs.js`: place a forked skill's subagent, which records no `toolUseId`, by the main-session phase at its first call, so the G2 fixes' builder counts in review |
+| R14-2 | #45 finding 4 | When a plan amendment (`build <n> amend`) takes `plan.md` over its budget, condense the done sub-phases to their commits and the issue comment, without a question. The budget is for G1's plan. Taken by the owner, in ProdHarnessConfig#9 |
+| R14-3 | #45 finding 5 | After a commit in the main session at the owner's request, the session waits for CI on that head and updates the handoff, as `build` does, rather than ending its turn with CI pending. Taken by the owner, in ProdHarnessConfig#9 |
+| R14-4 | #45, the Runs note | `runs.js`: place a forked skill's subagent, which records no `toolUseId`, by the main-session phase at its first call, so the G2 fixes' builder counts in review. Taken by the owner, in ProdHarnessConfig#9 |
