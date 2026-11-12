@@ -12,10 +12,13 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// $/MTok, platform.claude.com/docs/en/about-claude/pricing (fetched 2026-10-21), as cost.js
+// $/MTok, platform.claude.com/docs/en/about-claude/pricing (fetched 2026-10-21, Haiku 2026-11-12), as cost.js.
+// Haiku 5.5 is priced by prompt length: a prompt over 100k tokens (cache reads and writes included) pays `long`.
 const PRICE = {
   'claude-opus-5-5':   { in: 4, w5: 5,   w1: 8, read: 0.20, out: 20 },
   'claude-sonnet-5-5': { in: 2, w5: 2.5, w1: 4, read: 0.10, out: 10 },
+  'claude-haiku-5-5':  { in: 0.10, w5: 0.125, w1: 0.20, read: 0.01, out: 0.50,
+                         long: { above: 100000, in: 0.50, w5: 0.625, w1: 1, read: 0.05, out: 2.50 } },
 };
 const UI_GAP = 4;
 const BROWSER = /^mcp__Claude_Browser__/;
@@ -62,8 +65,10 @@ function split(u) {
   return { in: u.input_tokens || 0, w5, w1, read: u.cache_read_input_tokens || 0, out: u.output_tokens || 0 };
 }
 function price(c) {
-  const s = split(c.u), p = PRICE[c.model];
+  const s = split(c.u);
+  let p = PRICE[c.model];
   if (!p) throw new Error('no price for ' + c.model);
+  if (p.long && s.in + s.w5 + s.w1 + s.read > p.long.above) p = p.long;
   return Object.keys(s).reduce((x, k) => x + s[k] * p[k] / 1e6, 0);
 }
 const ctx = c => { const s = split(c.u); return s.in + s.w5 + s.w1 + s.read; };

@@ -97,6 +97,15 @@ test('extra work is priced apart and left out of the total', () => {
   assert.strictEqual(r.extra.toFixed(2), '0.40');
 });
 
+test('Haiku is priced by prompt length: over 100k tokens pays the higher rate (#48)', () => {
+  const haiku = (ts, reads) => ({ ...call(ts, [], 'claude-haiku-5-5'),
+    message: { id: 'm' + (++n), model: 'claude-haiku-5-5', usage: { input_tokens: 0, cache_read_input_tokens: reads, output_tokens: 0 }, content: [] } });
+  const root = project([call('t01')], [['web-fetch', [haiku('t02', 1e6), haiku('t03', 5e4)]]]);
+  const r = priceRun(run(), root, { R: 'P' });
+  // Opus $0.20; Haiku 1M reads over the threshold $0.05, 50k reads under it $0.0005.
+  assert.strictEqual(r.total.toFixed(4), '0.2505');
+});
+
 test('runs.json: every run has a known config, a project, a recorded cost and session ids', () => {
   const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', 'scripts', 'runs.json'), 'utf8'));
   for (const r of data.runs) {
