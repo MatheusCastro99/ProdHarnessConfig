@@ -105,7 +105,7 @@ Evidence/
   OPTIMIZATION_PLAN.md     the design record: decisions D1–D26, with § numbers the code cites
   ADOPTION_PLAN.md         how the harness was adopted in the two projects
   research/                the measurements, pilot by pilot, and the pricing scripts
-  Independent_Assessments/ four other AI models' assessments of the first plan, and the reviews of them
+  Independent_Assessments/ other AI models' assessments: four of the first plan, three of D26 at 9d6087f, and the reviews of them
   harness_optimization_blueprint.md  the starting proposal
 ```
 
