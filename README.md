@@ -2,7 +2,7 @@
 
 A production harness for [Claude Code](https://code.claude.com/docs): the workflow, skills, subagents, hooks and scripts I use to take a GitHub issue from plan to merge, with a person deciding at two gates and the agent doing the rest.
 
-It was built from measured session data, and it's measured on every issue it runs. A typical issue now costs about 40% less than one long session did, with less than half the context and fewer messages from me.
+It was built from measured session data, and it's measured on every issue it runs. Against one long session ($9.99 for a typical issue at list price), the D24 version cost about 40% less per issue and D25 about 17% less, each with less than half the context and fewer messages from me. The current version, D26, is still being validated (see [Results](#results)).
 
 **Who this is for:** developers who already use Claude Code on real projects, and want a repeatable way to run it on issues that keeps cost and context down without giving up review. You'll need GitHub, CI on pull requests, the habit of reading, filtering, and evaluating a plan before it's built, and also the habit of reviewing commits closely against the implementation goal and personal quality standards.
 

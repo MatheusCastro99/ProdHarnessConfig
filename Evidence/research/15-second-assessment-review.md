@@ -22,7 +22,7 @@ Date: 2026-11-12. Input: three assessments of ProdHarnessConfig at `9d6087f`, th
 | | Claims | V | P | C | U | A | Defects found | Calibration |
 |---|---|---|---|---|---|---|---|---|
 | **ChatGPT** | 15 | 3 | 5 | 1 | 0 | 5 | **2 real ones,** both still on `main`: the README's headline figure and the plan's status block | Mild: two P0s that are documentation status |
-| **Grok** | 15 | 9 | 3 | 0 | 0 | 4 | 0, but one open lever (D6) | Measured, no inflation |
+| **Grok** | 15 | 10 | 2 | 0 | 0 | 4 | 0, but one open lever (D6) | Measured, no inflation |
 | **Gemini** | 12 | 1 | 4 | 3 | 2 | 2 | 0 | Confident and flattering; reviewed a design that has since moved on |
 
 **Takeaways:**
@@ -49,8 +49,8 @@ Date: 2026-11-12. Input: three assessments of ProdHarnessConfig at `9d6087f`, th
 
 | # | From | Change | Cost |
 |---|---|---|---|
-| R15-1 | X1, ChatGPT | The README's opening states results by configuration: D24 about 40% below the baseline, D25 17%, D26 under validation. No single percentage | A line |
-| R15-2 | X2, ChatGPT | The optimization plan's status line says D26, installed in all three projects from `9d6087f`; its Result block points to the README's Results and research/13–14 rather than repeating the pilot's figures | A few lines |
+| R15-1 | X1, ChatGPT | The README's opening states results by configuration: D24 about 40% below the baseline, D25 17%, D26 under validation. No single percentage | Done 2026-11-12 |
+| R15-2 | X2, ChatGPT | The optimization plan's status line says D26, installed in all three projects from `9d6087f`; its Result block points to the README's Results and research/13–14 rather than repeating the pilot's figures | Done 2026-11-12 |
 | R15-3 | ChatGPT | One versions table (README or plan §10): config → harness commit → each project's install PR → the research file that validates it → the `runs.json` label. The installer already records the commit in each project | A table, kept at each install |
 | R15-4 | ChatGPT | Before D26's meta-analysis, get D26 runs in BabyBuddyHelper and InvoiceMe, and report by project, tier and kind as well as overall | Runs the owner does anyway |
 | R15-5 | ChatGPT | When #9 and #8 are installed, label the runs that follow as a new config (D27), so D26's validation stays clean. When building #9, check CLAUDE.md and every skill against their budgets, and say which sections could be cut if one binds | Part of #9's build |
