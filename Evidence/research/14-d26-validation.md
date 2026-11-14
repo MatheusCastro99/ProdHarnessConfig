@@ -44,6 +44,7 @@ The targets stay as research/13 §10 set them: Standard median ≤ $7.49 and ≤
 | IM #141 | InvoiceMe | D26 | Standard | `red-team` 3 in the script (non-blocking) and a README caveat, fixed through `build 141 amend`; 2 to #153. `ui-check` pass. The re-review approved | 8 | $11.14 | The data migration and the cut-over to `/api/v2`, the first D26 run outside ThisIsMatheusCastro. A 22.9k first plan; G2 and the close each came hours later. See Runs |
 | IM #153 | InvoiceMe | D26 | Standard | `red-team` 0 blocking; 2 gaps to #153. `ui-check` pass (96 calls) | 8 | $6.74 | The backlog bug pass, as one issue at the owner's choice. See Runs |
 | IM #136 | InvoiceMe | D26 | Small (docs) | The knowledge audit 9, all fixed in the docs pass (#120, PR #165) with 3 adjacent. `red-team` 2 wording, fixed through `build 120 amend`; the re-review approved | 9 | $8.16 | Epic 1's close in E3's order, for the first time, over three entry points. See Runs |
+| IM #168 | InvoiceMe | D26 | Standard | `red-team` approved; `ui-check` 1 (the focused page number unreadable) and 1 more finding, both fixed through `build 168 amend`, with a narrow re-review and `ui-check`; 2 items to backlog #153 | 8 | $7.33 | The dependency audit and customer pagination, Issue 0 of Epic 2 (#173). `/review` ran in the build's session rather than a fresh one. See Runs |
 
 ## Runs
 
@@ -898,6 +899,15 @@ The diff is 9 files, +33 / −21, in 2 commits.
 ### Copilot reviews on every PR (all three projects)
 
 The owner noted that GitHub Copilot reviews every PR, wakes the session each time, and adds nothing, since the owner's subscription has ended. `copilot-pull-request-reviewer[bot]` reviewed each of the last four merged PRs in InvoiceMe and ThisIsMatheusCastro, and two of four in BabyBuddyHelper. Its review comments reach the session as the app's events. Some wakes this log put down to Vercel's bot (E2) were likely Copilot's. The owner decided to remove Copilot reviews from all three repos with the next harness update (R14-20).
+
+### InvoiceMe #168 Issue 0: dependency audit and customer pagination (Standard), PR #174
+
+Recorded briefly, at the end of a session near its usage limit; the block table is still to write.
+- **Sessions:** `/scope 168` (bbb7506c), then "continue 168" (2b467304), which also ran `/review` and `/close` in the same session, not a fresh one.
+- **Cost:** $7.33 by `runs.js`: plan $1.50, build $1.33, UI $1.72 (`ui-check` twice), review $2.47, close $0.31. The peak was 152k. **Met** Standard's $7.49 and the peak.
+- **Owner turns:** 8, against 7: `/scope`, the G1 dialog (answered after 24 minutes), the G1 accept, "continue 168", `/review`, "Fix 1 and 2", "Add both to the backlog" and `/close`.
+- **Findings to check when the table is written:** whether `/review` in the build session moved the review's cost; the amended plan over budget again (#9 §2); a missing Python again (#9 §11).
+- **Escapes** are tracked to 2026-12-14.
 
 ## Candidates for the next pass
 
