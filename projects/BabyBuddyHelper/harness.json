@@ -16,7 +16,7 @@
       { "run": ["dotnet", "test", "--project", "test/BabyBuddyHelper.Tests/BabyBuddyHelper.Tests.csproj", "-c", "Release"], "timeoutSec": 300 }
     ]
   },
-  "requiredCiChecks": ["build", "test (Debug)", "test (Release)"],
+  "requiredCiChecks": ["windows-build", "android-build", "test (Debug)", "test (Release)"],
   "fileTools": {},
   "docs": ["docs/**/*.md", "Harness_Config/**/*.md", ".claude/CLAUDE.md", ".claude/rules/**/*.md", ".claude/skills/{review-guardrails,ux-design}/SKILL.md"],
   "docmap": {}
