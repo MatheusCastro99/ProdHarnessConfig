@@ -1164,6 +1164,19 @@ The diff is 19 files, +530 / −341, in 4 commits.
 3. **The red-team briefing `ui-check` mid-run worked.** It sent its extra checks by message, so one `ui-check` run covered both, rather than a second run.
 4. **E1, E2, E5, E11 held.** E7: `ui-check` ran in review, but the builder also checked the UI itself, through the audit and the fixes' screenshots (finding 2). C6: the surveyor ran ($0.26).
 
+## Questions for the D26 meta-analysis
+
+Raised by the owner while the runs came in, to be answered in the meta-analysis, not by a harness change:
+
+1. **Does `/review` need a fresh session after the build?** On Standard the build runs forked, so the session that started it stays near 80k. The owner ran `/review` in that session on InvoiceMe #168 (80k at the review's start) and BabyBuddyHelper #71 (84k), against a fresh session's 78–80k, and will do so on a few more runs. If it holds, the `/clear` and the new session between build and review can go.
+2. **Would ProdHarnessConfig benefit from being run from an external agent harness,** such as Hermes or OpenClaw (the owner's examples)? The analysis should find out what each one is and does, then weigh it against what ProdHarnessConfig relies on in Claude Code:
+   - skills and forked subagents;
+   - hooks and plan mode;
+   - the desktop app's PR and Auto-fix tools;
+   - pricing from Claude Code's transcripts.
+
+   It should also say what would carry over (Platform_Neutral/), what would be lost, and whether any measured cost, turn or quality problem in D26 would get better.
+
 ## Candidates for the next pass
 
 | # | From | Candidate |
@@ -1190,5 +1203,5 @@ The diff is 19 files, +530 / −341, in 4 commits.
 | R14-20 | The owner, 2026-11-14 | Copilot reviews come off all three repos with the next harness update: they wake the session on every PR and add nothing since the owner's subscription ended. Taken by the owner, in ProdHarnessConfig#9 |
 | R14-21 | The owner, 2026-11-14 | A skill, `/layout-epic <epic-n>`, lays out an Epic in GitHub Issues from the Roadmap. It asks roadmap questions only (phases, order, milestones, tiers) and leaves implementation questions to each issue's 'Decide while scoping'. It drafts the Epic and phase issues in the project's format, creates them on the owner's yes, and puts the Roadmap changes into phase n.0. Evidence: ThisIsMatheusCastro's Epic 5 and Epic 6 layouts, by hand, $1.32 and $1.53. Taken by the owner, in ProdHarnessConfig#9 |
 | R14-22 | BBH #169 finding 1 | Small allows removing a dependency the code no longer uses, when the dependency graph's diff shows nothing else moving (an addition or an upgrade stays Standard). E10 allowed only moves. Taken by the owner, in ProdHarnessConfig#9 |
-| R14-23 | The owner, BBH #176 finding 1 | An issue whose scope is an audit (find, then fix) gets the audit before `/scope`. `/draft <n>` (#9 §1) recognises it and runs the audit in its own read-only session, ending in a findings list the owner picks from. `/scope` then plans the picked fixes, and the rest become issues. The builder never runs an audit, and never stops mid-build for one |
-| R14-24 | BBH #176 finding 2, #175 | UI agents check from the UI tree and measurements first, and save screenshots to files. They read an image into context only for a criterion that needs the picture, cropped to the region, a few per check. The builder takes no screenshots with any tool (the emulator, UIAutomation, the browser pane), extending #9 §8 beyond the browser pane |
+| R14-23 | The owner, BBH #176 finding 1 | An issue whose scope is an audit (find, then fix) gets the audit before `/scope`. `/draft <n>` (#9 §1) recognises it and runs the audit in its own read-only session, ending in a findings list the owner picks from. `/scope` then plans the picked fixes, and the rest become issues. The builder never runs an audit, and never stops mid-build for one. Taken by the owner, in ProdHarnessConfig#9 |
+| R14-24 | BBH #176 finding 2, #175 | UI agents check from the UI tree and measurements first, and save screenshots to files. They read an image into context only for a criterion that needs the picture, cropped to the region, a few per check. The builder takes no screenshots with any tool (the emulator, UIAutomation, the browser pane), extending #9 §8 beyond the browser pane. Taken by the owner, in ProdHarnessConfig#9 |
