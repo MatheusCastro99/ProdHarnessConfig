@@ -114,7 +114,8 @@ test('runs.json: every run has a known config, a project, a recorded cost and se
     assert.ok(data.projects[r.repo], name + ': project');
     assert.ok(typeof r.recorded.cost === 'number' && typeof r.recorded.turns === 'number', name + ': recorded');
     assert.ok(r.sessions.length && r.sessions.every(s => /^[0-9a-f]{8}$/.test(s.id)), name + ': sessions');
-    if (r.config !== 'baseline') assert.ok(['Standard', 'Small'].includes(r.tier) && r.sessions.every(s => s.start), name + ': tier and start');
+    // "Parked": an issue stopped at G1 with nothing built (BBH #191); it gets its own row, outside the Standard and Small medians.
+    if (r.config !== 'baseline') assert.ok(['Standard', 'Small', 'Parked'].includes(r.tier) && r.sessions.every(s => s.start), name + ': tier and start');
   }
 });
 
