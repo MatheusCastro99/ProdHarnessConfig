@@ -76,7 +76,7 @@ test('an untouched file from an older install is updated', () => {
   const dir = target();
   install(dir, ['--apply']);
   // Pretend an older harness shipped different content, and the file was never edited since.
-  const rel = '.claude/hooks/quiet.cjs';
+  const rel = '.claude/hooks/session-state.cjs';
   write(dir, rel, '// old version\n');
   const m = manifest(dir);
   m.files[rel] = sha('// old version\n');
@@ -84,7 +84,7 @@ test('an untouched file from an older install is updated', () => {
   commitAll(dir, 'old install');
   const r = install(dir, ['--apply']);
   assert.strictEqual(r.code, 0, r.out);
-  assert.match(r.out, /^update\s+\.claude\/hooks\/quiet\.cjs/m);
+  assert.match(r.out, /^update\s+\.claude\/hooks\/session-state\.cjs/m);
   assert.doesNotMatch(fs.readFileSync(path.join(dir, rel), 'utf8'), /old version/);
 });
 
@@ -171,7 +171,7 @@ test('gitignore: reports rules that would hide the harness, and lines it needs',
 test('CRLF line endings in a checked-out file don\'t count as a local edit', () => {
   const dir = target();
   install(dir, ['--apply']);
-  const f = path.join(dir, '.claude/hooks/quiet.cjs');
+  const f = path.join(dir, '.claude/hooks/session-state.cjs');
   fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/\n/g, '\r\n'));
   const r = install(dir, ['--force']);
   assert.match(r.out, /summary: \d+ same$/m);

@@ -54,13 +54,8 @@ function validateConfig(cfg) {
         if (!tools[kind].run.includes('{file}')) throw new HarnessError(`fileTools["${glob}"].${kind} must contain "{file}"`);
       }
   }
-  if (cfg.reviewOnReady !== undefined) {
-    const r = cfg.reviewOnReady;
-    if (!r || typeof r !== 'object' || typeof r.workflow !== 'string' || !/^[\w.-]+\.ya?ml$/.test(r.workflow))
-      throw new HarnessError('reviewOnReady is { "workflow": "<file>.yml", "timeoutMin"?: n }');
-    if (r.timeoutMin !== undefined && !(Number.isFinite(r.timeoutMin) && r.timeoutMin > 0))
-      throw new HarnessError('reviewOnReady.timeoutMin must be a positive number');
-  }
+  // D27 removed reviewOnReady (#9 §30 X5): no project used it, and a leftover would silently do nothing.
+  if (cfg.reviewOnReady !== undefined) throw new HarnessError('reviewOnReady was removed in D27; delete it from harness.json');
   if (cfg.docs !== undefined && !isStrArray(cfg.docs)) throw new HarnessError('docs must be a list of globs');
   if (cfg.docmap !== undefined) {
     if (typeof cfg.docmap !== 'object') throw new HarnessError('docmap must map globs to doc lists');

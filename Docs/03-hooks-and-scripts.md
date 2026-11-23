@@ -3,7 +3,7 @@
 The skills ask; the hooks and scripts enforce. Everything here is plain Node (CommonJS `.cjs`, no dependencies), reads the project's `.claude/harness.json`, and prints messages tagged `[harness <name>]`. Every hook and script logs one line per event to `.harness/work/hooks.log`, except while `HARNESS_CONFIG` is set (trying the checks before an install).
 
 The hooks are wired in [`settings.json`](../harness/.claude/settings.json).
-- **Always on:** the lint-on-edit, the docs gate and the check reroute run in every session.
+- **Always on:** the lint-on-edit, the docs report and the Bash guard run in every session.
 - **Only while an issue is active:** the check gate, the finish guard and the session-state line. An issue is active when `.harness/work/<n>/plan.md` exists; the most recently changed plan wins.
 
 ## Hooks
@@ -11,14 +11,14 @@ The hooks are wired in [`settings.json`](../harness/.claude/settings.json).
 | Hook | Event | What it does | When it blocks |
 |---|---|---|---|
 | **H1** [`file-check`](../harness/.claude/hooks/file-check.cjs) | `PostToolUse` on `Edit\|Write` | Formats, then lints, the one file just edited, with the first `fileTools` entry whose glob matches | A lint error exits 2, so Claude sees it and fixes the file |
-| **H2** [`check-gate`](../harness/.claude/hooks/check-gate.cjs) | `Stop`, and `SubagentStop` for the `builder` | Runs the `fast` check. Skips it when nothing changed since the last pass (a fingerprint of every non-ignored file, the config and the check scripts) | Blocks the stop while `fast` fails. After 3 failures in a row, writes `BLOCKED` and lets the session stop so the owner decides. When every failing line names a failure listed in `.harness/work/<n>/known-failures.md` (one the owner sent to an open issue at G2), it reports instead of blocking |
-| **H3** [`quiet`](../harness/.claude/hooks/quiet.cjs) | `PreToolUse` on `Bash` | A fallback: if Claude types a configured check command by hand, it reroutes it through `check.cjs`. Anything else passes untouched | Never |
-| **H4** [`docs-gate`](../harness/.claude/hooks/docs-gate.cjs) | `PreToolUse` on `Bash`, for `git commit` | Works out what the commit will contain, including `-a` and a `git add` earlier in the same command, and asks `stale-docs` which docs it may make wrong | Denies the commit while a flagged doc is neither in it nor acknowledged with `ack: <doc> — <why>`. It also denies when it can't check |
-| **H5** [`session-state`](../harness/.claude/hooks/session-state.cjs) | `SessionStart` on `startup\|clear` | Adds one line per active issue (up to 3): plan in progress, handoff ready, or `BLOCKED`. After `/clear` with an approved plan, it says the next step is the build | Never |
+| **H2** [`check-gate`](../harness/.claude/hooks/check-gate.cjs) | `Stop`, and `SubagentStop` for the `builder` | Runs the `fast` check. Skips it when nothing changed since the last pass (a fingerprint of every non-ignored file, the config and the check scripts) | Blocks the stop while `fast` fails. After 3 failures in a row, writes `BLOCKED` and lets the session stop so the owner decides. A failure that recurs is fixed at its source or made non-blocking in CI; D27 removed D26's known-failure exception |
+| **H4** [`docs-gate`](../harness/.claude/hooks/docs-gate.cjs) | `PreToolUse` on `Bash`, for `git commit` | Works out what the commit will contain, including `-a` and a `git add` earlier in the same command, asks `stale-docs` which docs it may make wrong, and reports them | Never (D27): on D26 its 47 denials led to 427 "still accurate" acknowledgements. The handoff lists the flagged docs left unchanged, and the red-team checks them |
+| **H5** [`session-state`](../harness/.claude/hooks/session-state.cjs) | `SessionStart` on `startup\|clear` | Adds one line per active issue (up to 3): plan in progress, handoff ready (`/review` on Opus), or `BLOCKED`. After `/clear` with an approved plan, it says the next step is the build, except for a light-lane plan, which has none | Never |
 | **H6** [`finish-guard`](../harness/.claude/hooks/finish-guard.cjs) | `SubagentStop` for the `builder` | Lets the forked build return only when a handoff exists, `BLOCKED` exists, or its last message has a `QUESTION:` line | Sends it back to work. After 3 tries it lets it return, with a message for the owner |
+| **H7** [`bash-guard`](../harness/.claude/hooks/bash-guard.cjs) | `PreToolUse` on `Bash` | Looks for a `cat > <file>` with no heredoc, no input redirect and no pipe: with nothing to read, it waits on stdin forever (InvoiceMe #171 hung 24 minutes) | Denies that command, and says to use Write or a heredoc. Everything else passes |
 
 Two rules every hook follows:
-- **A broken hook is visible.** The check gate reports its own failure instead of passing silently; the docs gate denies a commit it couldn't check.
+- **A broken hook is visible.** The check gate reports its own failure instead of passing silently; the docs report says when it couldn't check.
 - **Never edit a hook to make a check pass.** The project's CLAUDE.md says so, and the check gate's fingerprint includes its own source.
 
 ## Scripts
@@ -45,7 +45,7 @@ Maps each changed code file to the docs that may now be wrong. A doc is any file
 - it mentions the file's name, unless the name is generic or under 4 characters;
 - it mentions the file's directory.
 
-Renames and deletions are flagged too. `--record <n>` appends the candidates to `.harness/work/<n>/stale-docs.md`, where `ack:` lines clear them. It is a list to review, not proof: drift that names no path is invisible to it. Exit 0, or 2 on an error. With `--fail` it exits 1 while a flagged doc is neither in the change nor acknowledged, so it can serve as a plain git pre-commit hook.
+Renames and deletions are flagged too. The harness doesn't use `--record` since D27; outside it, `--record <n>` appends the candidates to `.harness/work/<n>/stale-docs.md`, where an `ack: <doc> — <why>` line clears one for `--fail`. It is a list to review, not proof: drift that names no path is invisible to it. Exit 0, or 2 on an error. With `--fail` it exits 1 while a flagged doc is neither in the change nor acknowledged, so it can serve as a plain git pre-commit hook.
 
 ### `handoff-check` (S3)
 
@@ -58,7 +58,7 @@ node .claude/scripts/handoff-check.cjs <file> [--plan] [--verify-head]
   - every required section;
   - a check on every sub-phase;
   - exactly one sub-phase on Small, not counting a `G2 fixes` sub-phase;
-  - the `frontend-design` line on a UI sub-phase, when the project has that skill.
+  - at most 20,000 characters. Over 12,000 it passes with a warning.
 - **Without it:** validates a handoff. It needs every section and a status. A READY handoff also needs CI to pass on the handed-off head; "none" is accepted only when the project has no `requiredCiChecks`.
 - **`--verify-head`:** also checks that the PR's head is still the handed-off SHA, and that every `requiredCiChecks` job ran and passed on it, by name (`gh pr checks`). A required job that didn't run is not a pass.
 - **It fails closed:** anything it can't confirm is a problem.

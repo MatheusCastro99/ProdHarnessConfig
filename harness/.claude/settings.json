@@ -86,7 +86,7 @@
             "type": "command",
             "command": "node",
             "args": [
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/quiet.cjs"
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/bash-guard.cjs"
             ],
             "timeout": 10
           }

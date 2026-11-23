@@ -20,23 +20,27 @@ Run project checks through the runner, never by hand: `node .claude/scripts/chec
 
 <Run or dev commands the checks don't cover, one line each.>
 
+Scripting runtime: <e.g. Node only; no Python>. Script with it; don't reach for another first.
+
+A command moved to the background at its timeout may be waiting on input: check its output file (or stop it with `TaskStop`) before relying on it, and never end a turn waiting on one you expected to finish in seconds.
+
 ## Workflow
 
-Every issue goes through the harness skills, in order. Each block ends where its skill says.
+Every issue starts with `/route <n> [small]`. It decides what the issue needs and starts the first step: `/scope`, `/close <n> epic` or `/layout-epic <n>`, or a draft, audit or diagnosis first. Each block ends where its skill says.
 
 - **Standard:**
-  1. `/scope <n>` — plan mode, one plan, gate G1
+  1. `/scope <n>`, from `/route` — plan mode, one plan, gate G1
   2. `build` — autonomous, forked on a Sonnet `builder`; draft PR and handoff. After G1 and `/clear`, "continue <n>" means: invoke `build` for <n> at once. The fork reads the plan; don't read it first or wait for a go.
-  3. a fresh Opus session: `/review <n>` — red-team, gate G2
-  4. the owner merges, then `/close <n>`
-- **An Epic's close:** `/close <n> epic` first runs the knowledge audit, then `/scope <n> small` for a docs pass with its findings, then `/close <n> epic` cleans up.
+  3. `/review <n>`, in the same session as the build — red-team, gate G2
+  4. the owner merges, then `/clear` and `/close <n>` in a fresh session
+- **An Epic's close** is one command, `/close <n> epic`: the audit, the fixes the owner picks, and after their merge, the cleanup.
 - **Small:** `/scope <n> small` — the same gates, in one session. When the forked build returns, run `review` here: the approved plan's tier decides, not the fork's reply. After a G2 fixes round (`build <n> amend`), review's narrow re-review follows instead.
-
-Content, art or design drafted with the owner is drafted before `/scope`, in its own session, and ends in an approved file; `/scope` plans from it.
 
 Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and the handoff are also posted to the issue. If `.harness/work/<n>/BLOCKED` exists, stop and tell the owner.
 
 When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's PR tools. The UI check runs in `review`, on the `ui-check` agent.
+
+After a commit you make in this session at the owner's request, on a PR with a handoff: push, wait for CI on the new head, rewrite the handoff's `PR head` line and run `handoff-check … --verify-head`, before you end the turn (D27).
 
 ## Working agreements
 

@@ -35,14 +35,14 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
    - On a UI sub-phase, follow the project's `frontend-design` skill if it has one.
 2. **Need to read code the plan didn't cover?** Read only that code yourself, narrowly: search first, then the lines you need. You already run on Sonnet in a fresh context, so a subagent would only add a hop (D23).
 3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
-   - **A UI check isn't yours:** `review` runs it on the `ui-check` agent at the handed-off SHA (D26). Make sure the throwaway data the plan names exists or can be made, and list the check under the handoff's Checks as "in review (ui-check)".
+   - **A UI check isn't yours:** `review` runs it on the `ui-check` agent at the handed-off SHA (D26). Make sure the throwaway data the plan names exists or can be made, and list the check under the handoff's Checks as "in review (ui-check)". Don't look at the app yourself: no screenshots, browser pane, emulator or UIAutomation (D27).
 4. **Docs:**
-   - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
+   - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged`.
    - Update each candidate doc that is now wrong, in this same commit.
-   - For a doc that is still accurate, add `ack: <doc> — <why>` to `.harness/work/<n>/stale-docs.md`.
+   - A doc that is still accurate stays as it is; list it in the handoff's Docs as "left unchanged", with why.
    - Also check the docs the plan listed: the script can't see drift that names no path.
    - Update a doc line the change makes untrue even when the plan limits the files: the plan's file list scopes the code, not the docs it falsifies. List the line under the handoff's Docs.
-5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate blocks a commit while a flagged doc is neither updated nor acknowledged.
+5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate reports a flagged doc the commit doesn't carry; it doesn't block (D27).
 
 The Stop gate won't let you stop while fast checks fail. After 3 failures it writes `BLOCKED`. Then:
 
@@ -59,7 +59,8 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 1. Run `node .claude/scripts/check.cjs full`. Fix what fails.
 2. Push: `git push -u origin <branch>`. Open a **draft** PR: `gh pr create --draft --title "<summary> (#<n>)" --body "Closes #<n>. Plan: <plan comment URL>"`.
 3. **Bind the handoff to one commit:**
-   - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
+   - Wait for CI on the pushed head: `timeout 240 gh pr checks <pr> --watch --fail-fast`, run again while it exits 124 (timed out): each wait stays within the cache's lifetime. Never close, reopen or re-run the PR's CI yourself (D27).
+   - **If the required jobs haven't started 10 minutes after the push** (queued, or no jobs at all), stop polling. Write the handoff with `Status: BLOCKED` and "CI never started" under Known gaps, and end with `MAIN SESSION: CI hasn't started on <PR url>; ask the owner whether to re-run it or wait.` (D27)
    - If a check fails, fix it, run `full` again, push, and wait again.
    - When CI passes, record `gh pr view <pr> --json headRefOid`. Every job in `requiredCiChecks` must have run and passed; `--watch` lists only the jobs that ran, so `handoff-check --verify-head` checks them by name (D26).
 4. **PR monitoring (Auto-fix) stays off from the handoff until the merge,** so nothing pushes after the handoff. You can't reach the app's PR tools from the fork, so end your reply with this line, which the main session acts on: `MAIN SESSION: turn off Auto-fix for <PR url> if it is on.`
@@ -78,7 +79,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
      ## Deviations from the plan
      ## Decisions made inside the plan's latitude
      ## Docs
-     Updated: <files>. Script-flagged but left unchanged: <doc — why> (copy the acks)
+     Updated: <files>. Script-flagged but left unchanged: <doc — why>
      ## Open questions for G2
      ## Known gaps / risks
      ```
@@ -87,7 +88,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
    - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
    - **Before posting anything** (the handoff, a PR body, a comment), search it for each detail the plan says never to quote, and take out any you find (D26). A posted comment that carries one is deleted (`gh api -X DELETE repos/{owner}/{repo}/issues/comments/<id>`) and posted again, never edited: GitHub keeps the edit history.
 6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22). Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25).
-   - **Standard:** tell the owner to start Block C in a fresh session: `claude --model opus`, then `/review <n>`.
+   - **Standard:** tell the owner to run `/model opus`, then `/review <n>`, in this same session, with no `/clear`: the build ran forked, so this session is still near its start (D27).
    - **Small:** end your reply with `MAIN SESSION: run the review skill for #<n> now (Small tier, this session).`
 
 ## Never

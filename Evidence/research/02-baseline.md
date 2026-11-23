@@ -33,6 +33,8 @@ Each row is one session, priced at list price for the model of each call, with i
 
 **Median: $10.01 per issue.** The two medians are nearly the same.
 
+**Corrected in D27** (`runs.js` counts a call once when two of a run's transcripts hold it, ProdHarnessConfig#9 §7): BabyBuddyHelper #48 is $18.89 and HarnessEngineering101 #27 $8.84, both of them counted with shared calls twice above. The code median stays $9.99; the docs median becomes $9.10.
+
 ## What the baseline shows
 
 - **Every issue session follows #28's pattern.** It starts at 68–83k, grows to 250–410k, and never shrinks. #28 was not an outlier.
