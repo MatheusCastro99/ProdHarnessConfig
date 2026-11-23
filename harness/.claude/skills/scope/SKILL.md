@@ -17,7 +17,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 2. **Check the tier.** Small needs all of these:
    - one sub-phase
    - no schema, data-migration, auth or security change
-   - no dependency added, removed or upgraded (moving one between dependency groups is fine, D26)
+   - no dependency added, removed or upgraded (moving one between dependency groups is fine, D26; so is removing one the code no longer uses, when the dependency graph's diff shows nothing else moving, D27)
    - no change to a public interface
 
    If the issue doesn't fit, say so and recommend Standard. The owner decides.
@@ -28,6 +28,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 4. **Settle open decisions.** For each decision the issue leaves open, give 2–3 options, mark one recommended, and give its trade-offs and why it fits this project. Ask them together, before writing the final plan. The owner decides.
    - A value the owner has to type (a URL, an address) is a question of its own, answered in "Other" (D26).
    - A bug only the owner can reproduce gets "reproduce first": the owner runs the diagnosis before Block B, or the issue splits into a diagnosis and a fix (D26).
+   - **Anything outside the repo the plan depends on** (a DNS record, a service's setting, a host's env var, an address that receives mail): check it read-only before G1, or make the check sub-phase 1. Don't leave it to the handoff's owner steps (D27).
    - **Then check the tier again (D25),** when the answers added a sub-phase or another fix, brought in a UI check, or there were more than 3 decisions. Say what changed and recommend a tier. Raising it is a question; confirming or lowering it goes in the plan with its reason, for the G1 accept (D26).
 5. **Write the plan** to `.harness/work/<n>/plan.md`, in exactly this shape:
 
@@ -53,13 +54,14 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - `check <id>` must name a check in `.claude/harness.json`.
    - Prefer an automated check. A manual one needs its reason.
    - **The smallest complete change:** for each sub-phase, take the first option that fully works: it isn't needed; this codebase already has it; the standard library or platform covers it; an installed dependency does; only then new code. Never cut validation at trust boundaries, error handling, security or accessibility. Name what you skipped under "Rejected approaches".
-   - **A sub-phase that changes the UI:** its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`. Say what to look at.
+   - **A sub-phase that changes the UI:** its check is the app driven through the platform's built-in UI automation, reading the UI tree and measurements first, with a screenshot only where a criterion needs the picture: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`. Say what to look at.
+     - **Name what `ui-check` covers:** the pages, platforms, widths and font scales, with a rough count of views. The owner can trim it at G1 (D27).
      - The `ui-check` agent runs it in Block C, at the handed-off SHA, on either tier (D26); not the builder, and never the main session.
      - Plan it on throwaway data the project can make (a test or in-memory database). Where it can't, the check only reads. Never plan a write to the owner's data, even one undone afterwards.
      - If the project has a `frontend-design` skill, plan the design with it; the issue and the project's UI guidelines are its brief.
    - **What G1 adds is planned too (D26):**
      - An item deferred as a follow-up is a step (a Roadmap line or an issue) with its own acceptance criterion.
-     - A rule G1 writes or rewords gets an acceptance criterion: every item it governs is checked against it.
+     - A rule G1 writes or rewords gets an acceptance criterion: every item it governs is checked against it. It is also checked against the project's red-team skill; for any check it contradicts, the plan drafts the rewording, for the owner at G2 (D27).
      - A new or changed ADR gets a sub-phase that drafts the matching check in the project's red-team skill, for the owner to approve at G2.
    - **"Rejected approaches" and "Invariants to preserve" carry what the clear will discard.** Write down anything Block B must know from your reasoning here.
 6. **Validate:** `node .claude/scripts/handoff-check.cjs .harness/work/<n>/plan.md --plan`. Fix every problem it lists, then run it again until it passes.

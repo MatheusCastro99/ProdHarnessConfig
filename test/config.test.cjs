@@ -242,7 +242,7 @@ test('the D24 trials are wired into scope, build and review (research/10)', () =
   const scope = read('skills/scope/SKILL.md');
   assert.ok(scope.includes('**The smallest complete change:**'), 'T1 is a standing rule (D26)');
   assert.match(scope, /Never cut validation at trust boundaries, error handling, security or accessibility/);
-  assert.match(scope, /changes the UI:\*\* its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
+  assert.match(scope, /changes the UI:\*\* its check is the app driven through the platform's built-in UI automation, reading the UI tree and measurements first, with a screenshot only where a criterion needs the picture: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`/);
   const build = read('skills/build/SKILL.md');
   assert.match(build, /`frontend-design` skill if it has one\./);
   assert.doesNotMatch(build + scope, /\(T[1-7]\b|T[1-7], /, 'no trial labels left (D26)');
@@ -267,6 +267,14 @@ test('D26: scope plans what G1 adds, asks less, and drafts before planning (rese
   assert.ok(scope.includes('"reproduce first"'), 'E11 (#155)');
   for (const s of ['deferred as a follow-up is a step', 'every item it governs is checked against it', 'drafts the matching check in the project\'s red-team skill'])
     assert.ok(scope.includes(s), `E6: ${s}`);
+});
+
+test('D27: scope checks what lies outside the repo, rules against the red-team skill, an unused dependency\'s removal, and ui-check\'s scope (#9 §13, §15, §21, §27)', () => {
+  const scope = read('skills/scope/SKILL.md');
+  assert.ok(scope.includes('**Anything outside the repo the plan depends on**'), '§13: #66\'s mail alias, #63\'s production variable');
+  assert.ok(scope.includes('It is also checked against the project\'s red-team skill'), '§15: #66 and #67\'s bubble rule');
+  assert.ok(scope.includes('removing one the code no longer uses, when the dependency graph\'s diff shows nothing else moving'), '§21: BBH #169');
+  assert.ok(scope.includes('**Name what `ui-check` covers:**'), '§27: UI runs cost $11.14 against $5.16 (research/16)');
 });
 
 test('D27: an Epic close is one command, audit first, fixes in place (#9 §12; research/13, #11, #26)', () => {
