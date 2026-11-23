@@ -19,7 +19,7 @@ const frontmatter = text => {
 
 test('settings.json: valid JSON, every hook runs an existing script through node, every handler has a timeout', () => {
   const s = JSON.parse(read('settings.json'));
-  const events = { PostToolUse: 1, Stop: 1, PreToolUse: 1, SessionStart: 1 };
+  const events = { PostToolUse: 1, Stop: 1, PreToolUse: 2, SessionStart: 1 };
   for (const [event, n] of Object.entries(events)) {
     const handlers = s.hooks[event].flatMap(g => g.hooks);
     assert.strictEqual(handlers.length, n, event);
@@ -281,6 +281,16 @@ test('D27: build and review: amend condenses, CI that never starts, no UI in the
   assert.ok(review.includes('rewrite the handoff\'s `PR head` line before you end the turn'), '§3');
   assert.ok(review.includes('brief `ui-check` narrow too'), '§24');
   assert.ok(review.includes('`/clear` and `/close <n>`, in a fresh session'), '§28');
+});
+
+test('D27: bash-guard is wired; close keeps Auto-fix off and needs no earlier context; the template names the runtime and the background rule (#9 §11, §25, §28)', () => {
+  const s = JSON.parse(read('settings.json'));
+  const pre = s.hooks.PreToolUse.flatMap(g => g.hooks).map(h => h.args[0]);
+  assert.ok(pre.some(a => a.endsWith('/bash-guard.cjs')) && !pre.some(a => a.endsWith('/quiet.cjs')));
+  const close = read('skills/close/SKILL.md');
+  assert.ok(close.includes('**A PR this skill opens**') && close.includes('**Work from the PR, the work folder and memory only**'));
+  const claude = read('CLAUDE.md');
+  assert.ok(claude.includes('Scripting runtime: <') && claude.includes('never end a turn waiting on one you expected to finish in seconds'));
 });
 
 test('D27: scope checks what lies outside the repo, rules against the red-team skill, an unused dependency\'s removal, and ui-check\'s scope (#9 §13, §15, §21, §27)', () => {

@@ -20,6 +20,10 @@ Run project checks through the runner, never by hand: `node .claude/scripts/chec
 
 <Run or dev commands the checks don't cover, one line each.>
 
+Scripting runtime: <e.g. Node only; no Python>. Script with it; don't reach for another first.
+
+A command moved to the background at its timeout may be waiting on input: check its output file (or stop it with `TaskStop`) before relying on it, and never end a turn waiting on one you expected to finish in seconds.
+
 ## Workflow
 
 Every issue starts with `/route <n> [small]`. It decides what the issue needs and starts the first step: `/scope`, `/close <n> epic` or `/layout-epic <n>`, or a draft, audit or diagnosis first. Each block ends where its skill says.

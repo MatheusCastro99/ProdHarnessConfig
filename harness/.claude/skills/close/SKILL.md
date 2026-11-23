@@ -28,6 +28,8 @@ Exit codes:
 
 ## 2. Model part
 
+- **Work from the PR, the work folder and memory only** (D27): this runs in a fresh session, and nothing from an earlier one is needed.
+- **A PR this skill opens** (a promotion, say): turn Auto-fix off for it with `set_monitor` (D27).
 - **Condense each memory file the report lists:** keep the outcome, the deferred follow-ups and the lasting lessons; drop the step-by-step. Don't delete a memory that other work still needs. Make the edits; don't ask first (D4).
 - **The Epic close is one command (D27):** `/close <n> epic`, run twice: once to audit and fix, once after the merge to clean up.
   - **Exit 4 on an Epic's own issue** (its title starts "Epic", or it has an epic label), the first run: run one knowledge audit now. Brief the `red-team` to check the ADRs and docs the epic touched against the code's current behaviour, and save its findings to `.harness/work/<n>/audit.md`.
