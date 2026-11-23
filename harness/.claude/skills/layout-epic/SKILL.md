@@ -25,8 +25,9 @@ Epic: `$ARGUMENTS`. This lays out what to build and in what order. How to build 
 
 1. **Draft** the Epic issue and one issue per phase in `.harness/work/epic-<n>/`, in the previous Epic's format: a Roadmap link, Scope, Done when, Out of scope, and Decide while scoping. Say where a draft differs from the Roadmap.
 2. **Show the drafts.** On the owner's yes, create them:
+   - the Epic's body from its draft, with `gh issue edit <epic> --body-file …` (the Epic issue already exists);
    - the phases with `gh issue create`, on the milestone with the labels;
-   - linked as sub-issues of the Epic (`gh api repos/{owner}/{repo}/issues/<epic>/sub_issues`);
+   - linked as sub-issues of the Epic: `gh api repos/{owner}/{repo}/issues/<epic>/sub_issues -F sub_issue_id=$(gh api repos/{owner}/{repo}/issues/<phase> --jq .id)` (the issue's id, not its number);
    - with their numbers recorded in `.harness/work/epic-<n>/numbers.txt`.
 3. **Don't edit the repo here.** Roadmap changes the answers imply (a new n.0 phase, the issue numbers) go into phase n.0's issue as an item, so the Roadmap catches up at the Epic's start.
 4. **End** by naming the first phase's entry point: `/route <first>`.

@@ -139,6 +139,17 @@ test('images read and screenshots taken are counted per agent (D27, #9 §23)', (
   assert.deepStrictEqual(priceRun(run(), root, { R: 'P' }).images, { main: 1, 'ui-check': 2 });
 });
 
+test('screenshots inside a browser_batch count too (G2 finding 12)', () => {
+  const batch = ['mcp__Claude_Browser__browser_batch', { actions: [{ name: 'navigate', input: {} }, { name: 'computer', input: { action: 'screenshot' } }, { name: 'computer', input: { action: 'zoom' } }] }];
+  const root = project([], [['ui-check', [call('u1', [batch], SONNET)]]]);
+  assert.deepStrictEqual(priceRun(run(), root, { R: 'P' }).images, { 'ui-check': 2 });
+});
+
+test('/layout-epic counts with the route, as pre-scope work (#9 §20)', () => {
+  const root = project([cmd('layout-epic'), call('t01'), call('t02')]);
+  assert.deepStrictEqual(Object.keys(priceRun(run(), root, { R: 'P' }).parts), ['R']);
+});
+
 test('/route starts its own phase, and the scope it starts moves the session to plan (D27, #9 §1)', () => {
   const root = project([cmd('route'), call('t01'), call('t02', [['Skill', { skill: 'scope' }]]), call('t03')]);
   const r = priceRun(run(), root, { R: 'P' });

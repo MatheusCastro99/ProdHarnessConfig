@@ -38,7 +38,7 @@ Rules it applies while planning:
 ### `build`: Block B
 
 1. Stops if `BLOCKED` exists. Posts the plan to the issue once. Creates the branch `<type>/<n>-<short-name>`.
-2. For each sub-phase: implements it, runs its check through `check.cjs`, runs `stale-docs.cjs --staged --record <n>` and updates each flagged doc that is now wrong (the rest go in the handoff as "left unchanged"), and commits once (`<type>: <summary> (#<n>)`). It never looks at the app itself: no screenshots, browser pane, emulator or UIAutomation.
+2. For each sub-phase: implements it, runs its check through `check.cjs`, runs `stale-docs.cjs --staged` and updates each flagged doc that is now wrong (the rest go in the handoff as "left unchanged"), and commits once (`<type>: <summary> (#<n>)`). It never looks at the app itself: no screenshots, browser pane, emulator or UIAutomation.
 3. Runs the `full` check, pushes, opens a **draft** PR, and waits for CI on the pushed head (`gh pr checks --watch`). If the required jobs haven't started 10 minutes after the push, it hands off BLOCKED on CI.
 4. Writes the handoff, validates it with `handoff-check.cjs --verify-head` (which also checks each `requiredCiChecks` job by name), searches it for anything the plan says never to quote, and posts it to the issue.
 5. Ends with the tier's line from the plan: on Standard, "run `/review <n>` in this same session"; on Small, `MAIN SESSION: run the review skill`.

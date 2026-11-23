@@ -46,13 +46,13 @@ function text(o) {
   return Array.isArray(c) ? c.filter(b => b.type === 'text').map(b => b.text).join('\n') : '';
 }
 function marker(o) {
-  const m = /<command-name>\/(route|scope|review|close)<\/command-name>/.exec(text(o));
-  return m ? { route: 'R', scope: 'A', review: 'C', close: 'close' }[m[1]] : null;
+  const m = /<command-name>\/(route|layout-epic|scope|review|close)<\/command-name>/.exec(text(o));
+  return m ? { route: 'R', 'layout-epic': 'R', scope: 'A', review: 'C', close: 'close' }[m[1]] : null; // laying out an Epic is pre-scope work, like a route (#9 §20)
 }
 function toolPhase(t) {
   if (t.name === 'Skill') {
     const s = String(t.input.skill || '').split(':').pop();
-    return { scope: 'A', build: 'B', review: 'C', close: 'close' }[s] || null; // /route starts scope and close itself (D27)
+    return { 'layout-epic': 'R', scope: 'A', build: 'B', review: 'C', close: 'close' }[s] || null; // /route starts these itself (D27)
   }
   if (t.name === 'Agent' && t.input.subagent_type === 'red-team') return 'C';
   return null;
@@ -112,9 +112,10 @@ function findSession(dir, id) {
   return path.join(dir, f);
 }
 
-// Images read into a context: an image file read, or a screenshot taken (D27, #9 §23).
-const IMAGE = t => (t.name === 'Read' && /\.(png|jpe?g|gif|webp)$/i.test(String(t.input.file_path || ''))) ||
-  (/screenshot|zoom/.test(String(t.input.action || '')) && /computer/.test(t.name));
+// Images read into a context: an image file read, or a screenshot taken, alone or inside a browser_batch (D27, #9 §23).
+const shot = (name, input) => /computer/.test(name) && /screenshot|zoom/.test(String((input || {}).action || ''));
+const imageCount = t => (t.name === 'Read' && /\.(png|jpe?g|gif|webp)$/i.test(String(t.input.file_path || '')) ? 1 : 0) +
+  (shot(t.name, t.input) ? 1 : 0) + (Array.isArray(t.input.actions) ? t.input.actions.filter(a => a && shot(String(a.name || ''), a.input)).length : 0);
 const shortModel = m => String(m).replace(/^claude-/, '').replace(/-\d.*$/, '');
 
 function priceRun(run, projectsDir, projects) {
@@ -137,7 +138,7 @@ function priceRun(run, projectsDir, projects) {
     for (const m of sessionModels) if (!models.includes(m)) models.push(m);
     for (const c of main) {
       if (isExtra(c)) { add(parts, 'extra', c); extra += price(c); continue; }
-      const n = c.tools.filter(IMAGE).length; if (n) images.main = (images.main || 0) + n;
+      const n = c.tools.reduce((x, t) => x + imageCount(t), 0); if (n) images.main = (images.main || 0) + n;
       add(parts, c.ui ? `${c.phase}:ui` : c.phase, c);
       total += price(c); mainPeak = Math.max(mainPeak, ctx(c)); if (ctx(c) > 200e3) over200++;
     }
@@ -148,7 +149,7 @@ function priceRun(run, projectsDir, projects) {
       if (cs.length && isExtra(cs[0])) { for (const c of cs) { add(parts, 'extra', c); extra += price(c); } continue; }
       const type = meta.agentType;
       const at = launchedIn[meta.toolUseId] || (cs.length && !meta.toolUseId ? phaseAt(cs[0].ts) : undefined);
-      const n = cs.reduce((x, c) => x + c.tools.filter(IMAGE).length, 0); if (n) images[type] = (images[type] || 0) + n;
+      const n = cs.reduce((x, c) => x + c.tools.reduce((y, t) => y + imageCount(t), 0), 0); if (n) images[type] = (images[type] || 0) + n;
       const key = at && HOME[type] && at !== HOME[type] && at !== 'all' ? `${at}/${type}` : type;
       const ui = cs.map(c => ({ ...c, phase: key, browser: type === 'ui-check' || c.tools.some(t => BROWSER.test(t.name)) }));
       markUi(ui);
@@ -219,4 +220,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { calls, tagMain, markUi, priceRun, groups, groupKey, median, PRICE };
+module.exports = { calls, tagMain, markUi, priceRun, groups, groupKey, median, PRICE, price, ctx, imageCount };

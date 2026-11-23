@@ -41,7 +41,7 @@ What each skill does step by step is in [02. Skills and agents](02-skills-and-ag
 - The plan's first line records the tier (`# Plan: #<n> <title> · Tier: Standard | Small`). When the build returns, that line decides what happens next, not the fork's reply.
 - `handoff-check.cjs --plan` refuses a Small plan with more than one sub-phase. A `G2 fixes` sub-phase that `review` appends doesn't count.
 - **Content, art or design drafted with the owner,** an audit, or a diagnosis comes before `/scope`: `/route` runs it, and it ends in an approved file that `/scope` plans from.
-- **The light lane** (`/scope <n> light`): one docs, config or decline sub-phase with no change in behaviour. After G1 the same session makes the change and opens the PR, with no fork and no handoff; the red-team runs only if the owner asks.
+- **The light lane** (`/scope <n> light`, or offered at G1 when the plan turns out that small): one docs, config or decline sub-phase with no change in behaviour, its plan marked `Lane: light`. After G1 the same session branches, makes the change, opens the draft PR with Auto-fix off, waits for CI and marks it ready, with no fork and no handoff; the red-team runs only if the owner asks.
 
 ## G2 fixes
 
@@ -49,7 +49,7 @@ After G2, `review` makes doc and rule fixes, and code fixes of a few lines in on
 
 ## An Epic's close
 
-An Epic's close is one command, `/close <n> epic`, run twice. The first run (no branch yet, so `close.cjs` exits 4) runs the knowledge audit, asks the owner in one dialog which findings to fix, and fixes them in place as a Small docs pass. Findings that need code become issues. After that PR merges, the second run cleans up, `audit.md` with it. `/route` starts it on an Epic issue whose phases are closed, and `/layout-epic` on one with no phases yet.
+An Epic's close is one command, `/close <n> epic`, run twice. The first run (no branch yet, so `close.cjs` exits 4) runs the knowledge audit, asks the owner in one dialog which findings to fix, and fixes them in place as a Small docs pass. Findings that need code become issues. After that PR merges, the second run cleans up, `audit.md` with it. A first run that finds an `audit.md` uses it rather than auditing again, and one where the owner picks nothing finishes the close there. `/route` starts it on an Epic issue whose phases are closed, and `/layout-epic` on one with no phases yet.
 
 ## Working state
 
@@ -61,7 +61,6 @@ Everything about an issue in progress lives in `.harness/work/<n>/`, which is gi
 | `plan-comment.txt` | `build` (the URL of the plan posted to the issue) | `build`, so it posts only once |
 | `route.md` | `/route`, when the route has more than one step | each later step |
 | `draft/`, `diagnosis.md` | `/route` | `/scope` |
-| `stale-docs.md` | `stale-docs.cjs --record` | the docs gate's report |
 | `handoff.md` | `build` (`review` renames it to `handoff-<k>.md` before a G2 fixes round) | `review` (also posted to the issue) |
 | `gate.json` | the check gate (its failure count) | the check gate |
 | `BLOCKED` | the check gate | every block, the session-state hook and `handoff-check.cjs` |

@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { calls, PRICE } = require('./runs.js');
+const { calls, price, ctx, imageCount } = require('./runs.js'); // one pricing, shared with runs.js
 
 const ALIASES = { TIMC: 'ThisIsMatheusCastro', IM: 'InvoiceMe', BBH: 'BabyBuddyHelper', HE101: 'HarnessEngineering101' };
 const read = f => fs.readFileSync(f, 'utf8').split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
@@ -27,18 +27,6 @@ function findSession(dir, id) {
   return path.join(dir, f);
 }
 
-function split(u) {
-  const cc = u.cache_creation || {}, w1 = cc.ephemeral_1h_input_tokens ?? 0;
-  return { in: u.input_tokens || 0, w5: cc.ephemeral_5m_input_tokens ?? ((u.cache_creation_input_tokens || 0) - w1), w1, read: u.cache_read_input_tokens || 0, out: u.output_tokens || 0 };
-}
-function price(c) {
-  const s = split(c.u); let p = PRICE[c.model];
-  if (!p) throw new Error('no price for ' + c.model);
-  if (p.long && s.in + s.w5 + s.w1 + s.read > p.long.above) p = p.long;
-  return Object.keys(s).reduce((x, k) => x + s[k] * p[k] / 1e6, 0);
-}
-const ctx = c => { const s = split(c.u); return s.in + s.w5 + s.w1 + s.read; };
-const isImage = t => (t.name === 'Read' && /\.(png|jpe?g|gif|webp)$/i.test(String(t.input.file_path || ''))) || (/computer/.test(t.name) && /screenshot|zoom/.test(String(t.input.action || '')));
 
 // The owner's own messages: not tool results, hook output, notifications or local commands.
 function ownerText(o) {
@@ -86,11 +74,13 @@ function summarize(cs, label) {
   if (!cs.length) return null;
   return { label, calls: cs.length, first: Math.round(ctx(cs[0]) / 1e3), peak: Math.round(Math.max(...cs.map(ctx)) / 1e3),
     from: cs[0].ts, to: cs[cs.length - 1].ts, cost: cs.reduce((x, c) => x + price(c), 0),
-    over200: cs.filter(c => ctx(c) > 200e3).length, images: cs.reduce((x, c) => x + c.tools.filter(isImage).length, 0),
+    over200: cs.filter(c => ctx(c) > 200e3).length, images: cs.reduce((x, c) => x + c.tools.reduce((y, t) => y + imageCount(t), 0), 0),
     models: [...new Set(cs.map(c => c.model.replace(/^claude-/, '')))] };
 }
+// Each API call counts once, as in runs.js (#9 §7): a call two transcripts both hold is priced in the first window only.
 function windows(file, cuts = []) {
-  const main = calls(read(file)).filter(c => c.u);
+  const seen = new Set(), once = c => !c.id || (seen.has(c.id) ? false : (seen.add(c.id), true));
+  const main = calls(read(file)).filter(c => c.u).filter(once);
   const bounds = ['', ...cuts, '￿'], out = [];
   for (let i = 0; i < bounds.length - 1; i++) {
     const w = summarize(main.filter(c => c.ts >= bounds[i] && c.ts < bounds[i + 1]), `main ${bounds[i] || 'start'}..${bounds[i + 1] === '￿' ? 'end' : bounds[i + 1]}`);
@@ -99,7 +89,7 @@ function windows(file, cuts = []) {
   const sub = path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents');
   if (fs.existsSync(sub)) for (const x of fs.readdirSync(sub).filter(n => n.endsWith('.jsonl'))) {
     const meta = JSON.parse(fs.readFileSync(path.join(sub, x.replace('.jsonl', '.meta.json')), 'utf8'));
-    const w = summarize(calls(read(path.join(sub, x))).filter(c => c.u), `sub ${meta.agentType} ${(meta.description || '').slice(0, 30)}`);
+    const w = summarize(calls(read(path.join(sub, x))).filter(c => c.u).filter(once), `sub ${meta.agentType} ${(meta.description || '').slice(0, 30)}`);
     if (w) out.push(w);
   }
   return out;

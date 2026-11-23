@@ -64,6 +64,14 @@ test('windows prices the main session at the cuts, then each subagent, with imag
   assert.strictEqual(ws[2].cost.toFixed(2), '0.10', 'Sonnet');
 });
 
+test('windows prices a call once when the main session and a subagent transcript both hold it (#9 §7)', () => {
+  const dir = fixture();
+  const dup = call('2026-11-20T10:03:30Z', [], SONNET);
+  write(dir, 'abcd1234-0000/subagents/agent-1.jsonl', jsonl([call('2026-11-20T10:03:00Z', [], SONNET), dup, dup]));
+  const ws = windows(path.join(dir, 'abcd1234-0000.jsonl'));
+  assert.deepStrictEqual(ws.map(w => w.calls), [3, 2]);
+});
+
 test('the /trail skill lives in ProdHarnessConfig only, owner-started, and uses these tools', () => {
   const fs = require('fs');
   const skill = fs.readFileSync(path.join(__dirname, '..', '.claude', 'skills', 'trail', 'SKILL.md'), 'utf8');

@@ -64,7 +64,7 @@ The D26 runs, from `node Evidence/research/scripts/runs.js`:
 | BBH #191 | Parked at G1 | — | $1.23 | — | — | — | $0.09 | — | **$1.32** | 106k | 4 |
 
 Some rows need a note:
-- **#52** is $14.31 here and $14.12 in research/14. Its interrupted session went on in two transcripts that share a call, which `runs.js` counts twice (R14-7, #9 §7).
+- **#52** is $14.31 here and $14.12 in research/14. Its interrupted session went on in two transcripts that share a call, which `runs.js` counted twice (R14-7, #9 §7). D27's `runs.js` counts it once: $14.12.
 - **#63's and #136's** close and audit sit under Review, because the owner typed the close in a message, not as the command. research/14 places them by time.
 - **#63** leaves out the Epic 6 layout after it ($0.43).
 
@@ -82,6 +82,8 @@ Some rows need a note:
 | D22 | Small (docs) | 3 | $2.92 | $1.05 | $0.61 | $1.22 | 134k | 5 | |
 | D25 | Small (docs) | 5 | $5.37 | $1.34 | $0.50 | $1.97 | 164k | 7 | 29 |
 | **D26** | **Small (docs)** | **7** | **$6.32** | $1.27 | $0.81 | $2.12 | 173k | 6 | 33 |
+
+**Restated in D27 (#9 §31):** `runs.js` now reports Standard in two groups. D26 Standard (UI) is 15 runs at a median **$11.14** (plan $2.26, build $2.56, review $3.74, peak 154k, 10 turns), and Standard (code) 5 runs at **$5.16** ($1.64, $1.40, $2.05, 129k, 8). D27 also places a forked subagent in the phase its launch left the session in (#9 §4), so amend builders count in review, not build: that moves the build and review columns of 17 of the 34 D26 runs; the totals don't move, except #52 above. The phase figures in this report predate that change.
 
 **What the table says:**
 - **Standard went up again.** D26 Standard is $9.64, against D25's $8.32 and D24's $6.03, on issues with half D25's added lines (+477 against +795). It is now only 4% below the code baseline ($9.99), though it still runs at half the baseline's context (152k against 291k) and with two fewer owner turns (9 against 11).
