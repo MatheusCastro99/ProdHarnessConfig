@@ -269,6 +269,20 @@ test('D26: scope plans what G1 adds, asks less, and drafts before planning (rese
     assert.ok(scope.includes(s), `E6: ${s}`);
 });
 
+test('D27: build and review: amend condenses, CI that never starts, no UI in the builder, review in the build\'s session, G2 fixes by size, quoted wording, a narrow ui-check, close fresh (#9 §2, §3, §6, §14, §16, §23, §24, §26, §28, §29)', () => {
+  const build = read('skills/build/SKILL.md'), review = read('skills/review/SKILL.md');
+  assert.ok(build.includes('condense the done sub-phases to their commits'), '§2');
+  assert.ok(build.includes('**If the required jobs haven\'t started 10 minutes after the push**'), '§6: #52\'s stuck CI');
+  assert.ok(build.includes('no screenshots, browser pane, emulator or UIAutomation'), '§8 and §23');
+  assert.ok(build.includes('run `/review <n>` in this same session, with no `/clear`'), '§29');
+  assert.ok(review.includes('If this session isn\'t on Opus, switch with `/model opus` first'), 'G2 stays on Opus');
+  assert.ok(review.includes('code fixes of a few lines in one or two files') && review.includes('multi-file code fixes'), '§26');
+  assert.ok(review.includes('quoted in full inside its decision') && review.includes('committed in this PR, word for word'), '§14 and §16');
+  assert.ok(review.includes('rewrite the handoff\'s `PR head` line before you end the turn'), '§3');
+  assert.ok(review.includes('brief `ui-check` narrow too'), '§24');
+  assert.ok(review.includes('`/clear` and `/close <n>`, in a fresh session'), '§28');
+});
+
 test('D27: scope checks what lies outside the repo, rules against the red-team skill, an unused dependency\'s removal, and ui-check\'s scope (#9 §13, §15, §21, §27)', () => {
   const scope = read('skills/scope/SKILL.md');
   assert.ok(scope.includes('**Anything outside the repo the plan depends on**'), '§13: #66\'s mail alias, #63\'s production variable');
