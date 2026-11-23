@@ -6,7 +6,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const { tempDir, write } = require('./helpers.cjs');
-const { priceRun, groups } = require('../Evidence/research/scripts/runs.js');
+const { priceRun, groups, groupKey } = require('../Evidence/research/scripts/runs.js');
 
 const OPUS = 'claude-opus-5-5', SONNET = 'claude-sonnet-5-5';
 // 1M cache reads on Opus cost $0.20, on Sonnet $0.10: easy totals.
@@ -106,6 +106,53 @@ test('Haiku is priced by prompt length: over 100k tokens pays the higher rate (#
   assert.strictEqual(r.total.toFixed(4), '0.2505');
 });
 
+test('a forked skill\'s subagent, with no toolUseId, counts in the phase its launch left the session in (D27, #9 §4)', () => {
+  const root = project([
+    cmd('scope'), call('t01'), call('t02', [['Skill', { skill: 'build' }]]), call('t04'),
+    cmd('review'), call('t05'), call('t06', [['Skill', { skill: 'build' }]]), call('t08'),
+  ], [['builder', [call('t03', [], SONNET)]], ['builder', [call('t07', [], SONNET)]]]);
+  const r = priceRun(run(), root, { R: 'P' });
+  assert.strictEqual(r.parts.builder.calls, 1, 'the first build counts in build');
+  assert.strictEqual(r.parts['C/builder'].calls, 1, 'the amend counts in review');
+  assert.strictEqual(groups(r.parts).review.toFixed(2), (3 * 0.2 + 0.1).toFixed(2));
+});
+
+test('a call two of a run\'s transcripts hold counts once (D27, #9 §7; #52)', () => {
+  const shared = call('t01');
+  const root = tempDir('runs test ');
+  write(root, 'P/abcd1234-0000.jsonl', jsonl([shared, call('t02')]));
+  write(root, 'P/efgh5678-0000.jsonl', jsonl([shared, call('t03')]));
+  const r = priceRun({ repo: 'R', sessions: [{ id: 'abcd1234', start: 'A' }, { id: 'efgh5678', start: 'A' }] }, root, { R: 'P' });
+  assert.strictEqual(r.total.toFixed(2), '0.60', '3 calls, not 4');
+});
+
+test('the main session\'s model is reported, and a change mid-session is flagged (D27, #9 §18)', () => {
+  const root = project([cmd('scope'), call('t01', [], SONNET), call('t02')]);
+  const r = priceRun(run(), root, { R: 'P' });
+  assert.deepStrictEqual(r.models, ['sonnet', 'opus']);
+  assert.strictEqual(r.modelChanged, true);
+});
+
+test('images read and screenshots taken are counted per agent (D27, #9 §23)', () => {
+  const root = project([call('t01', [['Read', { file_path: 'a.png' }]])],
+    [['ui-check', [call('u1', [['Read', { file_path: 'x/shot.PNG' }], [B, { action: 'screenshot' }], ['Read', { file_path: 'notes.md' }]], SONNET)]]]);
+  assert.deepStrictEqual(priceRun(run(), root, { R: 'P' }).images, { main: 1, 'ui-check': 2 });
+});
+
+test('/route starts its own phase, and the scope it starts moves the session to plan (D27, #9 §1)', () => {
+  const root = project([cmd('route'), call('t01'), call('t02', [['Skill', { skill: 'scope' }]]), call('t03')]);
+  const r = priceRun(run(), root, { R: 'P' });
+  assert.deepStrictEqual(Object.fromEntries(Object.entries(r.parts).map(([k, v]) => [k, v.calls])), { R: 2, A: 1 });
+  assert.strictEqual(groups(r.parts).route.toFixed(2), '0.40');
+});
+
+test('Standard splits into code and UI, and a trial is its own group (D27, #9 §31)', () => {
+  assert.strictEqual(groupKey({ config: 'D27', tier: 'Standard', kind: 'code', ui: true }), 'D27|Standard|UI');
+  assert.strictEqual(groupKey({ config: 'D27', tier: 'Standard', kind: 'code', ui: false }), 'D27|Standard|code');
+  assert.strictEqual(groupKey({ config: 'D25', tier: 'Standard', kind: 'code' }), 'D25|Standard|code', 'no flag: as before');
+  assert.strictEqual(groupKey({ config: 'D27', trial: 'terminal', tier: 'Small', kind: 'docs' }), 'D27 (terminal)|Small|docs');
+});
+
 test('runs.json: every run has a known config, a project, a recorded cost and session ids', () => {
   const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'Evidence', 'research', 'scripts', 'runs.json'), 'utf8'));
   for (const r of data.runs) {
@@ -115,6 +162,8 @@ test('runs.json: every run has a known config, a project, a recorded cost and se
     assert.ok(typeof r.recorded.cost === 'number' && typeof r.recorded.turns === 'number', name + ': recorded');
     assert.ok(r.sessions.length && r.sessions.every(s => /^[0-9a-f]{8}$/.test(s.id)), name + ': sessions');
     // "Parked": an issue stopped at G1 with nothing built (BBH #191); it gets its own row, outside the Standard and Small medians.
+    if (r.ui !== undefined) assert.strictEqual(typeof r.ui, 'boolean', name + ': ui');
+    if (r.trial !== undefined) assert.ok(data.trials[r.trial], name + ': trial');
     if (r.config !== 'baseline') assert.ok(['Standard', 'Small', 'Parked'].includes(r.tier) && r.sessions.every(s => s.start), name + ': tier and start');
   }
 });

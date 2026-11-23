@@ -215,6 +215,7 @@ function main() {
     const md = f => config === 'baseline' ? '—' : d(median(gs.map(f)));
     console.log(`| ${config}${config === 'baseline' ? ` (${kind})` : ''} | ${tier}${tier === 'Standard' || tier === 'Small' ? ` (${kind})` : ''} | ${rs.length} | ${d(median(rs.map(r => r.total)))} | ${md(g => g.plan)} | ${md(g => g.build)} | ${md(g => g.review)} | ${k(median(rs.map(r => r.mainPeak)))} | ${median(rs.map(r => r.run.recorded.turns))} |`);
   }
+  if (data.targets) console.log('\nTargets: ' + Object.entries(data.targets).map(([g, t]) => `${g}: ${t}`).join(' · '));
 }
 
 if (require.main === module) main();
