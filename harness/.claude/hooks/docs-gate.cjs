@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 // H4: PreToolUse on Bash, `if: Bash(git commit *)` (Evidence/OPTIMIZATION_PLAN.md §6.2, D2, D10).
-// Denies a commit while its code changes flag candidate docs that are neither in the commit nor
-// acknowledged with an "ack: <doc> — <why>" line. The `if` filter is best-effort, so the command is
-// re-checked here (F7): only an actual `git commit` is gated.
+// Reports, and never denies, a commit whose code changes flag candidate docs that aren't in it (D27, #9 §30 X6):
+// on D26, 47 denials led to 427 "still accurate" acknowledgements, while the red-team and the Epic audits caught
+// the real drift. The handoff lists the flagged docs left unchanged, for the red-team's doc lens. The `if` filter
+// is best-effort, so the command is re-checked here (F7): only an actual `git commit` is looked at.
 
 const { execFileSync } = require('child_process');
 const { HarnessError, tag, repoRoot, loadConfig, log, readHookInput } = require('../lib/harness.cjs');
@@ -45,14 +46,12 @@ function workTreeChanges(root) {
 
 const within = (file, paths) => paths.includes('*') || paths.some(p => file === p || file.startsWith(p + '/'));
 
-const deny = reason => process.stdout.write(JSON.stringify({
-  hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason },
-}));
+const report = message => process.stdout.write(JSON.stringify({ systemMessage: message }));
 
 function main() {
   let input;
   try { input = readHookInput(); }
-  catch (e) { deny(tag('docs-gate', `${e.message}; commit not checked, so it is denied`)); return; }
+  catch (e) { report(tag('docs-gate', `${e.message}; the commit's docs weren't checked`)); return; }
   const command = input.tool_input && input.tool_input.command;
   if (typeof command !== 'string') return;
   const commits = commitSegments(command);
@@ -74,16 +73,15 @@ function main() {
       }
     }
     const open = unresolved(root, cfg, changes);
-    log(root, { tool: 'docs-gate', result: open.length ? 'deny' : 'allow', open: open.length });
+    log(root, { tool: 'docs-gate', result: open.length ? 'report' : 'allow', open: open.length });
     if (!open.length) return;
     const docs = [...new Set(open.map(o => o.doc))];
-    deny(tag('docs-gate', `this commit may leave ${docs.length} doc(s) stale:\n` +
+    report(tag('docs-gate', `this commit may leave ${docs.length} doc(s) stale:\n` +
       open.map(o => `- ${o.doc} ← ${o.file} (${o.rule})`).join('\n') +
-      '\nUpdate each doc and add it to this commit, or, if it is still accurate, add a line to ' +
-      '.harness/work/<issue>/stale-docs.md:  ack: <doc> — <why it is still accurate>'));
+      '\nUpdate any that are now wrong in the next commit; list the ones still accurate under the handoff\'s Docs.'));
   } catch (e) {
     if (root) log(root, { tool: 'docs-gate', result: 'error', message: e.message });
-    deny(tag('docs-gate', `couldn't check docs, so the commit is denied: ${e instanceof HarnessError ? e.message : e.message || e}`));
+    report(tag('docs-gate', `couldn't check docs: ${e instanceof HarnessError ? e.message : e.message || e}`));
   }
 }
 

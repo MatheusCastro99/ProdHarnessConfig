@@ -90,7 +90,7 @@ function ackedDocs(root) {
   return acked;
 }
 
-// What H4 blocks on: candidates whose doc is neither part of the change nor acknowledged.
+// What H4 reports (D27; it blocked until D26): candidates whose doc is neither part of the change nor acknowledged.
 function unresolved(root, cfg, changes) {
   const changedDocs = new Set(changes.filter(c => isDoc(cfg, c.file)).map(c => c.file));
   const acked = ackedDocs(root);

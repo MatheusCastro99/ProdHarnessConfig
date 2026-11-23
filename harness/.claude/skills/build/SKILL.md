@@ -39,10 +39,10 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
 4. **Docs:**
    - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
    - Update each candidate doc that is now wrong, in this same commit.
-   - For a doc that is still accurate, add `ack: <doc> — <why>` to `.harness/work/<n>/stale-docs.md`.
+   - A doc that is still accurate stays as it is; list it in the handoff's Docs as "left unchanged", with why.
    - Also check the docs the plan listed: the script can't see drift that names no path.
    - Update a doc line the change makes untrue even when the plan limits the files: the plan's file list scopes the code, not the docs it falsifies. List the line under the handoff's Docs.
-5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate blocks a commit while a flagged doc is neither updated nor acknowledged.
+5. **Commit**, one commit per sub-phase: `<type>: <summary> (#<n>)`. The docs gate reports a flagged doc the commit doesn't carry; it doesn't block (D27).
 
 The Stop gate won't let you stop while fast checks fail. After 3 failures it writes `BLOCKED`. Then:
 
@@ -78,7 +78,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
      ## Deviations from the plan
      ## Decisions made inside the plan's latitude
      ## Docs
-     Updated: <files>. Script-flagged but left unchanged: <doc — why> (copy the acks)
+     Updated: <files>. Script-flagged but left unchanged: <doc — why>
      ## Open questions for G2
      ## Known gaps / risks
      ```

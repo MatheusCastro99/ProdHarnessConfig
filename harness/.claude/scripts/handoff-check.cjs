@@ -11,7 +11,10 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { HarnessError, tag, repoRoot, workDir, loadConfig, log } = require('../lib/harness.cjs');
 
-const MAX_CHARS = { handoff: 8000, plan: 12000 }; // ≈ 2k and 3k tokens at 4 characters per token (§5.2)
+const MAX_CHARS = { handoff: 8000, plan: 20000 }; // ≈ 2k and 5k tokens at 4 characters per token (§5.2)
+// A plan over 12,000 characters (≈ 3k tokens) is valid with a warning, and fails only over the 20,000 ceiling
+// (D27, #9 §30 X3): on D26, 89 plans were trimmed to the old hard 12k, each a trim and a recheck on Opus.
+const PLAN_TARGET = 12000;
 
 const HANDOFF_SECTIONS = ['Commits', 'Checks', 'Deviations from the plan', 'Decisions made inside the plan\'s latitude',
   'Docs', 'Open questions for G2', 'Known gaps / risks'];
@@ -111,10 +114,7 @@ function checkHandoff(root, cfg, text, { verifyHead }) {
   return problems;
 }
 
-// A sub-phase that lists one of these files changes the UI (T7, D25).
-const UI_FILE = /\.(jsx|tsx|vue|svelte|html?|css|scss|xaml)\b/i;
-
-function checkPlan(cfg, text, { frontendDesign = false } = {}) {
+function checkPlan(cfg, text) {
   const problems = [];
   const header = text.match(/^#\s*Plan:\s*#(\d+).*?Tier:\s*(Standard|Small)\b/m);
   if (!header) problems.push('first line must be "# Plan: #<issue> <title> · Tier: Standard | Small"');
@@ -141,9 +141,6 @@ function checkPlan(cfg, text, { frontendDesign = false } = {}) {
       if (/^manual\b/i.test(check) && !/^manual\s*[—:-]\s*\S/i.test(check))
         problems.push(`${name}: a manual check needs a reason ("manual — <why it can't be automated>"; F14)`);
     }
-    const files = (p.match(/^- Files:\s*(.+)$/m) || [])[1] || '';
-    if (frontendDesign && UI_FILE.test(files) && !/frontend-design:\s*(used for|not needed, because)\s+\S/i.test(p))
-      problems.push(`${name} changes the UI: say "frontend-design: used for <what>" or "frontend-design: not needed, because <why>" (T7, D25)`);
   });
   return problems;
 }
@@ -153,11 +150,12 @@ function run(root, file, { plan, verifyHead }) {
   let text;
   try { text = fs.readFileSync(path.resolve(root, file), 'utf8'); } catch { throw new HarnessError(`can't read ${file}`); }
   const kind = plan ? 'plan' : 'handoff';
-  const frontendDesign = fs.existsSync(path.join(root, '.claude', 'skills', 'frontend-design', 'SKILL.md'));
-  const problems = plan ? checkPlan(cfg, text, { frontendDesign }) : checkHandoff(root, cfg, text, { verifyHead });
+  const problems = plan ? checkPlan(cfg, text) : checkHandoff(root, cfg, text, { verifyHead });
   if (text.length > MAX_CHARS[kind])
     problems.push(`${kind} is ${text.length} characters; the budget is ${MAX_CHARS[kind]} (≈ ${MAX_CHARS[kind] / 4} tokens, §5.2)`);
-  return { kind, problems };
+  const warnings = plan && text.length > PLAN_TARGET && text.length <= MAX_CHARS.plan
+    ? [`plan is ${text.length} characters, over the ${PLAN_TARGET} target (≈ ${PLAN_TARGET / 4} tokens); valid, but keep it lean`] : [];
+  return { kind, problems, warnings };
 }
 
 if (require.main === module) {
@@ -168,13 +166,13 @@ if (require.main === module) {
   let root;
   try {
     root = repoRoot();
-    const { kind, problems } = run(root, file, opts);
+    const { kind, problems, warnings } = run(root, file, opts);
     log(root, { tool: 'handoff-check', kind, file, result: problems.length ? 'invalid' : 'valid', problems: problems.length });
     if (problems.length) {
       console.error(tag('handoff-check', `${kind} is not valid:\n- ${problems.join('\n- ')}`));
       process.exit(1);
     }
-    console.log(tag('handoff-check', `${kind} is valid`));
+    console.log(tag('handoff-check', `${kind} is valid${warnings.length ? ` (warning: ${warnings.join('; ')})` : ''}`));
     process.exit(0);
   } catch (e) {
     const refused = e instanceof Refuse;

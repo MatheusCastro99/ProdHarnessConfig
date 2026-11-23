@@ -1,5 +1,5 @@
 'use strict';
-// H1 file-check and H3 quiet (§6.2, F7, F12), plus S5's --index used by H3.
+// H1 file-check (§6.2, F12), plus S5's --index. H3 quiet was removed in D27 (#9 §30 X1).
 
 const test = require('node:test');
 const assert = require('node:assert');
@@ -54,40 +54,9 @@ test('H1: malformed input fails closed with a tagged message', () => {
   assert.match(r.stderr, /\[harness file-check\] hook input is not valid JSON/);
 });
 
-const bash = (dir, command) => {
-  const r = run('hooks/quiet.cjs', [], { cwd: dir, input: JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command } }) });
-  return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput : null;
-};
-
-test('H3: an exactly configured command is rewritten through the check runner', () => {
-  const dir = repo();
-  for (const typed of ['cd FRONTEND && npm test', 'cd "FRONTEND" && npm test', '  cd FRONTEND &&   npm   test ']) {
-    const out = bash(dir, typed);
-    assert.ok(out, typed);
-    assert.strictEqual(out.permissionDecision, 'allow');
-    assert.match(out.updatedInput.command, /check\.cjs" unit --index 0$/);
-  }
-});
-
-test('H3: anything else passes through untouched', () => {
-  const dir = repo();
-  // A bare "npm test" would run in the repo root, not in FRONTEND where the check is configured: untouched.
-  for (const typed of ['npm test', 'npm test && rm -rf build', 'npm test -- --watch', 'git commit -m "npm test"', 'echo $(npm test)'])
-    assert.strictEqual(bash(dir, typed), null, typed);
-  const r = run('hooks/quiet.cjs', [], { cwd: dir, input: 'garbage' });
-  assert.strictEqual(r.stdout, '');
-});
-
 test('S5 --index runs only that command', () => {
   const dir = repo();
   const r = run('scripts/check.cjs', ['fast', '--index', '0'], { cwd: dir });
   assert.strictEqual(r.code, 0, r.out);
   assert.strictEqual(run('scripts/check.cjs', ['fast', '--index', '5'], { cwd: dir }).code, 2);
-});
-
-test('H3: a rewrite is logged like the other hooks (#4)', () => {
-  const dir = repo();
-  bash(dir, 'cd FRONTEND && npm test');
-  const lines = require('fs').readFileSync(require('path').join(dir, '.harness/work/hooks.log'), 'utf8').trim().split('\n').map(JSON.parse);
-  assert.deepStrictEqual(lines.map(l => [l.tool, l.check]), [['quiet', 'unit[0]']]);
 });

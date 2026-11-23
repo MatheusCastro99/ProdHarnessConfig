@@ -57,7 +57,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
    - **A sub-phase that changes the UI:** its check is the app driven through the platform's built-in UI automation plus screenshots: the browser pane for a web app; for a Windows desktop app, PowerShell `UIAutomationClient`. Say what to look at.
      - The `ui-check` agent runs it in Block C, at the handed-off SHA, on either tier (D26); not the builder, and never the main session.
      - Plan it on throwaway data the project can make (a test or in-memory database). Where it can't, the check only reads. Never plan a write to the owner's data, even one undone afterwards.
-     - If the project has a `frontend-design` skill, plan the design with it; the issue and the project's UI guidelines are its brief. Either way the sub-phase says `frontend-design: used for <what>` or `frontend-design: not needed, because <why>`.
+     - If the project has a `frontend-design` skill, plan the design with it; the issue and the project's UI guidelines are its brief.
    - **What G1 adds is planned too (D26):**
      - An item deferred as a follow-up is a step (a Roadmap line or an issue) with its own acceptance criterion.
      - A rule G1 writes or rewords gets an acceptance criterion: every item it governs is checked against it.

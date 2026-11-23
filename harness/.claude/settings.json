@@ -81,14 +81,6 @@
               "${CLAUDE_PROJECT_DIR}/.claude/hooks/docs-gate.cjs"
             ],
             "timeout": 30
-          },
-          {
-            "type": "command",
-            "command": "node",
-            "args": [
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/quiet.cjs"
-            ],
-            "timeout": 10
           }
         ]
       }

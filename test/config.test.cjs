@@ -19,7 +19,7 @@ const frontmatter = text => {
 
 test('settings.json: valid JSON, every hook runs an existing script through node, every handler has a timeout', () => {
   const s = JSON.parse(read('settings.json'));
-  const events = { PostToolUse: 1, Stop: 1, PreToolUse: 2, SessionStart: 1 };
+  const events = { PostToolUse: 1, Stop: 1, PreToolUse: 1, SessionStart: 1 };
   for (const [event, n] of Object.entries(events)) {
     const handlers = s.hooks[event].flatMap(g => g.hooks);
     assert.strictEqual(handlers.length, n, event);
@@ -60,20 +60,13 @@ test('project harness.json files are valid and name their required CI checks', (
   }
 });
 
-test('reviewOnReady is validated (A6)', () => {
+test('reviewOnReady is gone (D27, #9 §30 X5)', () => {
+  // C11 (D26) removed BabyBuddyHelper's CI reviewer after 5 runs without a comment; D27 removes the support.
   const base = { defaultBranch: 'main', checks: { fast: [], full: [] } };
-  assert.doesNotThrow(() => validateConfig({ ...base, reviewOnReady: { workflow: 'claude-code-review.yml', timeoutMin: 15 } }));
-  assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: '../evil.sh' } }), /reviewOnReady/);
-  assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: 'r.yml', timeoutMin: 0 } }), /timeoutMin/);
-  // C11 (D26): BabyBuddyHelper's CI reviewer commented on none of 5 runs, so no project uses it now; the review
-  // skill keeps the support. Any project that sets it must name a workflow its local clone has.
-  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects'))) {
-    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8'));
-    if (!cfg.reviewOnReady) continue;
-    const clone = path.join(__dirname, '..', '..', p);
-    assert.ok(!fs.existsSync(clone) || fs.existsSync(path.join(clone, '.github', 'workflows', cfg.reviewOnReady.workflow)), `${p}: the workflow exists in the local clone`);
-  }
-  assert.strictEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', 'BabyBuddyHelper', 'harness.json'), 'utf8')).reviewOnReady, undefined);
+  assert.throws(() => validateConfig({ ...base, reviewOnReady: { workflow: 'r.yml' } }), /removed in D27/);
+  for (const p of fs.readdirSync(path.join(__dirname, '..', 'projects')))
+    assert.strictEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'projects', p, 'harness.json'), 'utf8')).reviewOnReady, undefined, p);
+  assert.ok(!read('skills/review/SKILL.md').includes('reviewOnReady'));
 });
 
 test('CLAUDE.md template is within the 3k-token budget (§5.2)', () => {
@@ -277,7 +270,7 @@ test('D26: an Epic close is one sequence, audit first (research/13, #11, #26)', 
   assert.ok(read('CLAUDE.md').includes('`/close <n> epic` first runs the knowledge audit'));
 });
 
-test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a known failure is noted (research/13)', () => {
+test('D26: G2 fixes are built by the forked builder, and Auto-fix stays off (research/13)', () => {
   const review = read('skills/review/SKILL.md');
   const step5 = review.slice(review.indexOf('## 5.'), review.indexOf('## Never'));
   // E1: on D25 the review session made its fixes on Opus at 120–200k (#27 $2.09, #155 $4.75).
@@ -291,8 +284,8 @@ test('D26: G2 fixes are built by the forked builder, Auto-fix stays off, and a k
   // E5: #30 handed off "CI: pass" with Lint never run; #28 posted a detail the plan forbade, then edited it.
   assert.ok(build.includes('`handoff-check --verify-head` checks them by name'));
   assert.ok(build.includes('**Before posting anything**') && build.includes('never edited: GitHub keeps the edit history'));
-  // E9 and E8.
-  assert.ok(step5.includes('.harness/work/<n>/known-failures.md'));
+  // E8. E9's known failures were removed in D27 (#9 §30 X2).
+  assert.ok(!step5.includes('known-failures'));
   assert.ok(step5.includes('as a note with a recommendation, not as a question'));
 });
 
@@ -337,8 +330,8 @@ test('D25 and D26: the UI check runs on its own agent on safe data, the tier com
   assert.ok(scope.includes("The approved plan's tier decides, not the fork's reply (D25)."));
   // C3: on 5 of 5 Standard runs "continue <n>" read before building; on #139 it waited for a go.
   assert.ok(workflow.includes('"continue <n>" means: invoke `build` for <n> at once.'));
-  // C4 is enforced by handoff-check (test/handoff-check.test.cjs); C5: #149 kept Small after 5 decisions.
-  assert.ok(scope.includes('`frontend-design: used for <what>` or `frontend-design: not needed, because <why>`'));
+  // C4's required frontend-design line was removed in D27 (#9 §30 X4); C5: #149 kept Small after 5 decisions.
+  assert.ok(!scope.includes('frontend-design: used for'));
   assert.ok(scope.includes('**Then check the tier again (D25),**'));
   // C8: on #139 a follow-up question went unanswered and had to be asked again.
   assert.ok(review.includes('### Decisions for you') && review.includes('**Number every open decision under "Decisions for you" (D25)**'));

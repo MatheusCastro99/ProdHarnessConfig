@@ -24,7 +24,7 @@ Brief the `red-team` in the background with:
 
 - **Goal:** the issue, the plan's acceptance criteria, and its invariants. Name any rule the plan wrote or reworded, so each item it governs is checked against it.
 - **Target:** the PR **and the SHA** from the handoff.
-- **Constraints:** the plan's "Out of scope" and the docs it expected to change.
+- **Constraints:** the plan's "Out of scope", the docs it expected to change, and the docs the handoff lists as flagged but left unchanged: check each against the code (D27).
 - **Error-handling lens,** when the change touches error handling, validation or fallbacks: hunt silent failures too. Empty or broad catches, errors logged and then ignored, a default or success returned on failure, and errors that reach the user without saying what went wrong.
 
 **UI check (D26),** when the plan has a UI sub-phase: brief the `ui-check` agent in the background too, with each UI sub-phase's check and the criteria it serves, the SHA, and the throwaway data the plan names. A failed check is a finding in the G2 table.
@@ -43,7 +43,7 @@ For each finding and each comment, answer three questions:
 
 Recommend **fix** or **decline**, with the reason, and name what would make a declined finding real. Verify a claim before relying on it.
 
-**Source** names what found each one: `red-team`, `red-team (error lens)`, `ui-check`, `PR comment` or `reviewOnReady`. The run records (`Evidence/research/12–13` in ProdHarnessConfig) count by it.
+**Source** names what found each one: `red-team`, `red-team (error lens)`, `ui-check` or `PR comment`. The run records (`Evidence/research/12–13` in ProdHarnessConfig) count by it.
 
 ## 4. G2 report (one message; the owner decides everything in one reply)
 
@@ -54,7 +54,7 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 ### Acceptance criteria
 - [x]/[ ] … · Not verifiable here: …
 ### Docs
-<docs diff summary; acks>
+<docs diff summary; the flagged docs left unchanged>
 ### Optional owner steps
 <e.g. a local MAUI run; CI's build is the required check; the UI screenshots in .harness/work/<n>/ui/>
 ### Decisions for you
@@ -71,17 +71,10 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
    - **A typo or a one-line doc fix:** make it here. One commit: `fix: <summary> (#<n>)`. Push, and wait for CI on the new head.
    - **Anything else, including new scope the owner approved:** don't build it in this session. Append `### <k>. G2 fixes` to `.harness/work/<n>/plan.md`, with `- Files:`, `- Change:` and `- Check:` for the approved fixes, and validate it with `handoff-check.cjs … --plan`. Rename `handoff.md` to `handoff-<k>.md`, so the finish guard waits for a new one. Then invoke the `build` skill with `<n> amend`. It builds on the forked Sonnet builder, pushes, waits for CI and writes the handoff for the new head. Check that handoff with `--verify-head`, as in step 1.
    - The hooks and gates apply as in Block B.
-2. **A failing check the owner sent to an open issue:** add a line to `.harness/work/<n>/known-failures.md`: `<a line of the failure's output that names it> — #<issue>`. The Stop gate then reports that failure instead of blocking on it. Any other failure still blocks.
-3. **Narrow re-review:** brief the `red-team` with the previous findings, the new SHA and the changed lines only. **Only one re-review.** What remains after it goes to a follow-up issue, unless the owner asks for another round. A blocking finding still needs the owner's explicit acceptance.
-4. **Reply to each review comment** with its fix or the reason it was declined, as the owner decided at G2.
-5. **Ready to merge.**
+2. **Narrow re-review:** brief the `red-team` with the previous findings, the new SHA and the changed lines only. **Only one re-review.** What remains after it goes to a follow-up issue, unless the owner asks for another round. A blocking finding still needs the owner's explicit acceptance.
+3. **Reply to each review comment** with its fix or the reason it was declined, as the owner decided at G2.
+4. **Ready to merge.**
    - Mark the PR ready: `gh pr ready <pr>`.
-   - **If `.claude/harness.json` has `reviewOnReady`**, a CI reviewer runs now, after G2:
-     - Find its run: `gh run list --workflow <workflow> --branch <branch> -L 1`.
-     - Wait for it, up to `timeoutMin` (default 15): `gh run watch <id>`.
-     - Read the comments it left on the PR since the run started, and triage them as in step 3.
-     - A blocking or fix-worthy comment goes back to the owner as a short **G2 addendum**, and nothing is marked ready to merge until the owner decides. The rest are noted in the ready-to-merge note.
-     - If the run times out or fails, say so in the note. It isn't a required check.
    - Post the note: "ready to merge at `<sha>`. Reviewed SHA = PR head = the SHA CI passed on."
    - **Anything found after G2's decisions that needs no change** (from the re-review, CI or a comment) goes in the note and your report as a note with a recommendation, not as a question (D26). The owner raises it if they want it.
    - If the branch is behind the base, say so. Updating it creates a new head, which needs CI and a re-review again.

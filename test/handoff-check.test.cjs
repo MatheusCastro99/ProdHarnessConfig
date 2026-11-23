@@ -140,6 +140,22 @@ test('a handoff over the 2k-token budget is invalid', () => {
   assert.match(r.out, /budget is 8000/);
 });
 
+test('a plan over 12k characters is valid with a warning; over 20k it is invalid (D27, #9 §30 X3)', () => {
+  const long = n => plan().replace('## Out of scope\n', `## Out of scope\n${'x'.repeat(n)}\n`);
+  const warned = check(long(13000), ['--plan']);
+  assert.strictEqual(warned.code, 0, warned.out);
+  assert.match(warned.out, /plan is valid \(warning: plan is \d+ characters, over the 12000 target/);
+  const over = check(long(21000), ['--plan']);
+  assert.strictEqual(over.code, 1);
+  assert.match(over.out, /the budget is 20000/);
+});
+
+test('a UI sub-phase no longer has to name frontend-design (D27, #9 §30 X4)', () => {
+  const withSkill = dir => write(dir, '.claude/skills/frontend-design/SKILL.md', '---\nname: frontend-design\n---\n');
+  const ui = plan({ phases: ['### 1. A\n- Files: src/pages/InvoicePage.jsx\n- Change: a\n- Check: check fast'] });
+  assert.strictEqual(check(ui, ['--plan'], {}, withSkill).code, 0);
+});
+
 test('a complete plan is valid', () => {
   const r = check(plan(), ['--plan']);
   assert.strictEqual(r.code, 0, r.out);
@@ -160,20 +176,6 @@ test('a Small-tier plan has exactly one sub-phase (D18)', () => {
   // A G2 fixes sub-phase that review appends (D26) doesn't count toward Small's one.
   const fixes = [two[0], '### 2. G2 fixes\n- Files: a\n- Change: fix 1\n- Check: check fast'];
   assert.strictEqual(check(plan({ tier: 'Small', phases: fixes }), ['--plan']).code, 0);
-});
-
-test('with frontend-design installed, a UI sub-phase must say whether it used it (T7, D25)', () => {
-  // #138, #149 and #151 changed UI sub-phases and never mentioned it, so T7 couldn't be judged.
-  const withSkill = dir => write(dir, '.claude/skills/frontend-design/SKILL.md', '---\nname: frontend-design\n---\n');
-  const ui = line => plan({ phases: [`### 1. A\n- Files: src/pages/InvoicePage.jsx\n- Change: a${line}\n- Check: check fast`] });
-  const silent = check(ui(''), ['--plan'], {}, withSkill);
-  assert.strictEqual(silent.code, 1);
-  assert.match(silent.out, /sub-phase 1 changes the UI: say "frontend-design: used for/);
-  assert.strictEqual(check(ui('\n  - frontend-design: not needed, because only the text format changes'), ['--plan'], {}, withSkill).code, 0);
-  assert.strictEqual(check(ui('\n  - frontend-design: used for the picker layout'), ['--plan'], {}, withSkill).code, 0);
-  // Without the skill (BabyBuddyHelper), or with no UI file, nothing is required.
-  assert.strictEqual(check(ui(''), ['--plan']).code, 0);
-  assert.strictEqual(check(plan(), ['--plan'], {}, withSkill).code, 0);
 });
 
 test('a sub-phase check must name a defined check, or give a reason for being manual (F14)', () => {
