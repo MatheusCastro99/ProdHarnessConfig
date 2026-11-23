@@ -1,6 +1,6 @@
 # Production Harness: Optimization Plan
 
-Status: **all decisions made (D1–D26).** D26 is installed in BabyBuddyHelper, InvoiceMe and ThisIsMatheusCastro (from `9d6087f`, 2026-11-10) and under validation in [research/14](research/14-d26-validation.md). Its history: the pilot's measurements are in §8.2 and §8.6 (D19 validated it for continued use, 2026-10-26), and later versions are measured in research/11–14 (§10).
+Status: **all decisions made (D1–D26).** D26 is installed in BabyBuddyHelper, InvoiceMe and ThisIsMatheusCastro (from `9d6087f`, 2026-11-10) validated in [research/14](research/14-d26-validation.md) and analysed in [research/16](research/16-d26-meta-analysis.md), whose triage is pending. Its history: the pilot's measurements are in §8.2 and §8.6 (D19 validated it for continued use, 2026-10-26), and later versions are measured in research/11–14 (§10).
 Owner: Matheus Castro. Written 2026-10-21. **Revised 2026-10-22** from a meta-review of four independent assessments ([research/03](research/03-assessment-review.md)): P0 safety fixes, hardening, and decisions D3, D6, D8, D9 and D18.
 
 Every recommendation here rests on one of four things: measured data from past session records (the study repo and BabyBuddyHelper), Anthropic's documentation (linked), an established engineering standard, or an owner decision (logged in §9). Estimates are labelled as estimates.
@@ -41,11 +41,11 @@ A **Small** tier (D18) runs one-sub-phase issues in a single session with the sa
 - **CLAUDE.md is kept to ≤ 3k tokens.** Workflow detail lives in four skills; area conventions live in rules that load only for matching paths. No "read every doc first" rule.
 - **Subagents default to Sonnet**; the red-team is pinned to Opus. Effort is high everywhere.
 
-**Results.** The figures below are medians at list price, from [research/13](research/13-d25-meta-analysis.md) (49 priced runs). The README's Results are the summary of record.
+**Results.** The figures below are medians at list price, from [research/13](research/13-d25-meta-analysis.md) (49 priced runs) and [research/16](research/16-d26-meta-analysis.md) (83). The README's Results are the summary of record.
 
 - **Standard:** the baseline (one long session) was **$9.99**, D24 **$6.03** (5 runs) and D25 **$8.32** (10 runs), against a target of $7.49. Owner turns went from 11 to 7 and 9.
 - **Small:** **$3.99** on code issues and **$5.37** on docs issues under D25.
-- **D26** is under validation in [research/14](research/14-d26-validation.md).
+- **D26:** **$9.64** on Standard (20 runs): **$11.14** with a UI check and **$5.16** without one. Small code **$3.66**, Small docs **$6.32**, mostly Epic closes. Analysed in [research/16](research/16-d26-meta-analysis.md).
 - **The pilot** (§8.2, §8.6) came first: $5.16 and $4.80 on its two Standard issues built on Sonnet, and $2.91 on its first three Small issues, all docs.
 
 Most of what remains is the global overhead each session loads (§8.2). D6 keeps that overhead on purpose. Turning off the Artifact tool and the connectors would save ≈ $0.70 per issue, and is the next cost lever to measure.

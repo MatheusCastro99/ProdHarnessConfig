@@ -2,14 +2,14 @@
 
 A production harness for [Claude Code](https://code.claude.com/docs): the workflow, skills, subagents, hooks and scripts I use to take a GitHub issue from plan to merge, with a person deciding at two gates and the agent doing the rest.
 
-It was built from measured session data, and it's measured on every issue it runs. Against one long session ($9.99 for a typical issue at list price), the D24 version cost about 40% less per issue and D25 about 17% less, each with less than half the context and fewer messages from me. The current version, D26, is still being validated (see [Results](#results)).
+It was built from measured session data, and it's measured on every issue it runs. Against one long session ($9.99 for a typical issue at list price), the D24 version cost about 40% less per issue, D25 about 17% less and D26 about 4% less, each with about half the context and fewer messages from me. D26's issues were mostly UI work, and its runs without a UI check cost about half as much as those with one (see [Results](#results)).
 
 **Who this is for:** developers who already use Claude Code on real projects, and want a repeatable way to run it on issues that keeps cost and context down without giving up review. You'll need GitHub, CI on pull requests, the habit of reading, filtering, and evaluating a plan before it's built, and also the habit of reviewing commits closely against the implementation goal and personal quality standards.
 
 **What this is not:**
 - **A framework or a product.** It is one owner's working setup, documented so you can adapt it.
 - **Hands-off.** The design assumes someone approves every plan, decides every review finding and merges by hand. Those gates are part of the architecture.
-- **Settled.** The current version (D26) is still being validated against its runs.
+- **Settled.** The current version (D26) is measured ([research/16](Evidence/research/16-d26-meta-analysis.md)), and its fixes are waiting to be built.
 
 ## How an issue goes
 
@@ -52,24 +52,26 @@ The details are in [Docs/01. The workflow](Docs/01-workflow.md).
 
 ## Results
 
-From [Evidence/research/13](Evidence/research/13-d25-meta-analysis.md): 49 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness: 10 code issues on BabyBuddyHelper (.NET MAUI) and 5 docs issues on HarnessEngineering101. 34 ran with it, on BabyBuddyHelper, InvoiceMe (MERN) and ThisIsMatheusCastro (Next.js).
+From [Evidence/research/16](Evidence/research/16-d26-meta-analysis.md): 83 issue runs, each re-priced from its transcripts by one script ([`runs.js`](Evidence/research/scripts/runs.js)). 15 ran before the harness: 10 code issues on BabyBuddyHelper (.NET MAUI) and 5 docs issues on HarnessEngineering101. 68 ran with it, on BabyBuddyHelper, InvoiceMe (MERN) and ThisIsMatheusCastro (Next.js). D26 is the first version measured in all three.
 
-| | Before the harness (10 code issues) | D24, Standard tier (5 issues) | D25, Standard tier (10 issues) |
-|---|---|---|---|
-| Median cost per issue | $9.99 | **$6.03** | **$8.32** |
-| Median main-session peak context | 291k tokens | **125k** | **145k** |
-| Median owner messages per issue | 11 | **7** | **9** |
-| Median lines added per issue | — | 243 | 795 |
+| | Before the harness (10 code issues) | D24, Standard tier (5 issues) | D25, Standard tier (10 issues) | D26, Standard tier (20 issues) |
+|---|---|---|---|---|
+| Median cost per issue | $9.99 | **$6.03** | **$8.32** | **$9.64** |
+| Median main-session peak context | 291k tokens | **125k** | **145k** | **152k** |
+| Median owner messages per issue | 11 | **7** | **9** | **9** |
+| Median lines added per issue | — | 243 | 795 | 477 |
 
 - **The biggest single change** was running the build forked on Sonnet. Its cost stayed flat on D25's issues, about three times the size of D24's (builder median $1.02, against $1.11).
-- **D25 cost more than D24, and none of its own changes caused it.** The review session made its G2 fixes on Opus at high context (+$0.78 per run), and planning took more rounds with the owner (+$0.51). D26, the version this repository now ships, sends those fixes to the forked builder.
+- **D25 cost more than D24, and none of its own changes caused it.** The review session made its G2 fixes on Opus at high context (+$0.78 per run), and planning took more rounds with the owner (+$0.51).
+- **D26 costs more again, and UI work is why.** Its Standard runs with a UI check cost a median $11.14, and those without one $5.16. The UI-check agent read its screenshots into its context, and re-ran in full after each fix round. G2 fixes moved to the builder without making the review session cheaper. The rates didn't change. ProdHarnessConfig#9 holds the fixes, to be built and measured next.
+- **Small issues got cheaper:** D26's Small code runs cost a median $3.66, against $3.99 on D25.
 - **Quality held.** No blocking finding was left at merge. The first escapes recorded, five doc lines that no longer matched the code, were caught by an Epic's knowledge audit, not by a user.
 - **Caveats:**
   - The costs are list-price equivalents; I'm on a subscription.
   - The samples are small, with one owner, so the medians show direction, not effect size.
   - The columns come from different repositories and issue sizes: the baseline is BabyBuddyHelper only, D24 is mostly InvoiceMe, and D25 is mostly ThisIsMatheusCastro, a new site.
   - The Small tier is cheaper when nothing heavy follows the plan: a median of $3.99 on code issues and $5.37 on docs issues under D25.
-  - D26 is under validation, in [Evidence/research/14](Evidence/research/14-d26-validation.md).
+  - D26's runs are logged in [Evidence/research/14](Evidence/research/14-d26-validation.md).
 
 ## Get started
 
