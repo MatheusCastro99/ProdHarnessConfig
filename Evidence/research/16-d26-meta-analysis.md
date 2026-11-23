@@ -295,6 +295,8 @@ The $7.49 and 7-turn Standard targets came from D24's issues, which had no separ
 
 ## 10. Triage
 
+**2026-11-23:** the owner took R16-1 to R16-4. They are ProdHarnessConfig#9 §26–§29. The owner then moved to the open questions (Q2–Q5), before the build. The Standard target (§8) is still open.
+
 The owner's decisions, before #9 and #8 are built:
 - **R16-1 to R16-4:** take each into #9, or not.
 - **§8:** one Standard target, or a second one for UI runs.
