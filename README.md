@@ -9,7 +9,7 @@ It was built from measured session data, and it's measured on every issue it run
 **What this is not:**
 - **A framework or a product.** It is one owner's working setup, documented so you can adapt it.
 - **Hands-off.** The design assumes someone approves every plan, decides every review finding and merges by hand. Those gates are part of the architecture.
-- **Settled.** The current version (D26) is measured ([research/16](Evidence/research/16-d26-meta-analysis.md)), and its fixes are waiting to be built.
+- **Settled.** The current version, D27, ships the fixes from D26's measurements ([research/16–18](Evidence/research/16-d26-meta-analysis.md)), and is measured on the runs that follow.
 
 ## How an issue goes
 
@@ -41,12 +41,12 @@ flowchart LR
 
 ```
 
-1. **`/scope <n>`:** reads the issue, surveys the code, asks its open questions with a recommendation each, and writes one plan. You approve it (**G1**).
+1. **`/route <n>`, then `/scope`:** `/route` reads the issue and picks its route: most issues go straight to `/scope`, and some get a draft, an audit or a diagnosis first. `/scope` surveys the code, asks its open questions with a recommendation each, and writes one plan. You approve it (**G1**).
 2. **`build`:** a forked Sonnet subagent implements the plan one sub-phase at a time, with a check per sub-phase. It opens a draft PR, waits for CI and writes a handoff.
-3. **`/review <n>`:** a fresh Opus session briefs a read-only red-team on the handed-off commit, triages its findings with the PR's comments, and brings you one report with numbered decisions (**G2**). It fixes what you approve and re-reviews once.
-4. **You merge;** then `/close <n>` cleans up.
+3. **`/review <n>`:** in the same session, on Opus, briefs a read-only red-team on the handed-off commit, triages its findings with the PR's comments, and brings you one report with numbered decisions (**G2**). It fixes what you approve and re-reviews once.
+4. **You merge;** then `/close <n>`, in a fresh session, cleans up. An Epic closes with one command, `/close <n> epic`.
 
-Each step starts a new context from a file (the plan, the handoff), so no session carries the whole issue. A **Small** tier runs the same gates in one session for single-step issues. Hooks enforce the rest: no stop while checks fail, and no commit that leaves a doc stale. Permission rules, backed by a GitHub ruleset, rule out a merge or a force push.
+Each step starts from a file (the plan, the handoff), and the build runs forked, so no session carries the whole issue. A **Small** tier runs the same gates in one session for single-step issues. Hooks enforce the rest: no stop while checks fail, and no hand-off on a moved commit; docs a change may have made stale are reported for the review. Permission rules, backed by a GitHub ruleset, rule out a merge or a force push.
 
 The details are in [Docs/01. The workflow](Docs/01-workflow.md).
 
@@ -97,6 +97,7 @@ Not on Claude Code? **[Platform_Neutral/](Platform_Neutral/README.md)** separate
 
 ```
 README.md                  this page
+.claude/skills/trail/      /trail: records a finished run in the research (this repo only)
 Docs/                      reference: workflow, skills and agents, hooks and scripts, harness.json, installer
 Onboard/                   Get Started and the installer, install.cjs
 Platform_Neutral/          the ideas without Claude Code, and a setup prompt for any agent

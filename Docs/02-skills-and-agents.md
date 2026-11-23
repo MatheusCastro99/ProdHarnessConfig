@@ -1,15 +1,21 @@
 # 02. Skills and agents
 
-The workflow is four skills and four subagents, all in `harness/.claude/`. A skill is the block's instructions; an agent is a model with its own context and tools that a skill briefs.
+The workflow is six skills and four subagents, all in `harness/.claude/`. A skill is the block's instructions; an agent is a model with its own context and tools that a skill briefs.
 
 ## Skills
 
 | Skill | How it starts | Runs in |
 |---|---|---|
-| [`scope`](../harness/.claude/skills/scope/SKILL.md) | The owner types `/scope <n> [small]` (the model can't start it on its own) | The main session, in plan mode |
+| [`route`](../harness/.claude/skills/route/SKILL.md) | The owner types `/route <n> [small]`; only the owner starts an issue | The main session |
+| [`scope`](../harness/.claude/skills/scope/SKILL.md) | `/route`, or `/scope <n> [small\|light]` | The main session, in plan mode |
 | [`build`](../harness/.claude/skills/build/SKILL.md) | The approved plan's step 0, or "continue <n>" after `/clear` | A fork, on the `builder` agent (`context: fork`) |
-| [`review`](../harness/.claude/skills/review/SKILL.md) | `/review <n>` in a fresh Opus session; on Small, the main session when the build returns | The main session, never the fork |
-| [`close`](../harness/.claude/skills/close/SKILL.md) | The owner types `/close <n> [epic]` after merging | The main session |
+| [`review`](../harness/.claude/skills/review/SKILL.md) | `/review <n>` in the session that started the build, on Opus; on Small, the main session when the build returns | The main session, never the fork |
+| [`close`](../harness/.claude/skills/close/SKILL.md) | `/close <n> [epic]` after merging, in a fresh session; `/route` starts it on an Epic | The main session |
+| [`layout-epic`](../harness/.claude/skills/layout-epic/SKILL.md) | `/route` on an Epic with no phases yet, or `/layout-epic <n>` | The main session |
+
+### `route`: where every issue starts
+
+It reads the issue and its work folder (not the code) and picks one route: scope now, draft first, audit first, diagnose first, the light lane, the Epic close, or lay out the Epic. It states the tier it expects with its reason, writes `route.md` when the route has more than one step, and starts the first step itself. Drafting, auditing and diagnosing run in its session, change no project source, and end in an approved file for `/scope`.
 
 ### `scope`: Block A
 
@@ -23,35 +29,41 @@ The workflow is four skills and four subagents, all in `harness/.claude/`. A ski
 Rules it applies while planning:
 - **Every sub-phase has a check:** a named check from `harness.json`, an automated observable, or "manual" with the reason it can't be automated.
 - **The smallest complete change:** for each sub-phase, take the first of: not needed; already in the codebase; the standard library or platform; an installed dependency; new code. Validation, error handling, security and accessibility are never cut.
-- **A UI check:** a sub-phase that changes the UI is checked by driving the app (the browser pane for a web app, Windows UI Automation for a desktop app) and taking screenshots, on throwaway data or read-only. The `ui-check` agent runs it in `review`.
-- **What G1 adds is planned:** a deferred follow-up is a step with its own criterion; a rule G1 writes is checked against every item it governs; a new or changed ADR comes with a draft check for the project's red-team skill.
-- **`frontend-design`:** if the project has that skill, a UI sub-phase says `frontend-design: used for <what>` or `frontend-design: not needed, because <why>`, and `handoff-check.cjs` enforces it.
+- **A UI check:** a sub-phase that changes the UI is checked by driving the app (the browser pane for a web app, Windows UI Automation for a desktop app), reading the UI tree first, on throwaway data or read-only. The plan names its scope (pages, platforms, widths, font scales) for the owner to trim at G1. The `ui-check` agent runs it in `review`.
+- **Outside the repo:** anything the plan depends on outside it (DNS, a service setting, a host's env var) is checked before G1, or becomes sub-phase 1.
+- **What G1 adds is planned:** a deferred follow-up is a step with its own criterion; a rule G1 writes is checked against every item it governs and against the project's red-team skill; a new or changed ADR comes with a draft check for that skill.
+- **`frontend-design`:** if the project has that skill, a UI sub-phase plans its design with it.
+- **The plan's size:** over 12,000 characters it passes with a warning; over 20,000 it fails.
 
 ### `build`: Block B
 
 1. Stops if `BLOCKED` exists. Posts the plan to the issue once. Creates the branch `<type>/<n>-<short-name>`.
-2. For each sub-phase: implements it, runs its check through `check.cjs`, runs `stale-docs.cjs --staged --record <n>` and updates or acknowledges each flagged doc, and commits once (`<type>: <summary> (#<n>)`).
-3. Runs the `full` check, pushes, opens a **draft** PR, and waits for CI on the pushed head (`gh pr checks --watch`).
+2. For each sub-phase: implements it, runs its check through `check.cjs`, runs `stale-docs.cjs --staged --record <n>` and updates each flagged doc that is now wrong (the rest go in the handoff as "left unchanged"), and commits once (`<type>: <summary> (#<n>)`). It never looks at the app itself: no screenshots, browser pane, emulator or UIAutomation.
+3. Runs the `full` check, pushes, opens a **draft** PR, and waits for CI on the pushed head (`gh pr checks --watch`). If the required jobs haven't started 10 minutes after the push, it hands off BLOCKED on CI.
 4. Writes the handoff, validates it with `handoff-check.cjs --verify-head` (which also checks each `requiredCiChecks` job by name), searches it for anything the plan says never to quote, and posts it to the issue.
-5. Ends with the tier's line from the plan: on Standard, "start `/review` in a fresh Opus session"; on Small, `MAIN SESSION: run the review skill`.
+5. Ends with the tier's line from the plan: on Standard, "run `/review <n>` in this same session"; on Small, `MAIN SESSION: run the review skill`.
 
-With `<n> amend`, from `review` after G2, it builds only the appended `G2 fixes` sub-phase and ends with `MAIN SESSION: run the narrow re-review`.
+With `<n> amend`, from `review` after G2, it builds only the appended `G2 fixes` sub-phase (condensing the done ones if the plan is over its 20k ceiling) and ends with `MAIN SESSION: run the narrow re-review`.
 
 The fork can't ask the owner, so it ends with `QUESTION:` when the plan doesn't cover something (see [01](01-workflow.md#when-it-stops)). The finish guard sends it back if it tries to return without a handoff, `BLOCKED` or a question.
 
 ### `review`: Block C
 
 1. Turns off PR monitoring (Auto-fix) with `set_monitor` if it's on, and again after each push; then refuses a handoff that `handoff-check.cjs --verify-head` rejects: invalid, `BLOCKED`, or a PR head that moved since the handoff.
-2. Briefs the `red-team` in the background with the goal, the PR and the SHA, and the constraints, adding the error-handling lens when the change touches error handling. When the plan has a UI sub-phase, it briefs the `ui-check` agent beside it.
+2. Briefs the `red-team` in the background with the goal, the PR and the SHA, and the constraints (including the docs the handoff left unchanged), adding the error-handling lens when the change touches error handling. When the plan has a UI sub-phase, it briefs the `ui-check` agent beside it, with the plan's UI scope.
 3. Collects the PR's comments meanwhile, then triages every finding and comment: reachable today? does it affect users? is the fix worth it? Each gets a recommendation and a source.
-4. Sends the G2 report, with every open decision numbered.
-5. After the owner decides: makes typo and one-line doc fixes itself, and sends anything bigger to the forked builder (`build <n> amend`); records a failure the owner sent to an open issue in `known-failures.md`; runs **one** narrow re-review, replies to each PR comment, marks the PR ready, and, when `harness.json` has `reviewOnReady`, waits for that CI reviewer and triages what it posts. Anything after the decisions that needs no change is a note, not a question. Then the owner merges.
+4. Sends the G2 report, with every open decision numbered, and any proposed rule, ADR or skill wording quoted in full.
+5. After the owner decides: makes doc and rule fixes, and code fixes of a few lines in one or two files, itself (waiting for CI and rewriting the handoff's head), and sends multi-file code fixes and new scope to the forked builder (`build <n> amend`); runs **one** narrow re-review, with a narrow `ui-check` on UI runs; replies to each PR comment and marks the PR ready. Anything after the decisions that needs no change is a note, not a question. Then the owner merges, and runs `/close` in a fresh session.
 
 ### `close`: Block D
 
-1. Runs `close.cjs <n>`, which deletes the branch and working files only when it can prove that's safe (see [03](03-hooks-and-scripts.md#close-s2)). Exit 4 means nothing to clean up, as on an Epic's issue before its docs pass.
+1. Runs `close.cjs <n>`, which deletes the branch and working files only when it can prove that's safe (see [03](03-hooks-and-scripts.md#close-s2)). Exit 4 means nothing to clean up, as on an Epic's issue before its docs pass. It works from the PR, the work folder and memory only, and turns Auto-fix off on any PR it opens.
 2. Condenses the memory notes that mention the issue: keeps the outcome, follow-ups and lessons, drops the step-by-step.
-3. On `epic`: briefs the `red-team` for a knowledge audit of the docs and ADRs the epic touched, once per Epic, before its docs pass (see [01](01-workflow.md#an-epics-close)). On an Epic's issue closed without `epic`, it asks.
+3. On `epic`: the whole close, in one command run twice (see [01](01-workflow.md#an-epics-close)): the knowledge audit, the owner's picks fixed in place as a Small docs pass, then the cleanup after the merge. On an Epic's issue closed without `epic`, it asks.
+
+### `layout-epic`
+
+It reads the Roadmap and the previous Epic's issues, asks roadmap questions only (phases, order, milestones, which are Small), drafts the Epic and its phase issues in the project's format, and creates them on the owner's yes, linked as sub-issues. It doesn't edit the repo: Roadmap changes go into phase n.0's issue.
 
 ## Agents
 
@@ -60,7 +72,7 @@ The fork can't ask the owner, so it ends with `QUESTION:` when the plan doesn't 
 | [`builder`](../harness/.claude/agents/builder.md) | Sonnet, effort high | All (it implements) | Only the `build` skill, as its fork | A handoff, `BLOCKED`, or a `QUESTION:` |
 | [`red-team`](../harness/.claude/agents/red-team.md) | Opus, effort high | Read-only: Read, Grep, Glob, Bash for inspection (no Edit or Write) | `review` (and once more for the re-review); `close` on an epic | A verdict and scored findings |
 | [`surveyor`](../harness/.claude/agents/surveyor.md) | Sonnet, effort high | Read-only, the same as the red-team | `scope` only, for unfamiliar code | Facts with `file:line`, and gaps, never file contents; at most 60 lines |
-| [`ui-check`](../harness/.claude/agents/ui-check.md) | Sonnet, effort high | Everything but Edit and Write: it drives the app, never the owner's data | `review`, when the plan has a UI sub-phase | Pass or fail per UI check, with screenshots |
+| [`ui-check`](../harness/.claude/agents/ui-check.md) | Sonnet, effort high | Everything but Edit and Write: it drives the app, never the owner's data | `review`, when the plan has a UI sub-phase; `/route` for a UI audit | Pass or fail per UI check, what it covered, and the screenshots it saved; it reads the UI tree first and at most 3 images a check |
 
 - **The red-team reviews one commit.** If the PR head isn't the SHA it was given, that is its only finding. It scores each finding (Priority = Severity + Confidence + Impact − Fix cost, each 1–5), drops anything at 3 or below, and marks security, data-integrity and correctness findings blocking whatever their score.
 - **A project can preload skills into the red-team,** such as its own review guidelines, with `redTeamSkills` in `install.json` (see [05](05-installer.md#installjson)).
@@ -68,7 +80,7 @@ The fork can't ask the owner, so it ends with `QUESTION:` when the plan doesn't 
 
 ## Former trials
 
-D24 ran five trials; D25 and D26 judged them ([research/13](../Evidence/research/13-d25-meta-analysis.md) §6). The smallest complete change (T1), the error-handling lens (T4), the UI check (T6) and `frontend-design` (T7) are standing rules now, described above. The built-in `security-review` (T5) was dropped: in 4 runs it found nothing the red-team missed. A project can still run it on request.
+D24 ran five trials; D25 and D26 judged them ([research/13](../Evidence/research/13-d25-meta-analysis.md) §6). The smallest complete change (T1), the error-handling lens (T4), the UI check (T6) and `frontend-design` (T7) are standing rules now, described above; D27 dropped T7's required plan line (research/18). The built-in `security-review` (T5) was dropped: in 4 runs it found nothing the red-team missed. A project can still run it on request.
 
 ## Design record
 

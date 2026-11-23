@@ -36,6 +36,8 @@ This is the guarantee behind "the owner merges". Claude Code's permission rules 
 - [ ] has no bypass actors, if the rule should hold for admins too;
 - [ ] optionally, requires the branch to be up to date with the base.
 
+Also turn off automatic Copilot code review for the repository (in its ruleset or its Copilot settings). It wakes the session on every PR with comments `review` then has to triage (D27).
+
 ## 4. Describe your project
 
 Create `projects/<YourProject>/harness.json`. Every field is in [Docs/04](../Docs/04-harness-json.md); start from the closest example in `projects/`.
@@ -72,6 +74,8 @@ The installer never writes `CLAUDE.md`, because it's yours.
 Keep the Workflow, Working agreements and Branches sections as they are; the skills rely on them. Keep the file under about 3k tokens. Rules that only apply to one area of the code go in `.claude/rules/<area>.md`, with a `paths:` frontmatter, so they load only when that area is touched.
 
 
+**Fill in the scripting runtime line** (for example "Node only; no Python"), so sessions don't try a runtime the machine lacks.
+
 **If the project keeps a `Decisions.md` (or ADRs),** say in `CLAUDE.md` what it holds: standing patterns that a review can check code against, each with its reason, its rules and its status. The red-team reads it as rules. Product decisions (what to build, for whom) belong in the project's plan or roadmap, not there; mixed in, they read as rules the code must follow.
 ## 6. Install
 
@@ -106,22 +110,23 @@ Before the first real issue:
 
 Pick a real but modest issue: a few files, with no schema or auth change.
 
-1. **Plan.** In Claude Code, run `/scope <n>`.
-   - It reads the issue, surveys the code and asks its open questions together, each with a recommendation.
+1. **Route and plan.** In Claude Code, run `/route <n>`.
+   - It reads the issue and picks a route. For most issues that is "scope now": it starts `/scope <n>` itself. If the issue needs a draft, an audit or a diagnosis first, it runs that and tells you when to `/clear` and plan.
+   - `/scope` surveys the code and asks its open questions together, each with a recommendation.
    - Answer them. It then writes the plan and shows it to you. This is **G1**: read the plan in full, edit it if you like, and approve it.
 2. **Build.** Run `/clear`, then send `continue <n>`.
    - The build runs forked on Sonnet. It posts the plan to the issue, commits one sub-phase at a time, opens a draft PR, waits for CI and writes the handoff.
    - It may stop with a `QUESTION:` line; answer it and it resumes.
    - If its reply has a `MAIN SESSION:` line, the main session acts on it, for example turning off PR monitoring.
-3. **Review.** Start a fresh session (`claude --model opus`) and run `/review <n>`.
+3. **Review.** In the same session, run `/review <n>` (switch to Opus with `/model opus` if the session isn't on it).
    - The red-team reviews the PR at the handed-off commit. You get one report, with every decision numbered. This is **G2**.
    - Reply with your decisions ("1 fix, 2 decline"). It applies the fixes, re-reviews once and marks the PR ready.
 4. **Merge** it yourself.
-5. **Close.** Run `/close <n>`. It deletes the merged branch and the issue's working files, and condenses the memory notes.
+5. **Close.** Run `/clear`, then `/close <n>`. It deletes the merged branch and the issue's working files, and condenses the memory notes.
 
-For a one-sub-phase issue, `/scope <n> small` runs all of this in one session, with the same two gates. The criteria are in [Docs/01](../Docs/01-workflow.md#tiers).
+For a one-sub-phase issue, `/route <n> small` runs all of this in one session, with the same two gates. The criteria are in [Docs/01](../Docs/01-workflow.md#tiers).
 
-To measure a run, its cost and turns, see the scripts in [`Evidence/research/scripts/`](../Evidence/research/scripts/). They price a session from its Claude Code transcript at list prices.
+To measure a run, its cost and turns, see the scripts in [`Evidence/research/scripts/`](../Evidence/research/scripts/): `runs.js` prices every recorded run, and `trail.cjs` finds a run's sessions and prices them by block. They read Claude Code's transcripts at list prices.
 
 ## 9. Upgrading
 
@@ -136,7 +141,8 @@ Pull the newer ProdHarnessConfig, then run the same two commands: a dry run, the
 |---|---|---|
 | `[harness check-gate] fast checks failed (attempt n/3)` | Claude tried to stop with a failing fast check | Nothing; it's sent back to fix it |
 | `#<n> is BLOCKED` | Fast checks failed 3 times in a row; `.harness/work/<n>/BLOCKED` says which | Decide: amend the plan, resume in a fresh Opus session, or stop. A passing fast check clears it |
-| `[harness docs-gate] this commit may leave … doc(s) stale` | A changed file is named in a doc | Update the doc in the same commit, or add `ack: <doc> — <why it's still true>` to `.harness/work/<n>/stale-docs.md` |
+| `[harness docs-gate] this commit may leave … doc(s) stale` | A changed file is named in a doc (a report; the commit went through) | Update any doc that is now wrong in the next commit; list the ones still accurate under the handoff's Docs |
+| `[harness bash-guard] … would wait on stdin forever` | A `cat > file` with nothing to read | Nothing; Claude writes the file another way |
 | `/review` refuses with exit 3 | The handoff is BLOCKED, or the PR head moved after the handoff | Don't push after the handoff; if a push happened, the build has to hand off again |
 | The installer says `BLOCKED` (exit 3) | Conflicts, local edits or a dirty tree | Read the listed files; use `--replace`, `--force` or commit first, as it says |
 | `close.cjs` aborts (exit 3) | The PR isn't merged, the tree is dirty, or the branch tip isn't the merged head | Nothing was deleted; sort out the named cause by hand |

@@ -19,7 +19,7 @@ The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analys
 | **Bind the review to one commit** | A push after the handoff makes the review stale. The review refuses a moved head | Record the SHA in the handoff; compare it with the PR head before reviewing |
 | **A check runner that keeps the real exit code** | Trimmed output never turns a failure into a pass, and the checks are named, so plans can cite them | [`check.cjs`](../harness/.claude/scripts/check.cjs) and a `harness.json`; both are portable |
 | **A stop gate on failing checks** | The agent can't hand off with failing fast checks. After 3 failures it stops for the owner instead of looping | Your agent's "before finishing" hook, or a wrapper script that runs the checks and refuses the handoff |
-| **A docs gate** | A commit that touches code named in a doc must update or acknowledge that doc | A git pre-commit hook, with no agent involved. [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) lists candidates; with `--fail` it exits 1 while one is neither updated nor acknowledged with an `ack:` line, so it can be the pre-commit hook as it is |
+| **A docs check** | A commit that touches code named in a doc has that doc flagged, and the reviewer checks it against the code. The harness reports rather than blocks since D27: blocking led mostly to "still accurate" acknowledgements | A git pre-commit hook, with no agent involved. [`stale-docs.cjs`](../harness/.claude/scripts/stale-docs.cjs) lists candidates; with `--fail` it exits 1 while one is neither updated nor acknowledged with an `ack:` line, so it can be the pre-commit hook as it is |
 | **Server-side branch protection** | "The owner merges" holds even if the agent's own rules are bypassed | A ruleset on the default branch: a required PR and checks, no force pushes |
 | **Price every run** | Without it, the 40% saving was a guess. Raw token totals misread cost by about 2× until priced | Your platform's session logs and its price table. The scripts in [`Evidence/research/scripts/`](../Evidence/research/scripts/) read Claude Code's format; the method carries over |
 
@@ -29,7 +29,7 @@ The numbers come from [Evidence/research/11](../Evidence/research/11-meta-analys
 |---|---|---|
 | Skills (`/scope`, `/review`, …) | One file of instructions per block, loaded only when invoked | A prompt file per block that you paste or reference |
 | Forked subagents (`context: fork`) | The build runs in its own context, on Sonnet, and only its reply comes back | A separate session started from the plan file |
-| Hooks (`Stop`, `SubagentStop`, `PreToolUse`, `PostToolUse`, `SessionStart`) | The check gate, finish guard, docs gate, lint-on-edit and session state | Git hooks for the docs gate and lint; a wrapper script for the stop gate |
+| Hooks (`Stop`, `SubagentStop`, `PreToolUse`, `PostToolUse`, `SessionStart`) | The check gate, finish guard, docs report, Bash guard, lint-on-edit and session state | Git hooks for the docs gate and lint; a wrapper script for the stop gate |
 | Plan mode and `opusplan` | Block A can't edit files, and it runs on Opus | An instruction not to edit, and choosing the model by hand |
 | Permission allow and deny rules | Pre-approved scripts; no merge, no force push | Your agent's own permission system, plus the server-side ruleset |
 | Prompt caching | Keeps each block's repeated context cheap | Platform-dependent. The idea of ending sessions at gates still holds |

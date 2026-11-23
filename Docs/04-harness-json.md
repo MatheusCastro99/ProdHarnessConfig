@@ -28,7 +28,6 @@ Every command in the file has the same shape:
 | `fileTools` | no | `{ "<glob>": { "format"?: <command>, "lint"?: <command> } }`. Each command contains `{file}`, which becomes the edited file's path. The first matching glob wins | the file-check hook (H1) |
 | `docs` | no | Globs for every file that counts as documentation | `stale-docs.cjs`, the docs gate |
 | `docmap` | no | `{ "<code glob>": ["<doc>", …] }`: links a doc to code that it describes without naming a path | `stale-docs.cjs` |
-| `reviewOnReady` | no | `{ "workflow": "<file>.yml", "timeoutMin"?: n }`: a CI reviewer that runs when the PR is marked ready. `review` waits for it (default 15 minutes) and triages its comments | `review` |
 | `notes` | no | Free text for humans. Nothing reads it | — |
 
 ## Choosing the checks
@@ -64,7 +63,7 @@ Every command in the file has the same shape:
 }
 ```
 
-**BabyBuddyHelper** (.NET MAUI) has no per-file linter, so `fileTools` is `{}`. Its `fast` check runs the xUnit tests, which need no MAUI workload. It used `reviewOnReady` for a CI reviewer until D26, which removed it after 5 runs without a comment. See [`projects/BabyBuddyHelper/harness.json`](../projects/BabyBuddyHelper/harness.json).
+**BabyBuddyHelper** (.NET MAUI) has no per-file linter, so `fileTools` is `{}`. Its `fast` check runs the xUnit tests, which need no MAUI workload. It used a CI reviewer (`reviewOnReady`) until D26, which removed it after 5 runs without a comment; D27 removed the field, and a `harness.json` that still sets it is an error. See [`projects/BabyBuddyHelper/harness.json`](../projects/BabyBuddyHelper/harness.json).
 
 ## Design record
 
