@@ -1,13 +1,12 @@
 ---
 name: scope
-description: Block A of the harness workflow. Turns one GitHub issue into a single approved plan (gate G1). Invoke as /scope <issue> [small].
-argument-hint: <issue-number> [small]
-disable-model-invocation: true
+description: Block A of the harness workflow. Turns one GitHub issue into a single approved plan (gate G1). Started by /route, or invoked as /scope <issue> [small|light].
+argument-hint: <issue-number> [small|light]
 ---
 
 # Scope: Block A (gate G1)
 
-Arguments: `$ARGUMENTS`. The first is the issue number; `small` asks for the Small tier (D18). Without it, the tier is **Standard**.
+Arguments: `$ARGUMENTS`. The first is the issue number; `small` asks for the Small tier (D18), and `light` for the light lane (D27, below). Without either, the tier is **Standard**.
 
 Work in **plan mode** (enter it if you're not in it). This block ends with one plan and one owner approval. Don't edit project files here; the only file you write is the plan.
 
@@ -25,7 +24,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 3. **Survey.** When the issue names its files, read them yourself, narrowly, on either tier (D23, D26).
    - For code you don't know, or when the survey is the work (finding candidates across repos), brief the `surveyor` with a **Survey**: the issue, the areas, and what you need to plan (files and callers, the patterns there, tests, the docs that describe it, facts the code contradicts).
    - Don't read code broadly in this session. Every file you read stays in context until the clear.
-   - **Content, art or design drafted with the owner (D26):** if the issue asks for it and there's no approved file yet, recommend drafting it first in a session of its own, ending in an approved file in the repo or `.harness/work/<n>/`. Plan from that file.
+   - **An issue that needs another route** (content, art or design with no approved file under `.harness/work/<n>/`, an audit, an Epic): stop and say to run `/route <n>` (D27). With an approved draft, audit or diagnosis there, plan from it.
 4. **Settle open decisions.** For each decision the issue leaves open, give 2–3 options, mark one recommended, and give its trade-offs and why it fits this project. Ask them together, before writing the final plan. The owner decides.
    - A value the owner has to type (a URL, an address) is a question of its own, answered in "Other" (D26).
    - A bug only the owner can reproduce gets "reproduce first": the owner runs the diagnosis before Block B, or the issue splits into a diagnosis and a fix (D26).
@@ -67,6 +66,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 7. **Present the plan for approval (G1)** with the plan's full text. The owner may edit it.
    - **Standard:** the owner approves, runs `/clear`, and sends "continue #<n>". The session-state hook points the cleared session at the plan, and the build skill posts it to the issue and starts from it. (The desktop app offered no "clear context" option at plan accept in V0, 2026-10-22; where it is offered, approving with it does the same.)
    - **Small:** the owner approves *without* clearing. This session starts the forked build, then runs `review` when it returns (D22). The approved plan's tier decides, not the fork's reply (D25).
+   - **The light lane (`light`, D27):** one docs, config or decline sub-phase with no change in behaviour, planned as `Tier: Small` (empty sections say "none"). After G1 this session makes the change, commits, pushes a draft PR and waits for CI: no fork and no handoff. The red-team runs only if the owner asked for it at G1; otherwise G2 is the owner's look at the diff. Then the owner merges and runs `/close <n>`.
 
 ## Never
 

@@ -75,16 +75,20 @@ test('CLAUDE.md template is within the 3k-token budget (§5.2)', () => {
 });
 
 test('each skill has frontmatter and a body within 2.5k tokens (§5.2)', () => {
-  for (const s of ['scope', 'build', 'review', 'close']) {
+  for (const s of ['route', 'scope', 'build', 'review', 'close', 'layout-epic']) {
     const text = read(`skills/${s}/SKILL.md`);
     const fm = frontmatter(text);
     assert.ok(fm && fm.name === s && fm.description, `${s} frontmatter`);
     const t = tokens(text);
     assert.ok(t <= 2500, `${s} ≈ ${t} tokens`);
   }
-  // Only the owner starts Blocks A and D; build and review are also invoked by the workflow itself.
-  assert.strictEqual(frontmatter(read('skills/scope/SKILL.md'))['disable-model-invocation'], 'true');
-  assert.strictEqual(frontmatter(read('skills/close/SKILL.md'))['disable-model-invocation'], 'true');
+  // Only the owner starts an issue, through /route; /route then starts scope, close or layout-epic itself (D27, #9 §1).
+  assert.strictEqual(frontmatter(read('skills/route/SKILL.md'))['disable-model-invocation'], 'true');
+  for (const s of ['scope', 'close', 'layout-epic', 'build', 'review'])
+    assert.strictEqual(frontmatter(read(`skills/${s}/SKILL.md`))['disable-model-invocation'], undefined, `${s} can be started by /route or the workflow`);
+  const route = read('skills/route/SKILL.md');
+  for (const step of ['`/scope <n> [small]`', '`/scope <n> light`', '`/close <n> epic`', '`/layout-epic <n>`', '.harness/work/<n>/route.md'])
+    assert.ok(route.includes(step), `route names ${step}`);
 });
 
 test('agents pin their models and can\'t edit files (D13, D14, §7.2)', () => {
@@ -255,19 +259,22 @@ test('D26: scope plans what G1 adds, asks less, and drafts before planning (rese
   const scope = read('skills/scope/SKILL.md');
   assert.ok(scope.includes('`git fetch` and `git status -sb`'), 'E11: a stale checkout is named before planning (#155)');
   assert.ok(scope.includes('moving one between dependency groups is fine'), 'E10 (#9)');
-  assert.ok(scope.includes('ending in an approved file'), 'E4 (#34)');
-  assert.ok(read('CLAUDE.md').includes('drafted before `/scope`'), 'E4 in the template');
+  // E4 moved into /route in D27 (#9 §1): scope sends an issue that needs a draft there.
+  assert.ok(scope.includes('stop and say to run `/route <n>`'), 'E4 (#34), through /route');
+  assert.ok(read('skills/route/SKILL.md').includes('ends in an approved file'), 'E4 in /route');
+  assert.ok(read('CLAUDE.md').includes('Every issue starts with `/route <n> [small]`'), '/route in the template');
   assert.ok(scope.includes('is a question of its own') && scope.includes('confirming or lowering it goes in the plan'), 'E8 (#13, #157)');
   assert.ok(scope.includes('"reproduce first"'), 'E11 (#155)');
   for (const s of ['deferred as a follow-up is a step', 'every item it governs is checked against it', 'drafts the matching check in the project\'s red-team skill'])
     assert.ok(scope.includes(s), `E6: ${s}`);
 });
 
-test('D26: an Epic close is one sequence, audit first (research/13, #11, #26)', () => {
+test('D27: an Epic close is one command, audit first, fixes in place (#9 §12; research/13, #11, #26)', () => {
   const close = read('skills/close/SKILL.md');
-  assert.ok(close.includes('**4 (nothing to clean up):**') && close.includes('run the audit now'));
-  assert.ok(close.includes('`audit.md` existed before the script ran') && close.includes('ask the owner whether to run the audit'));
-  assert.ok(read('CLAUDE.md').includes('`/close <n> epic` first runs the knowledge audit'));
+  assert.ok(close.includes('**4 (nothing to clean up):**') && close.includes('run one knowledge audit now'));
+  assert.ok(close.includes('**Fix the picked doc and rule findings in place:**') && close.includes('invoke the `build` skill for <n>'));
+  assert.ok(close.includes('without asking. Don\'t run the audit again') && close.includes('ask the owner whether to run the audit'));
+  assert.ok(read('CLAUDE.md').includes('is one command, `/close <n> epic`'));
 });
 
 test('D26: G2 fixes are built by the forked builder, and Auto-fix stays off (research/13)', () => {
