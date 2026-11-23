@@ -288,10 +288,10 @@ The $7.49 and 7-turn Standard targets came from D24's issues, which had no separ
 ## 9. research/14's questions
 
 1. **Does `/review` need a fresh session after the build? No, on this data.** Three runs, IM #168, BBH #71 and IM #169, ran `/review` in the build's session, starting at 80k, 84k and 83k. A fresh session starts at 78–80k. With the build forked, the session that started it stays near its starting size. R16-4 proposes dropping the `/clear`.
-2. **An external harness (Hermes, OpenClaw):** next iteration.
-3. **A lower thinking level:** next iteration. §3.5 sizes it at roughly 15–17% of cost.
-4. **A structured output per phase:** next iteration.
-5. **`/route`:** next iteration. It would change #9 §1, §12, §17 and §22 before they're built.
+2. **An external harness (Hermes, OpenClaw):** answered in [research/17](17-d26-open-questions.md): not now.
+3. **A lower thinking level:** §3.5 sizes it at roughly 15–17% of cost. [research/17](17-d26-open-questions.md) proposes a trial on the blocks checked downstream (R17-1).
+4. **A structured output per phase:** [research/17](17-d26-open-questions.md): not as a general rule.
+5. **`/route`:** [research/17](17-d26-open-questions.md): yes, as a rewrite of #9 §1 (R17-2).
 
 ## 10. Triage
 
