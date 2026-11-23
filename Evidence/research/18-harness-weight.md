@@ -144,6 +144,8 @@ D26's installed sizes:
 
 ## 6. Triage
 
+**2026-11-23:** the owner took all six removals (X1–X6). They are ProdHarnessConfig#9 §30, with the merges noted there. #9 §5 and §10 are marked dropped, and #8 is closed as not planned. The trials outside the harness (the terminal, and D6's re-test) are still open.
+
 For the owner, before #9 and #8 are built:
 - **X1 to X5:** drop, or keep.
 - **X6:** demote `docs-gate` to a report, or keep it a deny.
