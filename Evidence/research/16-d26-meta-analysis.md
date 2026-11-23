@@ -295,7 +295,7 @@ The $7.49 and 7-turn Standard targets came from D24's issues, which had no separ
 
 ## 10. Triage
 
-**2026-11-23:** the owner took R16-1 to R16-4. They are ProdHarnessConfig#9 §26–§29. The owner then moved to the open questions (Q2–Q5), before the build. The Standard target (§8) is still open.
+**2026-11-23:** the owner took R16-1 to R16-4. They are ProdHarnessConfig#9 §26–§29. The owner then moved to the open questions (Q2–Q5), before the build. **The Standard target (§8):** the owner chose two groups, Standard (code) and Standard (UI), each with its own median and target. The code target stays at $7.49; the UI target is set from D27's first UI runs (ProdHarnessConfig#9 §31). The two trials outside the harness run on D27.
 
 The owner's decisions, before #9 and #8 are built:
 - **R16-1 to R16-4:** take each into #9, or not.
