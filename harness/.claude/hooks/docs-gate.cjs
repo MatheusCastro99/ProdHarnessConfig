@@ -72,7 +72,7 @@ function main() {
         changes.push(c);
       }
     }
-    const open = unresolved(root, cfg, changes);
+    const open = unresolved(root, cfg, changes, { acks: false });
     log(root, { tool: 'docs-gate', result: open.length ? 'report' : 'allow', open: open.length });
     if (!open.length) return;
     const docs = [...new Set(open.map(o => o.doc))];

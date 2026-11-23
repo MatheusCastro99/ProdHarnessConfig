@@ -271,14 +271,17 @@ test('D26: scope plans what G1 adds, asks less, and drafts before planning (rese
 
 test('D27: build and review: amend condenses, CI that never starts, no UI in the builder, review in the build\'s session, G2 fixes by size, quoted wording, a narrow ui-check, close fresh (#9 §2, §3, §6, §14, §16, §23, §24, §26, §28, §29)', () => {
   const build = read('skills/build/SKILL.md'), review = read('skills/review/SKILL.md');
-  assert.ok(build.includes('condense the done sub-phases to their commits'), '§2');
+  assert.ok(review.includes('condense the done sub-phases to their commits') && review.indexOf('condense the done') < review.indexOf('Validate it with'), '§2: review condenses before --plan (G2 finding 1)');
   assert.ok(build.includes('**If the required jobs haven\'t started 10 minutes after the push**'), '§6: #52\'s stuck CI');
+  assert.ok(build.includes('each wait stays within the cache\'s lifetime') && build.includes('Never close, reopen or re-run'), '§6: #52\'s 7–10 minute polls');
+  assert.ok(!build.includes('--record'), 'X6: no stale-docs.md');
   assert.ok(build.includes('no screenshots, browser pane, emulator or UIAutomation'), '§8 and §23');
-  assert.ok(build.includes('run `/review <n>` in this same session, with no `/clear`'), '§29');
-  assert.ok(review.includes('If this session isn\'t on Opus, switch with `/model opus` first'), 'G2 stays on Opus');
+  assert.ok(build.includes('run `/model opus`, then `/review <n>`, in this same session, with no `/clear`'), '§29');
+  assert.ok(review.includes('stop and ask the owner to run `/model opus`'), 'G2 stays on Opus: opusplan runs the cleared session on Sonnet');
   assert.ok(review.includes('code fixes of a few lines in one or two files') && review.includes('multi-file code fixes'), '§26');
   assert.ok(review.includes('quoted in full inside its decision') && review.includes('committed in this PR, word for word'), '§14 and §16');
-  assert.ok(review.includes('rewrite the handoff\'s `PR head` line before you end the turn'), '§3');
+  assert.ok(review.includes('rewrite the handoff\'s `PR head` line, and run `handoff-check … --verify-head`'), '§3, with E5\'s by-name check');
+  assert.ok(read('CLAUDE.md').includes('rewrite the handoff\'s `PR head` line and run `handoff-check … --verify-head`'), '§3: beside the MAIN SESSION line');
   assert.ok(review.includes('brief `ui-check` narrow too'), '§24');
   assert.ok(review.includes('`/clear` and `/close <n>`, in a fresh session'), '§28');
 });
@@ -299,13 +302,18 @@ test('D27: scope checks what lies outside the repo, rules against the red-team s
   assert.ok(scope.includes('It is also checked against the project\'s red-team skill'), '§15: #66 and #67\'s bubble rule');
   assert.ok(scope.includes('removing one the code no longer uses, when the dependency graph\'s diff shows nothing else moving'), '§21: BBH #169');
   assert.ok(scope.includes('**Name what `ui-check` covers:**'), '§27: UI runs cost $11.14 against $5.16 (research/16)');
+  // §17's light lane, with the steps the forked build would have taken (G2 finding 5).
+  assert.ok(scope.includes('`Tier: Small · Lane: light`') && scope.includes('offer it at G1 when the plan turns out that small'), '§17');
+  assert.ok(scope.includes('never the default branch') && scope.includes('turns Auto-fix off for it') && scope.includes('`gh pr ready`'), '§17: branch, Auto-fix, ready');
+  assert.ok(scope.includes('If `/route` started this session\'s scope, don\'t send it back'), '§1: no route ping-pong');
 });
 
 test('D27: an Epic close is one command, audit first, fixes in place (#9 §12; research/13, #11, #26)', () => {
   const close = read('skills/close/SKILL.md');
   assert.ok(close.includes('**4 (nothing to clean up):**') && close.includes('run one knowledge audit now'));
   assert.ok(close.includes('**Fix the picked doc and rule findings in place:**') && close.includes('invoke the `build` skill for <n>'));
-  assert.ok(close.includes('without asking. Don\'t run the audit again') && close.includes('ask the owner whether to run the audit'));
+  assert.ok(close.includes('without asking. Don\'t audit again') && close.includes('ask the owner whether to run the audit'));
+  assert.ok(close.includes('if `audit.md` exists, an earlier run audited; use its findings') && close.includes('**No picks**'), 'an audit runs once, and a close with no picks finishes');
   assert.ok(read('CLAUDE.md').includes('is one command, `/close <n> epic`'));
 });
 

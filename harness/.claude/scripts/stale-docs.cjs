@@ -90,10 +90,11 @@ function ackedDocs(root) {
   return acked;
 }
 
-// What H4 reports (D27; it blocked until D26): candidates whose doc is neither part of the change nor acknowledged.
-function unresolved(root, cfg, changes) {
+// Candidates whose doc is neither part of the change nor acknowledged. H4 reports them with acks off (D27, #9 X6:
+// the harness keeps no stale-docs.md); acks still clear a flag for --fail, as a plain pre-commit hook.
+function unresolved(root, cfg, changes, { acks = true } = {}) {
   const changedDocs = new Set(changes.filter(c => isDoc(cfg, c.file)).map(c => c.file));
-  const acked = ackedDocs(root);
+  const acked = acks ? ackedDocs(root) : new Map();
   return findCandidates(root, cfg, changes).filter(c => !changedDocs.has(c.doc) && !acked.has(c.doc));
 }
 

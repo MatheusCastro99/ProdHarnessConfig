@@ -24,7 +24,7 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 3. **Survey.** When the issue names its files, read them yourself, narrowly, on either tier (D23, D26).
    - For code you don't know, or when the survey is the work (finding candidates across repos), brief the `surveyor` with a **Survey**: the issue, the areas, and what you need to plan (files and callers, the patterns there, tests, the docs that describe it, facts the code contradicts).
    - Don't read code broadly in this session. Every file you read stays in context until the clear.
-   - **An issue that needs another route** (content, art or design with no approved file under `.harness/work/<n>/`, an audit, an Epic): stop and say to run `/route <n>` (D27). With an approved draft, audit or diagnosis there, plan from it.
+   - **An issue that needs another route** (content, art or design with no approved file under `.harness/work/<n>/`, an audit, an Epic): stop and say to run `/route <n>` (D27). With an approved draft, audit or diagnosis there, plan from it. If `/route` started this session's scope, don't send it back: put the other route to the owner as a step 4 question.
 4. **Settle open decisions.** For each decision the issue leaves open, give 2–3 options, mark one recommended, and give its trade-offs and why it fits this project. Ask them together, before writing the final plan. The owner decides.
    - A value the owner has to type (a URL, an address) is a question of its own, answered in "Other" (D26).
    - A bug only the owner can reproduce gets "reproduce first": the owner runs the diagnosis before Block B, or the issue splits into a diagnosis and a fix (D26).
@@ -68,7 +68,11 @@ Work in **plan mode** (enter it if you're not in it). This block ends with one p
 7. **Present the plan for approval (G1)** with the plan's full text. The owner may edit it.
    - **Standard:** the owner approves, runs `/clear`, and sends "continue #<n>". The session-state hook points the cleared session at the plan, and the build skill posts it to the issue and starts from it. (The desktop app offered no "clear context" option at plan accept in V0, 2026-10-22; where it is offered, approving with it does the same.)
    - **Small:** the owner approves *without* clearing. This session starts the forked build, then runs `review` when it returns (D22). The approved plan's tier decides, not the fork's reply (D25).
-   - **The light lane (`light`, D27):** one docs, config or decline sub-phase with no change in behaviour, planned as `Tier: Small` (empty sections say "none"). After G1 this session makes the change, commits, pushes a draft PR and waits for CI: no fork and no handoff. The red-team runs only if the owner asked for it at G1; otherwise G2 is the owner's look at the diff. Then the owner merges and runs `/close <n>`.
+   - **The light lane (`light`, D27):** one docs, config or decline sub-phase with no change in behaviour, planned as `Tier: Small · Lane: light` (empty sections say "none"). Without `light`, offer it at G1 when the plan turns out that small. After G1 this session, with no fork and no handoff:
+     - creates the branch (`<type>/<n>-<short-name>`, never the default branch), makes the change, commits and pushes;
+     - opens a draft PR, turns Auto-fix off for it (`set_monitor`), and waits for CI;
+     - runs the red-team only if the owner asked at G1; otherwise G2 is the owner's look at the diff;
+     - marks the PR ready (`gh pr ready`). The owner merges, then runs `/clear` and `/close <n>`.
 
 ## Never
 

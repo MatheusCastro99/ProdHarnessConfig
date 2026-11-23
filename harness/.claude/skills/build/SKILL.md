@@ -18,7 +18,7 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
 - **Run every command in the foreground and wait for it.** Don't background a command or end your turn while one runs: ending your turn returns you to the main session. A finish guard sends you back unless there's a handoff, `BLOCKED`, or a `QUESTION:` line.
 - **You can't ask the owner.** If rule 4 below stops you, commit nothing past the gap and end your reply with one line: `QUESTION: <the question>`. The main session relays it.
 - **Resuming:** started again with an answer after the issue number in the arguments, treat each sub-phase already committed (one `(#<n>)` commit each, in plan order) as done and continue with the next.
-- **Amending (`<n> amend`, from `review` after G2, D26):** the plan now ends with a `G2 fixes` sub-phase; the ones before it are done. Skip Start steps 2–3 (the plan is posted and you're on the PR branch) and the PR in Exit step 2 (it exists: just push); post just the new sub-phase to the issue instead. If the plan is now over `handoff-check`'s 20k ceiling, condense the done sub-phases to their commits and the plan comment's link, without asking (D27). Build it, then exit as below: the handoff is for the new head, with the fixes under Commits. End with `MAIN SESSION: run the narrow re-review for #<n> (review step 5).` on either tier, in place of step 6's lines.
+- **Amending (`<n> amend`, from `review` after G2, D26):** the plan now ends with a `G2 fixes` sub-phase; the ones before it are done. Skip Start steps 2–3 (the plan is posted and you're on the PR branch) and the PR in Exit step 2 (it exists: just push); post just the new sub-phase to the issue instead. Build it, then exit as below: the handoff is for the new head, with the fixes under Commits. End with `MAIN SESSION: run the narrow re-review for #<n> (review step 5).` on either tier, in place of step 6's lines.
 
 ## Start
 
@@ -37,7 +37,7 @@ The `builder` agent runs this skill on Sonnet (D12), apart from the main session
 3. **Run the sub-phase's check** through the runner: `node .claude/scripts/check.cjs <id>`. For an automated observable, run it and keep the evidence. Fix what fails.
    - **A UI check isn't yours:** `review` runs it on the `ui-check` agent at the handed-off SHA (D26). Make sure the throwaway data the plan names exists or can be made, and list the check under the handoff's Checks as "in review (ui-check)". Don't look at the app yourself: no screenshots, browser pane, emulator or UIAutomation (D27).
 4. **Docs:**
-   - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged --record <n>`.
+   - Stage the change, then run `node .claude/scripts/stale-docs.cjs --staged`.
    - Update each candidate doc that is now wrong, in this same commit.
    - A doc that is still accurate stays as it is; list it in the handoff's Docs as "left unchanged", with why.
    - Also check the docs the plan listed: the script can't see drift that names no path.
@@ -59,7 +59,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
 1. Run `node .claude/scripts/check.cjs full`. Fix what fails.
 2. Push: `git push -u origin <branch>`. Open a **draft** PR: `gh pr create --draft --title "<summary> (#<n>)" --body "Closes #<n>. Plan: <plan comment URL>"`.
 3. **Bind the handoff to one commit:**
-   - Wait for CI on the pushed head: `gh pr checks <pr> --watch --fail-fast`.
+   - Wait for CI on the pushed head: `timeout 240 gh pr checks <pr> --watch --fail-fast`, run again while it exits 124 (timed out): each wait stays within the cache's lifetime. Never close, reopen or re-run the PR's CI yourself (D27).
    - **If the required jobs haven't started 10 minutes after the push** (queued, or no jobs at all), stop polling. Write the handoff with `Status: BLOCKED` and "CI never started" under Known gaps, and end with `MAIN SESSION: CI hasn't started on <PR url>; ask the owner whether to re-run it or wait.` (D27)
    - If a check fails, fix it, run `full` again, push, and wait again.
    - When CI passes, record `gh pr view <pr> --json headRefOid`. Every job in `requiredCiChecks` must have run and passed; `--watch` lists only the jobs that ran, so `handoff-check --verify-head` checks them by name (D26).
@@ -88,7 +88,7 @@ Anything the plan doesn't cover stops the work: a behaviour change, a new depend
    - Post it to the issue (`gh issue comment <n> --body-file …`). In the posted copy, replace anything security-sensitive with "withheld"; keep it in the local file.
    - **Before posting anything** (the handoff, a PR body, a comment), search it for each detail the plan says never to quote, and take out any you find (D26). A posted comment that carries one is deleted (`gh api -X DELETE repos/{owner}/{repo}/issues/comments/<id>`) and posted again, never edited: GitHub keeps the edit history.
 6. **Then stop. Don't run `review` yourself:** G2 is triaged on Opus, outside the fork (D22). Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25).
-   - **Standard:** tell the owner to run `/review <n>` in this same session, with no `/clear`: the build ran forked, so this session is still near its start (D27).
+   - **Standard:** tell the owner to run `/model opus`, then `/review <n>`, in this same session, with no `/clear`: the build ran forked, so this session is still near its start (D27).
    - **Small:** end your reply with `MAIN SESSION: run the review skill for #<n> now (Small tier, this session).`
 
 ## Never

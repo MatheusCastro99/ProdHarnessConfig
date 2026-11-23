@@ -28,6 +28,18 @@ test('a cat that has its input passes', () => {
   ]) assert.strictEqual(catWithNoInput(c), null, c);
 });
 
+test('other spellings are refused too: no space, flags, sudo, subshells, groups, if, >|, &> and $( )', () => {
+  for (const c of ['cat>f', 'cat -- > f', 'cat - > f', 'cat -u > f', 'sudo cat > f', '( cat > f )', '{ cat > f; }',
+    'if true; then cat > f; fi', 'cat >| f', 'cat &> f', 'x=$(cat > f)', 'F=1 cat > f'])
+    assert.ok(catWithNoInput(c), c);
+});
+
+test('a cat > file inside quoted text is not a command', () => {
+  for (const c of ['git commit -m "first line\ncat > file"', 'gh issue comment 1 --body "a; cat > x"',
+    "echo 'cat > x' > notes.md", 'cat "a b" > c', 'cat -- a > b', 'cat <<< hi > f\nhi'])
+    assert.strictEqual(catWithNoInput(c), null, c);
+});
+
 test('text inside a heredoc body is not read as a command', () => {
   assert.strictEqual(catWithNoInput('node - <<\'EOF\'\n// run cat > x to see\nEOF'), null);
 });

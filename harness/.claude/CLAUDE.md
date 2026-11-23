@@ -40,6 +40,8 @@ Working state lives in `.harness/work/<n>/` (gitignored). The approved plan and 
 
 When the forked build's reply has a `MAIN SESSION:` line, do what it says before you reply: the fork can't reach the app's PR tools. The UI check runs in `review`, on the `ui-check` agent.
 
+After a commit you make in this session at the owner's request, on a PR with a handoff: push, wait for CI on the new head, rewrite the handoff's `PR head` line and run `handoff-check … --verify-head`, before you end the turn (D27).
+
 ## Working agreements
 
 1. The owner makes every project decision: scope, architecture, product, priorities, wording. Recommend; never assume or decide.

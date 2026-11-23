@@ -148,6 +148,7 @@ test('a plan over 12k characters is valid with a warning; over 20k it is invalid
   const over = check(long(21000), ['--plan']);
   assert.strictEqual(over.code, 1);
   assert.match(over.out, /the budget is 20000/);
+  assert.match(over.out, /condense the done sub-phases to their commits/, 'G2 finding 1: the message says what to condense');
 });
 
 test('a UI sub-phase no longer has to name frontend-design (D27, #9 §30 X4)', () => {

@@ -41,12 +41,12 @@ test('H4: the commit passes once the doc is updated in it', () => {
   assert.strictEqual(commit(dir, 'git commit -m x'), null);
 });
 
-test('H4: the commit passes once the doc is acknowledged', () => {
+test('H4: an old ack line no longer silences the report (D27, X6)', () => {
   const dir = repo();
   write(dir, 'src/billing/Invoice.cs', 'v2');
   git(dir, 'add', '-A');
   write(dir, '.harness/work/42/stale-docs.md', 'ack: Docs/Billing.md — only a private helper changed\n');
-  assert.strictEqual(commit(dir, 'git commit -m x'), null);
+  assert.match(commit(dir, 'git commit -m x').report, /Docs\/Billing\.md/);
 });
 
 test('H4: `commit -a` also counts unstaged tracked changes', () => {
@@ -105,7 +105,7 @@ test('H5: reports a plan in progress, a ready handoff, and BLOCKED', () => {
   write(dir, '.harness/work/42/plan.md', '# Plan');
   assert.match(session(dir), /Plan for #42 in progress/);
   write(dir, '.harness/work/42/handoff.md', '# Handoff: #42\nStatus: READY\n');
-  assert.match(session(dir), /Handoff for #42 ready; the owner starts \/review/);
+  assert.match(session(dir), /Handoff for #42 ready; the owner runs \/review 42 on Opus/);
   write(dir, '.harness/work/42/BLOCKED', 'check: fast\nexit: 1\n');
   assert.match(session(dir), /#42 is BLOCKED on fast → owner decision/);
 });
@@ -119,6 +119,16 @@ test('H5: at startup it reports the plan and never tells the session to build; a
   assert.match(session(dir, 'clear'), /Plan for #42 accepted → Block B: invoke the build skill/);
   const r = run('hooks/session-state.cjs', [], { cwd: dir, input: '' });
   assert.doesNotMatch(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /invoke/, 'no input counts as startup');
+});
+
+test('H5: a light-lane plan never sends a cleared session to Block B (D27)', () => {
+  const dir = repo();
+  write(dir, '.harness/work/42/plan.md', '# Plan: #42 Fix a typo · Tier: Small · Lane: light\n');
+  for (const source of ['startup', 'clear']) {
+    const s = session(dir, source);
+    assert.doesNotMatch(s, /invoke the build/, source);
+    assert.match(s, /Light-lane plan for #42 .*\/close 42/, source);
+  }
 });
 
 test('H5: a state report is logged like the other hooks (#4)', () => {

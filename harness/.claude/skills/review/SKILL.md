@@ -6,7 +6,7 @@ argument-hint: <issue-number>
 
 # Review: Block C (gate G2)
 
-Issue: `$ARGUMENTS`. This session runs on Opus: on Standard the session that started the forked build, which stays near its start (D27); on Small the main session that ran plan mode, never the forked build (D22). If this session isn't on Opus, switch with `/model opus` first.
+Issue: `$ARGUMENTS`. This session runs on Opus: on Standard the session that started the forked build, which stays near its start (D27); on Small the main session that ran plan mode, never the forked build (D22). If this session isn't on Opus (the `opusplan` setting runs it on Sonnet outside plan mode), stop and ask the owner to run `/model opus`, then `/review <n>` again: G2 isn't triaged on Sonnet.
 
 ## 1. Check the input (refuse on failure)
 
@@ -68,8 +68,8 @@ Recommend **fix** or **decline**, with the reason, and name what would make a de
 ## 5. After the owner decides
 
 1. **Apply the approved fixes (D26):**
-   - **Here, in this session (D27):** doc and rule text (an approved rewording is committed in this PR, word for word), and code fixes of a few lines in one or two files. One commit: `fix: <summary> (#<n>)`. Push, wait for CI on the new head, and rewrite the handoff's `PR head` line before you end the turn. The same goes for a change the owner asks for here.
-   - **Through the builder:** multi-file code fixes, and new scope the owner approved. Don't build them in this session. Append `### <k>. G2 fixes` to `.harness/work/<n>/plan.md`, with `- Files:`, `- Change:` and `- Check:` for the approved fixes, and validate it with `handoff-check.cjs … --plan`. Rename `handoff.md` to `handoff-<k>.md`, so the finish guard waits for a new one. Then invoke the `build` skill with `<n> amend`. It builds on the forked Sonnet builder, pushes, waits for CI and writes the handoff for the new head. Check that handoff with `--verify-head`, as in step 1.
+   - **Here, in this session (D27):** doc and rule text (an approved rewording is committed in this PR, word for word), and code fixes of a few lines in one or two files. One commit: `fix: <summary> (#<n>)`. Push, wait for CI on the new head, rewrite the handoff's `PR head` line, and run `handoff-check … --verify-head` (it checks the required jobs by name), all before you end the turn. The same goes for a change the owner asks for here.
+   - **Through the builder:** multi-file code fixes, and new scope the owner approved. Don't build them in this session. Append `### <k>. G2 fixes` to `.harness/work/<n>/plan.md`, with `- Files:`, `- Change:` and `- Check:` for the approved fixes. If that takes the plan over 20,000 characters, condense the done sub-phases to their commits and the plan comment's link, without asking (D27). Validate it with `handoff-check.cjs … --plan`. Rename `handoff.md` to `handoff-<k>.md`, so the finish guard waits for a new one. Then invoke the `build` skill with `<n> amend`. It builds on the forked Sonnet builder, pushes, waits for CI and writes the handoff for the new head. Check that handoff with `--verify-head`, as in step 1.
    - The hooks and gates apply as in Block B.
 2. **Narrow re-review:** brief the `red-team` with the previous findings, the new SHA and the changed lines only. On a UI run, brief `ui-check` narrow too: the criteria the fixes touch and the pages their diff touches, reporting what it covered (D27). **Only one re-review.** What remains after it goes to a follow-up issue, unless the owner asks for another round. A blocking finding still needs the owner's explicit acceptance.
 3. **Reply to each review comment** with its fix or the reason it was declined, as the owner decided at G2.

@@ -14,21 +14,71 @@ function withoutHeredocBodies(command) {
   for (const line of command.split(/\r?\n/)) {
     if (until !== null) { if (line.trim() === until) until = null; continue; }
     out.push(line);
-    const m = line.match(/<<-?\s*(['"]?)([\w.-]+)\1/);
+    const m = line.match(/(?<!<)<<-?\s*(['"]?)([\w.-]+)\1/); // not a <<< here-string
     if (m) until = m[2];
   }
   return out.join('\n');
 }
 
-// The first `cat` that writes a file from stdin with nothing to read, or null.
+// Quoted text becomes one placeholder word (Q), so a separator or `cat > x` inside a commit message or an issue
+// body isn't read as a command. An escaped character outside quotes becomes "_". An unclosed quote runs to the end.
+function maskQuotes(text) {
+  let out = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '\\') { out += '_'; i++; continue; }
+    if (ch !== "'" && ch !== '"') { out += ch; continue; }
+    let j = i + 1;
+    while (j < text.length && text[j] !== ch) j += ch === '"' && text[j] === '\\' ? 2 : 1;
+    out += 'Q';
+    i = j;
+  }
+  return out;
+}
+
+// Simple commands, each with whether a pipe feeds it. Splits on ; & && || | |& newlines, ( ) { }, backticks
+// and $( ), so a cat inside a subshell, a group, an if or a command substitution is seen too.
+function segments(text) {
+  const out = [];
+  let cur = '', piped = false;
+  const end = nextPiped => { out.push({ text: cur, piped }); cur = ''; piped = nextPiped; };
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], two = text.slice(i, i + 2);
+    if (two === '&&' || two === '||') { end(false); i++; continue; }
+    if (two === '|&') { end(true); i++; continue; }
+    if (two === '$(') { end(false); i++; continue; }
+    if (ch === '|') { end(true); continue; }
+    if (ch === '&' && !/[<>]/.test(text[i - 1] || '') && text[i + 1] !== '>') { end(false); continue; }
+    if (';\n()`{}'.includes(ch)) { end(false); continue; }
+    cur += ch;
+  }
+  end(false);
+  return out;
+}
+
+const PREFIX = /^(?:!|then|do|else|elif|time|nohup|command|exec|env|sudo(?:\s+-\w+)*|\w+=\S*)\s+/;
+const REDIRECT = /(\d*|&)(>>|>\||>&|>|<<<|<<|<)\s*(\S*)/g;
+
+// The first `cat` that writes stdout somewhere while reading stdin with nothing to read, or null.
 function catWithNoInput(command) {
-  const text = withoutHeredocBodies(command);
-  for (const list of text.split(/&&|\|\||[;\n]/)) {
-    const first = list.split('|')[0].trim(); // a `cat` after a pipe has its input
-    const m = first.match(/^(?:\w+=\S+\s+)*cat\s+(?:\d?>>?|>>)\s*(\S+)/);
-    if (!m) continue;
-    if (/<</.test(first) || /(^|\s)\d?<(?!<)/.test(first.replace(/\d?>>?\s*\S+/g, ''))) continue; // heredoc or `< file`
-    return m[0];
+  for (const seg of segments(maskQuotes(withoutHeredocBodies(command)))) {
+    if (seg.piped) continue; // a cat after a pipe has its input
+    let s = seg.text.trim(), prev;
+    do { prev = s; s = s.replace(PREFIX, ''); } while (s !== prev);
+    if (!/^cat(?=[\s<>]|$)/.test(s)) continue;
+    const redirects = [...s.slice(3).matchAll(REDIRECT)];
+    const input = redirects.some(r => (r[1] === '' || r[1] === '0') && r[2].startsWith('<'));
+    const output = redirects.some(r => r[1] !== '' && r[1] !== '1' && r[1] !== '&' ? false : r[2].startsWith('>'));
+    if (input || !output) continue;
+    const words = s.slice(3).replace(REDIRECT, ' ').split(/\s+/).filter(Boolean);
+    let files = false, options = true;
+    for (const w of words) {
+      if (options && w === '--') { options = false; continue; }
+      if (w === '-') continue; // stdin, explicitly
+      if (options && w.startsWith('-')) continue;
+      files = true;
+    }
+    if (!files) return seg.text.trim();
   }
   return null;
 }

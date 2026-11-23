@@ -24,9 +24,13 @@ function stateLines(root, source) {
     } else if (fs.existsSync(handoff)) {
       lines.push(/^Status:\s*BLOCKED/m.test(fs.readFileSync(handoff, 'utf8'))
         ? `Handoff for #${n} is BLOCKED → owner decision`
-        : `Handoff for #${n} ready; the owner starts /review in a fresh Opus session`);
+        : `Handoff for #${n} ready; the owner runs /review ${n} on Opus (D27), or /close ${n} once the PR is merged`);
     } else if (fs.existsSync(path.join(d, 'plan.md'))) {
-      lines.push(source === 'clear'
+      // A light-lane plan (D27) has no build: the scope session makes the change, so a cleared session never builds it.
+      const light = /^#\s*Plan:.*Lane:\s*light\b/m.test(fs.readFileSync(path.join(d, 'plan.md'), 'utf8'));
+      lines.push(light
+        ? `Light-lane plan for #${n} (.harness/work/${n}/plan.md): no build; once its PR is merged, the owner runs /close ${n}`
+        : source === 'clear'
         ? `Plan for #${n} accepted → Block B: invoke the build skill with .harness/work/${n}/plan.md`
         : `Plan for #${n} in progress (.harness/work/${n}/plan.md); Block B runs only when the owner asks, so don't start it`);
     }

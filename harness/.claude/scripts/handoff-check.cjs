@@ -152,7 +152,8 @@ function run(root, file, { plan, verifyHead }) {
   const kind = plan ? 'plan' : 'handoff';
   const problems = plan ? checkPlan(cfg, text) : checkHandoff(root, cfg, text, { verifyHead });
   if (text.length > MAX_CHARS[kind])
-    problems.push(`${kind} is ${text.length} characters; the budget is ${MAX_CHARS[kind]} (≈ ${MAX_CHARS[kind] / 4} tokens, §5.2)`);
+    problems.push(`${kind} is ${text.length} characters; the budget is ${MAX_CHARS[kind]} (≈ ${MAX_CHARS[kind] / 4} tokens, §5.2)` +
+      (plan ? '. An amended plan: condense the done sub-phases to their commits and the plan comment\'s link, without asking (D27)' : ''));
   const warnings = plan && text.length > PLAN_TARGET && text.length <= MAX_CHARS.plan
     ? [`plan is ${text.length} characters, over the ${PLAN_TARGET} target (≈ ${PLAN_TARGET / 4} tokens); valid, but keep it lean`] : [];
   return { kind, problems, warnings };
