@@ -168,6 +168,8 @@ The skill must fit the 2.5k-token budget. The choices table is its core, and the
 
 ## Triage
 
+**2026-11-23:** the owner took R17-2. It rewrites ProdHarnessConfig#9 §1 as `/route <n>`, with §12, §17, §20 and §22 now reached through it. R17-1 (the effort trial) was not taken. Q2 stands as answered: no move.
+
 For the owner, before #9 and #8 are built:
 - **R17-1, an effort trial** for the builder, `ui-check` and the surveyor, after the reinstall: take it into #9 (beside §18), or not.
 - **R17-2, `/route`:** take it as a rewrite of #9 §1, folding the routing in §12, §17 and §22 into it, or not.
