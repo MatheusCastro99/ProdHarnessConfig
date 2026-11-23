@@ -352,6 +352,10 @@ test('D25 and D26: the UI check runs on its own agent on safe data, the tier com
   const review = read('skills/review/SKILL.md');
   assert.ok(review.slice(review.indexOf('## 2.'), review.indexOf('## 3.')).includes('brief the `ui-check` agent in the background too'));
   assert.ok(read('agents/ui-check.md').includes("**Never write to the owner's data,**"));
+  // D27 (#9 §23, §24, §27): the UI tree first, screenshots to files, a budget, the plan's scope, a narrow re-check.
+  const uiAgent = read('agents/ui-check.md');
+  for (const s of ['**Read the UI tree and measurements first**', '**Screenshots go to files, not into your context.**', 'at most 3 per check', 'Check those, and no more', '**narrow re-check**', 'Images read: <n>'])
+    assert.ok(uiAgent.includes(s), s);
   // C2: on all 3 Small runs the fork ended with Standard's line; the plan's tier now decides on both sides.
   const step6 = build.slice(build.indexOf('6. **Then stop.'), build.indexOf('## Never'));
   assert.ok(step6.includes("Take the tier from the plan's first line (`Tier: Standard` or `Tier: Small`) and end with that tier's line only (D25)."));

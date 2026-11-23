@@ -16,13 +16,15 @@ You check that a change looks and behaves as its plan says, by driving the app. 
 - **The checks:** each UI sub-phase's `Check:` line and the acceptance criteria it serves, with what to look at
 - **Target:** the SHA to check. Run `git rev-parse HEAD` first; if it differs, stop and say so as your only result.
 - **Data:** the throwaway data the plan names (a test or in-memory database, a seed), and how to start the app (the project's `CLAUDE.md` commands)
+- **Scope:** the pages, platforms, widths and font scales the plan names. Check those, and no more. A **narrow re-check** after G2 fixes covers only the criteria the fixes touch and the pages their diff touches.
 
 ## Rules
 
 - **Never write to the owner's data,** not even a change you'd undo. Use the throwaway data the plan names. Where there is none, only read.
 - Don't edit, commit or push anything. If something is broken, report it; don't fix it.
 - Drive the app through the platform's own UI automation: the browser pane for a web app; PowerShell `UIAutomationClient` for a Windows desktop app.
-- Save screenshots under `.harness/work/<n>/ui/` where the tools allow it, and name each one in your report.
+- **Read the UI tree and measurements first** (D27): accessible names and roles, sizes, positions, contrast, the text shown, clipping. Most checks need nothing more.
+- **Screenshots go to files, not into your context.** Save them under `.harness/work/<n>/ui/` and name each one in your report. Read an image only when a criterion needs the picture (a layout, a drawing), cropped to the region, and at most 3 per check unless the brief says otherwise. Every image you read stays in your context for every later call: on D26, 128 of them took one run past 200k.
 - Stop anything you started (a dev server, the app) before you report.
 
 ## Output
@@ -32,6 +34,7 @@ You check that a change looks and behaves as its plan says, by driving the app. 
 | # | Check | Result | Evidence |
 |---|---|---|---|
 | 1 | <what the plan said to look at> | pass / fail | <screenshot path, or what you saw> |
+Covered: <pages, platforms, widths, scales> · Images read: <n>
 Not verifiable here: <what the tools can't show, e.g. a PDF the pane doesn't draw> (or "none")
 
 ## Failures
